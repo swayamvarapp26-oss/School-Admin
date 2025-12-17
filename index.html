@@ -8,13 +8,12 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
-    <!-- EmailJS SDK -->
-    <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
     <style>
+        /* [ALL CSS STYLES REMAIN THE SAME AS BEFORE - NO CHANGES NEEDED] */
         * {
             margin: 0;
             padding: 0;
@@ -1297,7 +1296,6 @@
         // ============================
         
         // 1. FIREBASE CONFIGURATION
-        // REPLACE WITH YOUR ACTUAL FIREBASE CONFIG
         const firebaseConfig = {
             apiKey: "AIzaSyDcKkAf2SRmfiJizVA71fILOqRZTtUGAdY",
             authDomain: "schooladmin-51cdd.firebaseapp.com",
@@ -1309,21 +1307,10 @@
             measurementId: "G-V8C5DE930K"
         };
 
-        // 2. EMAILJS CONFIGURATION
-        // REPLACE WITH YOUR ACTUAL EMAILJS CREDENTIALS
-        const EMAILJS_CONFIG = {
-            PUBLIC_KEY: "D-8liyb21zvqmvhPc",      // Get from EmailJS Dashboard → Integration
-            SERVICE_ID: "service_u035226",      // Get from EmailJS → Email Services
-            TEMPLATE_ID: "template_xyk8468"     // Fixed: This should be your actual template ID, not the public key
-        };
-
         // Initialize Firebase
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
-        const database = firebase.database(); // Changed from Firestore to Realtime Database
-
-        // Initialize EmailJS
-        emailjs.init(EMAILJS_CONFIG.PUBLIC_KEY);
+        const database = firebase.database();
         
         // ============================
         // APPLICATION STATE
@@ -1340,7 +1327,7 @@
         const otpStorage = {};
 
         // ============================
-        // EMAILJS OTP FUNCTIONS
+        // DEVELOPMENT MODE OTP FUNCTIONS
         // ============================
 
         // Generate 6-digit OTP
@@ -1348,7 +1335,7 @@
             return Math.floor(100000 + Math.random() * 900000).toString();
         }
 
-        // Send OTP via EmailJS
+        // Send OTP - DEVELOPMENT MODE (FREE - shows in console/alert)
         async function sendOTPEmail(email, name, purpose = 'verification') {
             try {
                 // Generate OTP
@@ -1362,35 +1349,31 @@
                     timestamp: new Date().toISOString()
                 };
                 
-                // Prepare email parameters
-                const templateParams = {
-                    user_name: name || 'User',
-                    otp_code: otpCode,
-                    action_type: purpose === 'registration' ? 'account creation' : 'password reset',
-                    to_email: email,
-                    timestamp: new Date().toLocaleString(),
-                    school_name: 'School Admin System'
-                };
+                // DEVELOPMENT MODE: Show OTP in console and alert
+                console.log('='.repeat(50));
+                console.log('📧 OTP VERIFICATION - DEVELOPMENT MODE');
+                console.log('='.repeat(50));
+                console.log(`To: ${email}`);
+                console.log(`Name: ${name || 'User'}`);
+                console.log(`Purpose: ${purpose}`);
+                console.log(`OTP Code: ${otpCode}`);
+                console.log(`Expires: ${new Date(otpStorage[email].expires).toLocaleTimeString()}`);
+                console.log('='.repeat(50));
                 
-                // Send email using EmailJS
-                const response = await emailjs.send(
-                    EMAILJS_CONFIG.SERVICE_ID,
-                    EMAILJS_CONFIG.TEMPLATE_ID,
-                    templateParams
-                );
+                // Show OTP to user (for testing)
+                alert(`[DEVELOPMENT MODE]\n\n📧 Your OTP for ${purpose}: ${otpCode}\n\n📧 Email: ${email}\n⏰ Valid for 10 minutes\n\n⚠️ For testing only - check browser console for details`);
                 
-                console.log('✅ OTP email sent successfully:', response.status, response.text);
                 return {
                     success: true,
-                    message: 'OTP sent to your email! Please check your inbox.',
-                    otp: otpCode // For testing only
+                    message: 'OTP generated! Check the alert for your code.',
+                    otp: otpCode
                 };
                 
             } catch (error) {
-                console.error('❌ Failed to send OTP:', error);
+                console.error('❌ Error generating OTP:', error);
                 return {
                     success: false,
-                    message: 'Failed to send OTP. Please try again in a moment.'
+                    message: 'Failed to generate OTP. Please try again.'
                 };
             }
         }
@@ -1766,11 +1749,11 @@
             // Show loading
             const btn = registerBtn;
             const originalText = btn.innerHTML;
-            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending OTP...';
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Generating OTP...';
             btn.disabled = true;
             
             try {
-                // Send OTP via EmailJS
+                // Send OTP via Development Mode
                 const result = await sendOTPEmail(email, name, 'registration');
                 
                 if (result.success) {
@@ -1793,15 +1776,12 @@
                     // Start OTP timer
                     startOtpTimer('reg', email, name, 'registration');
                     
-                    // For testing only - log OTP to console
-                    console.log('📧 Test OTP for registration:', result.otp);
-                    
                 } else {
                     showError(result.message);
                 }
                 
             } catch (error) {
-                showError('Failed to send OTP. Please try again.');
+                showError('Failed to generate OTP. Please try again.');
                 console.error(error);
             } finally {
                 // Reset button
@@ -1903,7 +1883,7 @@
             // Show loading
             const btn = sendOtpBtn;
             const originalText = btn.innerHTML;
-            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending OTP...';
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Generating OTP...';
             btn.disabled = true;
             
             try {
@@ -1914,7 +1894,7 @@
                     return;
                 }
                 
-                // Send OTP via EmailJS
+                // Send OTP via Development Mode
                 const result = await sendOTPEmail(email, 'User', 'password_reset');
                 
                 if (result.success) {
@@ -1937,15 +1917,12 @@
                     // Start OTP timer
                     startOtpTimer('forgot', email, 'User', 'password_reset');
                     
-                    // For testing only - log OTP to console
-                    console.log('📧 Test OTP for password reset:', result.otp);
-                    
                 } else {
                     showError(result.message);
                 }
                 
             } catch (error) {
-                showError('Failed to send OTP. Please try again.');
+                showError('Failed to generate OTP. Please try again.');
                 console.error(error);
             } finally {
                 // Reset button
@@ -2056,7 +2033,7 @@
             const result = await resendOTP(email, name, 'registration');
             
             if (result.success) {
-                showSuccess('New OTP sent to your email!');
+                showSuccess('New OTP generated! Check the alert for your code.');
                 
                 // Restart timer
                 if (window.regTimer) {
@@ -2080,7 +2057,7 @@
             const result = await resendOTP(email, 'User', 'password_reset');
             
             if (result.success) {
-                showSuccess('New OTP sent to your email!');
+                showSuccess('New OTP generated! Check the alert for your code.');
                 
                 // Restart timer
                 if (window.forgotTimer) {
@@ -2943,4 +2920,4 @@
         }
     </script>
 </body>
-</html>
+    </html>
