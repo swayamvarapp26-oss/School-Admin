@@ -2,333 +2,2599 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>PhonePe QR Payment</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SCHOOL ADMIN - Management Portal</title>
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: system-ui, -apple-system, sans-serif; }
-        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        :root {
+            --primary: #2c3e50;
+            --primary-dark: #1a252f;
+            --secondary: #3498db;
+            --secondary-dark: #2980b9;
+            --success: #27ae60;
+            --warning: #f39c12;
+            --danger: #e74c3c;
+            --light: #ecf0f1;
+            --dark: #2c3e50;
+            --gray: #7f8c8d;
+            --light-gray: #bdc3c7;
+            --border-radius: 12px;
+            --box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s ease;
+        }
+
         body {
-            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
-            color: #fff;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
             min-height: 100vh;
-            padding: 10px;
-            font-size: 14px;
+            color: var(--dark);
+            overflow-x: hidden;
         }
-        
-        .container {
-            width: 100%;
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(8px);
-            border-radius: 12px;
-            padding: 15px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-        }
-        
-        header { text-align: center; margin-bottom: 15px; }
-        
-        .logo {
-            font-size: 1.5rem;
-            font-weight: bold;
-            margin-bottom: 5px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-        }
-        
-        .logo i { color: #5f0fff; font-size: 1.4rem; }
-        
-        .subtitle { font-size: 0.9rem; opacity: 0.9; margin-bottom: 3px; }
-        header p { font-size: 0.8rem; opacity: 0.8; }
-        
-        .content { display: flex; flex-direction: column; gap: 15px; }
-        
-        .qr-section {
-            background: white;
-            border-radius: 10px;
-            padding: 15px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            color: #333;
-        }
-        
-        .qr-container {
-            width: 160px;
-            height: 160px;
-            margin: 10px 0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        
-        .qr-code {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            border-radius: 8px;
-            background: #f5f5f5;
-        }
-        
-        .payment-info { text-align: center; margin: 10px 0; }
-        .payment-info h3 { color: #5f0fff; margin-bottom: 4px; font-size: 1rem; }
-        .payment-info p { font-size: 0.8rem; color: #666; }
-        
-        .name { font-weight: bold; font-size: 0.9rem; text-align: center; margin-top: 5px; }
-        .bank-details { font-size: 0.8rem; color: #666; text-align: center; }
-        
-        .payment-card {
-            background: rgba(255, 255, 255, 0.15);
-            border-radius: 10px;
-            padding: 15px;
-        }
-        
-        .payment-card h2 {
-            margin-bottom: 10px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-size: 1rem;
-        }
-        
-        .payment-card h2 i { color: #5f0fff; font-size: 0.9rem; }
-        .payment-card p { font-size: 0.8rem; margin-bottom: 10px; line-height: 1.3; }
-        
-        .form-group { margin-bottom: 10px; }
-        .form-group label { display: block; margin-bottom: 3px; font-weight: 500; font-size: 0.8rem; }
-        .form-group input {
-            width: 100%;
-            padding: 10px;
-            border: none;
-            border-radius: 8px;
-            background: rgba(255, 255, 255, 0.95);
-            font-size: 0.9rem;
-        }
-        
-        .btn {
-            background: #5f0fff;
+
+        /* Header */
+        .header {
+            background: linear-gradient(90deg, var(--primary) 0%, var(--primary-dark) 100%);
             color: white;
-            border: none;
-            padding: 12px;
-            border-radius: 8px;
-            font-size: 0.9rem;
+            padding: 20px 40px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .logo i {
+            font-size: 32px;
+            color: var(--secondary);
+        }
+
+        .logo h1 {
+            font-size: 28px;
+            font-weight: 700;
+        }
+
+        .logo span {
+            color: var(--secondary);
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .user-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--secondary) 0%, var(--secondary-dark) 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            font-weight: 700;
+            color: white;
+        }
+
+        .user-details h3 {
+            font-size: 18px;
             font-weight: 600;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 6px;
-            width: 100%;
         }
-        
-        .btn:active { background: #4a00e0; }
-        
-        ul { padding-left: 18px; margin-top: 8px; }
-        li { font-size: 0.75rem; margin-bottom: 5px; line-height: 1.2; }
-        
-        .video-container {
-            display: none;
-            margin-top: 15px;
-            text-align: center;
-            background: rgba(255, 255, 255, 0.15);
-            border-radius: 10px;
-            padding: 15px;
+
+        .user-details p {
+            font-size: 14px;
+            color: var(--light-gray);
         }
-        
-        .video-container h2 {
-            margin-bottom: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            font-size: 1rem;
-        }
-        
-        .video-player {
-            width: 100%;
-            height: 180px;
-            background: #000;
+
+        .logout-btn {
+            background-color: rgba(255, 255, 255, 0.1);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            padding: 10px 20px;
             border-radius: 8px;
-            margin-bottom: 10px;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 500;
+        }
+
+        .logout-btn:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+
+        /* Main Container */
+        .container {
+            display: flex;
+            min-height: calc(100vh - 100px);
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 280px;
+            background-color: white;
+            box-shadow: 5px 0 15px rgba(0, 0, 0, 0.05);
+            padding: 30px 0;
+            transition: var(--transition);
+        }
+
+        .nav-links {
+            list-style: none;
+        }
+
+        .nav-links li {
+            margin-bottom: 5px;
+        }
+
+        .nav-links a {
+            display: flex;
+            align-items: center;
+            padding: 18px 30px;
+            color: var(--dark);
+            text-decoration: none;
+            transition: var(--transition);
+            border-left: 5px solid transparent;
+            font-weight: 500;
+        }
+
+        .nav-links a:hover, .nav-links a.active {
+            background-color: rgba(52, 152, 219, 0.1);
+            color: var(--secondary);
+            border-left: 5px solid var(--secondary);
+        }
+
+        .nav-links i {
+            font-size: 20px;
+            margin-right: 15px;
+            width: 25px;
+        }
+
+        .nav-count {
+            background-color: var(--secondary);
+            color: white;
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            margin-left: auto;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            padding: 30px;
+            overflow-y: auto;
+        }
+
+        /* Dashboard Cards */
+        .dashboard-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+
+        .dashboard-card {
+            background-color: white;
+            border-radius: var(--border-radius);
+            padding: 30px;
+            box-shadow: var(--box-shadow);
+            transition: var(--transition);
+            position: relative;
             overflow: hidden;
         }
-        
-        .video-player iframe { width: 100%; height: 100%; border: none; }
-        
-        .video-loading {
+
+        .dashboard-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
+        }
+
+        .dashboard-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 5px;
+        }
+
+        .card-notices::before { background: linear-gradient(90deg, #3498db, #2ecc71); }
+        .card-teachers::before { background: linear-gradient(90deg, #9b59b6, #e74c3c); }
+        .card-students::before { background: linear-gradient(90deg, #f39c12, #d35400); }
+        .card-urgent::before { background: linear-gradient(90deg, #e74c3c, #c0392b); }
+
+        .card-icon {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
             display: flex;
-            flex-direction: column;
             align-items: center;
             justify-content: center;
-            height: 100%;
+            margin-bottom: 20px;
+            font-size: 30px;
             color: white;
         }
-        
-        .video-loading i {
-            font-size: 1.5rem;
+
+        .card-notices .card-icon { background: linear-gradient(135deg, #3498db, #2ecc71); }
+        .card-teachers .card-icon { background: linear-gradient(135deg, #9b59b6, #e74c3c); }
+        .card-students .card-icon { background: linear-gradient(135deg, #f39c12, #d35400); }
+        .card-urgent .card-icon { background: linear-gradient(135deg, #e74c3c, #c0392b); }
+
+        .dashboard-card h3 {
+            font-size: 16px;
+            color: var(--gray);
             margin-bottom: 10px;
-            color: #5f0fff;
-            animation: spin 1s linear infinite;
+            font-weight: 500;
         }
-        
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+
+        .dashboard-card .number {
+            font-size: 36px;
+            font-weight: 700;
+            color: var(--dark);
+            margin-bottom: 10px;
         }
-        
-        .download-link {
-            margin-top: 10px;
-            display: inline-block;
-            background: rgba(255, 255, 255, 0.2);
-            padding: 8px 12px;
-            border-radius: 6px;
-            text-decoration: none;
+
+        .dashboard-card .trend {
+            display: flex;
+            align-items: center;
+            font-size: 14px;
+            color: var(--gray);
+        }
+
+        .trend.up { color: var(--success); }
+        .trend.down { color: var(--danger); }
+
+        /* Content Sections */
+        .content-section {
+            background-color: white;
+            border-radius: var(--border-radius);
+            padding: 30px;
+            box-shadow: var(--box-shadow);
+            margin-bottom: 30px;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid var(--light);
+        }
+
+        .section-header h2 {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--dark);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .section-header h2 i {
+            color: var(--secondary);
+        }
+
+        /* Forms */
+        .form-container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: var(--dark);
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 15px;
+            border: 1px solid var(--light-gray);
+            border-radius: 8px;
+            font-size: 16px;
+            transition: var(--transition);
+        }
+
+        .form-control:focus {
+            border-color: var(--secondary);
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+            outline: none;
+        }
+
+        .textarea {
+            min-height: 150px;
+            resize: vertical;
+        }
+
+        .form-row {
+            display: flex;
+            gap: 20px;
+        }
+
+        .form-row .form-group {
+            flex: 1;
+        }
+
+        .form-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 15px;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid var(--light);
+        }
+
+        /* Buttons */
+        .btn {
+            padding: 14px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--secondary) 0%, var(--secondary-dark) 100%);
             color: white;
-            font-size: 0.8rem;
         }
-        
-        .download-link i { margin-right: 5px; }
-        .video-container p { font-size: 0.8rem; line-height: 1.3; }
-        
-        footer {
-            margin-top: 15px;
+
+        .btn-primary:hover {
+            background: linear-gradient(135deg, var(--secondary-dark) 0%, var(--secondary) 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(52, 152, 219, 0.3);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #27ae60 0%, #219653 100%);
+            color: white;
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+            color: white;
+        }
+
+        .btn-secondary {
+            background-color: var(--light);
+            color: var(--dark);
+        }
+
+        .btn-secondary:hover {
+            background-color: var(--light-gray);
+        }
+
+        .btn-sm {
+            padding: 8px 16px;
+            font-size: 14px;
+        }
+
+        .btn-block {
+            width: 100%;
+        }
+
+        /* Tables */
+        .table-container {
+            overflow-x: auto;
+            border-radius: 8px;
+            border: 1px solid var(--light);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 800px;
+        }
+
+        thead {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        th {
+            padding: 18px 15px;
+            text-align: left;
+            font-weight: 600;
+            font-size: 16px;
+        }
+
+        tbody tr {
+            border-bottom: 1px solid var(--light);
+            transition: var(--transition);
+        }
+
+        tbody tr:hover {
+            background-color: rgba(52, 152, 219, 0.05);
+        }
+
+        td {
+            padding: 18px 15px;
+            color: var(--dark);
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        /* Priority Badges */
+        .priority-badge {
+            padding: 6px 15px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 600;
+            display: inline-block;
+        }
+
+        .priority-high { background-color: rgba(231, 76, 60, 0.1); color: #e74c3c; }
+        .priority-medium { background-color: rgba(243, 156, 18, 0.1); color: #f39c12; }
+        .priority-low { background-color: rgba(52, 152, 219, 0.1); color: #3498db; }
+
+        /* Call Button */
+        .call-btn {
+            background-color: rgba(46, 204, 113, 0.1);
+            color: #27ae60;
+            border: 1px solid rgba(46, 204, 113, 0.3);
+            padding: 8px 16px;
+            border-radius: 6px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+            transition: var(--transition);
+        }
+
+        .call-btn:hover {
+            background-color: rgba(46, 204, 113, 0.2);
+            color: #219653;
+        }
+
+        /* Auth Screens */
+        .auth-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+        }
+
+        .auth-box {
+            background-color: white;
+            border-radius: 20px;
+            padding: 50px;
+            width: 100%;
+            max-width: 500px;
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.2);
+            animation: fadeInUp 0.8s ease;
+        }
+
+        .auth-header {
             text-align: center;
-            font-size: 0.7rem;
-            opacity: 0.8;
-            padding: 0 5px;
+            margin-bottom: 40px;
         }
-        
-        /* Very small phones */
-        @media (max-width: 320px) {
-            body { padding: 8px; font-size: 13px; }
-            .container { padding: 12px; }
-            .qr-container { width: 140px; height: 140px; }
-            .video-player { height: 150px; }
+
+        .auth-logo {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 20px;
         }
-        
-        /* Prevent zoom for better mobile UX */
-        * { -webkit-tap-highlight-color: transparent; }
-        input, button { -webkit-appearance: none; appearance: none; }
+
+        .auth-logo i {
+            font-size: 42px;
+            color: var(--secondary);
+        }
+
+        .auth-logo h1 {
+            font-size: 32px;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .auth-tabs {
+            display: flex;
+            margin-bottom: 30px;
+            border-bottom: 2px solid var(--light);
+        }
+
+        .auth-tab {
+            flex: 1;
+            text-align: center;
+            padding: 15px;
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--gray);
+            cursor: pointer;
+            transition: var(--transition);
+            border-bottom: 3px solid transparent;
+        }
+
+        .auth-tab.active {
+            color: var(--secondary);
+            border-bottom: 3px solid var(--secondary);
+        }
+
+        .auth-content {
+            display: none;
+        }
+
+        .auth-content.active {
+            display: block;
+        }
+
+        .otp-container {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 25px;
+        }
+
+        .otp-input {
+            flex: 1;
+            height: 60px;
+            text-align: center;
+            font-size: 24px;
+            font-weight: 700;
+            border: 2px solid var(--light-gray);
+            border-radius: 8px;
+            transition: var(--transition);
+        }
+
+        .otp-input:focus {
+            border-color: var(--secondary);
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+        }
+
+        .resend-otp {
+            text-align: center;
+            margin-top: 20px;
+            color: var(--gray);
+            font-size: 14px;
+        }
+
+        .resend-otp a {
+            color: var(--secondary);
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .auth-footer {
+            text-align: center;
+            margin-top: 30px;
+            color: var(--gray);
+            font-size: 14px;
+        }
+
+        /* Modals */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            z-index: 2000;
+            justify-content: center;
+            align-items: center;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .modal-content {
+            background-color: white;
+            border-radius: var(--border-radius);
+            padding: 40px;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
+            animation: slideInUp 0.4s ease;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--light);
+        }
+
+        .modal-header h3 {
+            font-size: 22px;
+            font-weight: 700;
+            color: var(--dark);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .close-modal {
+            background: none;
+            border: none;
+            font-size: 24px;
+            color: var(--gray);
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .close-modal:hover {
+            color: var(--danger);
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes slideInUp {
+            from {
+                opacity: 0;
+                transform: translateY(50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(52, 152, 219, 0.5); }
+            70% { box-shadow: 0 0 0 10px rgba(52, 152, 219, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(52, 152, 219, 0); }
+        }
+
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+
+        /* Responsive */
+        @media (max-width: 992px) {
+            .container {
+                flex-direction: column;
+            }
+            
+            .sidebar {
+                width: 100%;
+                padding: 20px 0;
+            }
+            
+            .nav-links {
+                display: flex;
+                overflow-x: auto;
+            }
+            
+            .nav-links li {
+                flex-shrink: 0;
+            }
+            
+            .nav-links a {
+                border-left: none;
+                border-bottom: 3px solid transparent;
+                padding: 15px 20px;
+            }
+            
+            .nav-links a:hover, .nav-links a.active {
+                border-left: none;
+                border-bottom: 3px solid var(--secondary);
+            }
+            
+            .form-row {
+                flex-direction: column;
+                gap: 0;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .header {
+                flex-direction: column;
+                gap: 20px;
+                padding: 20px;
+            }
+            
+            .dashboard-cards {
+                grid-template-columns: 1fr;
+            }
+            
+            .auth-box {
+                padding: 30px;
+            }
+            
+            .modal-content {
+                padding: 30px 20px;
+            }
+        }
     </style>
 </head>
 <body>
-    <div class="container">
-        <header>
-            <div class="logo"><i class="fas fa-mobile-alt"></i>PhonePe</div>
-            <p class="subtitle">ACCEPTED HERE</p>
-            <p>Scan & Pay Using PhonePe App</p>
-        </header>
-
-        <div class="content">
-            <div class="qr-section">
-                <div class="payment-info">
-                    <h3>Pay ₹10 via QR Code</h3>
-                    <p>Scan QR code with PhonePe app</p>
+    <!-- Auth Screens -->
+    <div class="auth-container" id="authContainer">
+        <div class="auth-box">
+            <div class="auth-header">
+                <div class="auth-logo">
+                    <i class="fas fa-user-shield"></i>
+                    <h1>SCHOOL <span>ADMIN</span></h1>
                 </div>
-                
-                <div class="qr-container">
-                    <img src="https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=upi://pay?pa=PAPPUKUMARGOND@ybl&pn=PAPPU%20KUMAR%20GOND&am=10&cu=INR" 
-                         alt="QR Code"
-                         class="qr-code">
-                </div>
-                
-                <div class="name">PAY ₹10</div>
-                <div class="bank-details">State Bank of India</div>
+                <p>School Administration Management Portal</p>
             </div>
-
-            <div class="payment-card">
-                <h2><i class="fas fa-rupee-sign"></i> Payment Confirmation</h2>
-                <p>After payment of ₹10, enter UTR number:</p>
+            
+            <div class="auth-tabs">
+                <div class="auth-tab active" data-tab="login">Login</div>
+                <div class="auth-tab" data-tab="register">Create Account</div>
+                <div class="auth-tab" data-tab="forgot">Reset Password</div>
+            </div>
+            
+            <!-- Login Tab -->
+            <div class="auth-content active" id="loginTab">
+                <div class="form-group">
+                    <label>Email Address</label>
+                    <input type="email" id="loginEmail" class="form-control" placeholder="admin@school.com" value="admin@school.com">
+                </div>
                 
                 <div class="form-group">
-                    <label for="utr">UTR Number</label>
-                    <input type="text" id="utr" placeholder="Enter 12-digit UTR" inputmode="numeric">
+                    <label>Password</label>
+                    <input type="password" id="loginPassword" class="form-control" placeholder="Enter password" value="admin123">
                 </div>
                 
-                <button class="btn" id="submitBtn">
-                    <i class="fas fa-paper-plane"></i> Submit UTR & Unlock Video
+                <div class="form-group" style="text-align: right;">
+                    <a href="#" class="forgot-password-link" style="color: var(--secondary); text-decoration: none; font-size: 14px;">
+                        Forgot Password?
+                    </a>
+                </div>
+                
+                <button class="btn btn-primary btn-block" id="loginBtn">
+                    <i class="fas fa-sign-in-alt"></i> Login to Admin Panel
+                </button>
+                
+                <div class="auth-footer">
+                    <p>Default Admin Credentials: admin@school.com / admin123</p>
+                </div>
+            </div>
+            
+            <!-- Register Tab -->
+            <div class="auth-content" id="registerTab">
+                <div class="form-group">
+                    <label>Full Name</label>
+                    <input type="text" id="regName" class="form-control" placeholder="Enter your full name">
+                </div>
+                
+                <div class="form-group">
+                    <label>Email Address</label>
+                    <input type="email" id="regEmail" class="form-control" placeholder="Enter your school email">
+                </div>
+                
+                <div class="form-group">
+                    <label>Create Password</label>
+                    <input type="password" id="regPassword" class="form-control" placeholder="Create a strong password">
+                </div>
+                
+                <div class="form-group">
+                    <label>Confirm Password</label>
+                    <input type="password" id="regConfirmPassword" class="form-control" placeholder="Confirm your password">
+                </div>
+                
+                <button class="btn btn-success btn-block" id="registerBtn">
+                    <i class="fas fa-user-plus"></i> Create Admin Account
+                </button>
+                
+                <div class="otp-container" id="regOtpContainer" style="display: none;">
+                    <input type="text" class="otp-input" maxlength="1">
+                    <input type="text" class="otp-input" maxlength="1">
+                    <input type="text" class="otp-input" maxlength="1">
+                    <input type="text" class="otp-input" maxlength="1">
+                    <input type="text" class="otp-input" maxlength="1">
+                    <input type="text" class="otp-input" maxlength="1">
+                </div>
+                
+                <div class="resend-otp" id="regResendOtp" style="display: none;">
+                    <p>Didn't receive OTP? <a href="#" id="regResendLink">Resend OTP</a></p>
+                    <p id="regOtpTimer" style="color: var(--danger); font-weight: 600;"></p>
+                </div>
+                
+                <button class="btn btn-primary btn-block" id="verifyRegOtpBtn" style="display: none;">
+                    <i class="fas fa-check-circle"></i> Verify OTP & Complete Registration
                 </button>
             </div>
             
-            <div class="payment-card">
-                <h2><i class="fas fa-info-circle"></i> Instructions</h2>
-                <ul>
-                    <li>Scan QR code with PhonePe app</li>
-                    <li>Pay exactly ₹10 to the account</li>
-                    <li>Find UTR in transaction history</li>
-                    <li>Enter 12-digit UTR and submit</li>
-                    <li>Video unlocks after verification</li>
-                </ul>
-            </div>
-        </div>
-
-        <div class="video-container" id="videoContainer">
-            <h2><i class="fas fa-video"></i> Video Unlocked!</h2>
-            <div class="video-player" id="videoPlayer">
-                <div class="video-loading">
-                    <i class="fas fa-spinner"></i>
-                    <p>Loading video...</p>
+            <!-- Forgot Password Tab -->
+            <div class="auth-content" id="forgotTab">
+                <div class="form-group">
+                    <label>Email Address</label>
+                    <input type="email" id="forgotEmail" class="form-control" placeholder="Enter your registered email">
+                </div>
+                
+                <button class="btn btn-primary btn-block" id="sendOtpBtn">
+                    <i class="fas fa-paper-plane"></i> Send OTP to Email
+                </button>
+                
+                <div class="otp-container" id="forgotOtpContainer" style="display: none; margin-top: 30px;">
+                    <input type="text" class="otp-input" maxlength="1">
+                    <input type="text" class="otp-input" maxlength="1">
+                    <input type="text" class="otp-input" maxlength="1">
+                    <input type="text" class="otp-input" maxlength="1">
+                    <input type="text" class="otp-input" maxlength="1">
+                    <input type="text" class="otp-input" maxlength="1">
+                </div>
+                
+                <div class="resend-otp" id="forgotResendOtp" style="display: none;">
+                    <p>Didn't receive OTP? <a href="#" id="forgotResendLink">Resend OTP</a></p>
+                    <p id="forgotOtpTimer" style="color: var(--danger); font-weight: 600;"></p>
+                </div>
+                
+                <button class="btn btn-success btn-block" id="verifyOtpBtn" style="display: none;">
+                    <i class="fas fa-check-circle"></i> Verify OTP
+                </button>
+                
+                <div id="resetPasswordForm" style="display: none;">
+                    <div class="form-group">
+                        <label>New Password</label>
+                        <input type="password" id="newPassword" class="form-control" placeholder="Enter new password">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Confirm New Password</label>
+                        <input type="password" id="confirmNewPassword" class="form-control" placeholder="Confirm new password">
+                    </div>
+                    
+                    <button class="btn btn-primary btn-block" id="resetPasswordBtn">
+                        <i class="fas fa-key"></i> Reset Password
+                    </button>
                 </div>
             </div>
-            <p>Thank you for your payment! Enjoy this content.</p>
-            <a href="https://drive.google.com/uc?export=download&id=1oHKp4gAU0sy-2F3McSiCCwHi9u00dWxQ" 
-               class="download-link" 
-               target="_blank">
-                <i class="fas fa-download"></i> Download Video
-            </a>
         </div>
     </div>
-
-    <footer>
-        <p>© 2025 PhonePe Ltd</p>
-        <p>(Formerly 'PhonePe Private Ltd')</p>
-    </footer>
-
+    
+    <!-- Main Admin Panel -->
+    <div id="adminPanel" style="display: none;">
+        <!-- Header -->
+        <header class="header">
+            <div class="logo">
+                <i class="fas fa-user-shield"></i>
+                <h1>SCHOOL <span>ADMIN</span></h1>
+            </div>
+            
+            <div class="user-info">
+                <div class="user-avatar" id="adminAvatar">A</div>
+                <div class="user-details">
+                    <h3 id="adminName">Admin User</h3>
+                    <p id="adminEmail">admin@school.com</p>
+                </div>
+                <button class="logout-btn" id="logoutBtn">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </button>
+            </div>
+        </header>
+        
+        <!-- Main Container -->
+        <div class="container">
+            <!-- Sidebar -->
+            <aside class="sidebar">
+                <ul class="nav-links">
+                    <li>
+                        <a href="#" class="active" data-section="dashboard">
+                            <i class="fas fa-tachometer-alt"></i>
+                            <span>Dashboard</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" data-section="sendNotice">
+                            <i class="fas fa-bullhorn"></i>
+                            <span>Send Notice</span>
+                            <span class="nav-count" id="noticeCount">0</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" data-section="manageNotices">
+                            <i class="fas fa-clipboard-list"></i>
+                            <span>Manage Notices</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" data-section="manageTeachers">
+                            <i class="fas fa-chalkboard-teacher"></i>
+                            <span>Manage Teachers</span>
+                            <span class="nav-count" id="teacherCount">0</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" data-section="settings">
+                            <i class="fas fa-cog"></i>
+                            <span>Settings</span>
+                        </a>
+                    </li>
+                </ul>
+            </aside>
+            
+            <!-- Main Content -->
+            <main class="main-content">
+                <!-- Dashboard Section -->
+                <div class="content-section active" id="dashboardSection">
+                    <div class="section-header">
+                        <h2><i class="fas fa-tachometer-alt"></i> Admin Dashboard</h2>
+                        <p id="currentDate">Loading date...</p>
+                    </div>
+                    
+                    <div class="dashboard-cards">
+                        <div class="dashboard-card card-notices">
+                            <div class="card-icon">
+                                <i class="fas fa-bullhorn"></i>
+                            </div>
+                            <h3>Total Notices</h3>
+                            <div class="number" id="totalNoticesCount">0</div>
+                            <div class="trend up">
+                                <i class="fas fa-arrow-up"></i>
+                                <span>5 sent this week</span>
+                            </div>
+                        </div>
+                        
+                        <div class="dashboard-card card-teachers">
+                            <div class="card-icon">
+                                <i class="fas fa-chalkboard-teacher"></i>
+                            </div>
+                            <h3>Teachers</h3>
+                            <div class="number" id="totalTeachersCount">0</div>
+                            <div class="trend up">
+                                <i class="fas fa-arrow-up"></i>
+                                <span>2 new this month</span>
+                            </div>
+                        </div>
+                        
+                        <div class="dashboard-card card-students">
+                            <div class="card-icon">
+                                <i class="fas fa-user-graduate"></i>
+                            </div>
+                            <h3>Students (App Users)</h3>
+                            <div class="number" id="totalStudentsCount">0</div>
+                            <div class="trend up">
+                                <i class="fas fa-arrow-up"></i>
+                                <span>45 active today</span>
+                            </div>
+                        </div>
+                        
+                        <div class="dashboard-card card-urgent">
+                            <div class="card-icon">
+                                <i class="fas fa-exclamation-triangle"></i>
+                            </div>
+                            <h3>Urgent Notices</h3>
+                            <div class="number" id="urgentNoticesCount">0</div>
+                            <div class="trend down">
+                                <i class="fas fa-arrow-down"></i>
+                                <span>1 resolved</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="section-header">
+                        <h2><i class="fas fa-history"></i> Recent Activity</h2>
+                    </div>
+                    
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Date & Time</th>
+                                    <th>Activity</th>
+                                    <th>Details</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="activityLog">
+                                <!-- Activity log will be populated here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                
+                <!-- Send Notice Section -->
+                <div class="content-section" id="sendNoticeSection" style="display: none;">
+                    <div class="section-header">
+                        <h2><i class="fas fa-bullhorn"></i> Send New Notice</h2>
+                        <p>Notices will be sent to Teachers & Students apps</p>
+                    </div>
+                    
+                    <div class="form-container">
+                        <div class="form-group">
+                            <label for="noticeTitle">Notice Title *</label>
+                            <input type="text" id="noticeTitle" class="form-control" placeholder="Enter notice title">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="noticeContent">Notice Content *</label>
+                            <textarea id="noticeContent" class="form-control textarea" placeholder="Enter notice content..."></textarea>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="noticePriority">Priority Level</label>
+                                <select id="noticePriority" class="form-control">
+                                    <option value="low">Low Priority</option>
+                                    <option value="medium">Medium Priority</option>
+                                    <option value="high">High Priority</option>
+                                </select>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="noticeCategory">Category</label>
+                                <select id="noticeCategory" class="form-control">
+                                    <option value="general">General Announcement</option>
+                                    <option value="academic">Academic</option>
+                                    <option value="exam">Exam Related</option>
+                                    <option value="event">School Event</option>
+                                    <option value="holiday">Holiday</option>
+                                    <option value="urgent">Urgent</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Send To *</label>
+                            <div style="display: flex; gap: 30px; margin-top: 10px;">
+                                <div style="display: flex; align-items: center; gap: 8px;">
+                                    <input type="checkbox" id="sendToTeachers" checked>
+                                    <label for="sendToTeachers">All Teachers</label>
+                                </div>
+                                <div style="display: flex; align-items: center; gap: 8px;">
+                                    <input type="checkbox" id="sendToStudents" checked>
+                                    <label for="sendToStudents">All Students</label>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="form-actions">
+                            <button type="button" class="btn btn-secondary" id="saveDraftBtn">
+                                <i class="fas fa-save"></i> Save as Draft
+                            </button>
+                            <button type="button" class="btn btn-primary pulse" id="sendNoticeBtn">
+                                <i class="fas fa-paper-plane"></i> Send Notice
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Manage Notices Section -->
+                <div class="content-section" id="manageNoticesSection" style="display: none;">
+                    <div class="section-header">
+                        <h2><i class="fas fa-clipboard-list"></i> Manage Notices</h2>
+                        <button class="btn btn-primary" id="refreshNoticesBtn">
+                            <i class="fas fa-sync-alt"></i> Refresh
+                        </button>
+                    </div>
+                    
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Title</th>
+                                    <th>Category</th>
+                                    <th>Priority</th>
+                                    <th>Date</th>
+                                    <th>Sent To</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="noticesTableBody">
+                                <!-- Notices will be populated here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                
+                <!-- Manage Teachers Section -->
+                <div class="content-section" id="manageTeachersSection" style="display: none;">
+                    <div class="section-header">
+                        <h2><i class="fas fa-chalkboard-teacher"></i> Manage Teachers</h2>
+                        <button class="btn btn-success" id="addTeacherBtn">
+                            <i class="fas fa-plus"></i> Add Teacher
+                        </button>
+                    </div>
+                    
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Subject</th>
+                                    <th>Phone Number</th>
+                                    <th>Email</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="teachersTableBody">
+                                <!-- Teachers will be populated here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                
+                <!-- Settings Section -->
+                <div class="content-section" id="settingsSection" style="display: none;">
+                    <div class="section-header">
+                        <h2><i class="fas fa-cog"></i> Settings</h2>
+                    </div>
+                    
+                    <div class="form-container">
+                        <div class="form-group">
+                            <h3 style="margin-bottom: 20px; color: var(--primary);">
+                                <i class="fas fa-user-circle"></i> Account Settings
+                            </h3>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Full Name</label>
+                            <input type="text" id="settingsName" class="form-control" value="Admin User">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Email Address</label>
+                            <input type="email" id="settingsEmail" class="form-control" value="admin@school.com" disabled>
+                        </div>
+                        
+                        <div class="form-actions">
+                            <button type="button" class="btn btn-primary" id="updateProfileBtn">
+                                <i class="fas fa-save"></i> Update Profile
+                            </button>
+                        </div>
+                        
+                        <div class="form-group" style="margin-top: 40px;">
+                            <h3 style="margin-bottom: 20px; color: var(--primary);">
+                                <i class="fas fa-key"></i> Change Password
+                            </h3>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Current Password</label>
+                            <input type="password" id="currentPassword" class="form-control" placeholder="Enter current password">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>New Password</label>
+                            <input type="password" id="settingsNewPassword" class="form-control" placeholder="Enter new password">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Confirm New Password</label>
+                            <input type="password" id="settingsConfirmPassword" class="form-control" placeholder="Confirm new password">
+                        </div>
+                        
+                        <div class="form-actions">
+                            <button type="button" class="btn btn-primary" id="changePasswordBtn">
+                                <i class="fas fa-key"></i> Change Password
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+    
+    <!-- Add Teacher Modal -->
+    <div class="modal" id="addTeacherModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="fas fa-user-plus"></i> Add New Teacher</h3>
+                <button class="close-modal" id="closeTeacherModal">&times;</button>
+            </div>
+            
+            <div class="form-group">
+                <label>Full Name *</label>
+                <input type="text" id="teacherName" class="form-control" placeholder="Enter teacher's full name">
+            </div>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Subject *</label>
+                    <input type="text" id="teacherSubject" class="form-control" placeholder="e.g., Mathematics">
+                </div>
+                
+                <div class="form-group">
+                    <label>Grade/Class</label>
+                    <input type="text" id="teacherGrade" class="form-control" placeholder="e.g., Grade 10">
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label>Phone Number *</label>
+                <input type="tel" id="teacherPhone" class="form-control" placeholder="+91 9876543210">
+            </div>
+            
+            <div class="form-group">
+                <label>Email Address</label>
+                <input type="email" id="teacherEmail" class="form-control" placeholder="teacher@school.com">
+            </div>
+            
+            <div class="form-actions">
+                <button type="button" class="btn btn-secondary" id="cancelTeacherBtn">Cancel</button>
+                <button type="button" class="btn btn-success" id="saveTeacherBtn">
+                    <i class="fas fa-save"></i> Save Teacher
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Delete Confirmation Modal -->
+    <div class="modal" id="deleteModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="fas fa-exclamation-triangle" style="color: var(--danger);"></i> Confirm Delete</h3>
+                <button class="close-modal" id="closeDeleteModal">&times;</button>
+            </div>
+            
+            <div class="form-group">
+                <p id="deleteMessage">Are you sure you want to delete this item? This action cannot be undone.</p>
+            </div>
+            
+            <div class="form-actions">
+                <button type="button" class="btn btn-secondary" id="cancelDeleteBtn">Cancel</button>
+                <button type="button" class="btn btn-danger" id="confirmDeleteBtn">
+                    <i class="fas fa-trash"></i> Delete
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Success Message -->
+    <div id="successMessage" style="display: none; position: fixed; bottom: 30px; right: 30px; background: var(--success); color: white; padding: 20px; border-radius: 8px; box-shadow: 0 5px 15px rgba(0,0,0,0.2); z-index: 3000;">
+        <div style="display: flex; align-items: center; gap: 15px;">
+            <i class="fas fa-check-circle" style="font-size: 24px;"></i>
+            <div>
+                <h4 style="margin-bottom: 5px;">Success!</h4>
+                <p id="successText">Operation completed successfully.</p>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Firebase Configuration and App Logic -->
     <script>
-        document.getElementById('submitBtn').addEventListener('click', function() {
-            const utr = document.getElementById('utr').value.trim();
+        // Firebase Configuration (Replace with your actual Firebase config)
+      const firebaseConfig = {
+  apiKey: "AIzaSyDcKkAf2SRmfiJizVA71fILOqRZTtUGAdY",
+  authDomain: "schooladmin-51cdd.firebaseapp.com",
+  databaseURL: "https://schooladmin-51cdd-default-rtdb.firebaseio.com",
+  projectId: "schooladmin-51cdd",
+  storageBucket: "schooladmin-51cdd.firebasestorage.app",
+  messagingSenderId: "185301938780",
+  appId: "1:185301938780:web:bdeaabff3c7d2bff2bac99",
+  measurementId: "G-V8C5DE930K"
+};
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+
+        // Application State
+        let currentUser = null;
+        let currentAdmin = null;
+        let notices = [];
+        let teachers = [];
+        let activityLog = [];
+        let itemToDelete = null;
+        let deleteType = null;
+
+        // DOM Elements
+        const authContainer = document.getElementById('authContainer');
+        const adminPanel = document.getElementById('adminPanel');
+        const adminName = document.getElementById('adminName');
+        const adminEmail = document.getElementById('adminEmail');
+        const adminAvatar = document.getElementById('adminAvatar');
+        
+        // Auth Elements
+        const authTabs = document.querySelectorAll('.auth-tab');
+        const authContents = document.querySelectorAll('.auth-content');
+        const loginBtn = document.getElementById('loginBtn');
+        const registerBtn = document.getElementById('registerBtn');
+        const sendOtpBtn = document.getElementById('sendOtpBtn');
+        const verifyOtpBtn = document.getElementById('verifyOtpBtn');
+        const resetPasswordBtn = document.getElementById('resetPasswordBtn');
+        const verifyRegOtpBtn = document.getElementById('verifyRegOtpBtn');
+        
+        // Navigation
+        const navLinks = document.querySelectorAll('.nav-links a');
+        const contentSections = document.querySelectorAll('.content-section');
+        
+        // Dashboard Elements
+        const totalNoticesCount = document.getElementById('totalNoticesCount');
+        const totalTeachersCount = document.getElementById('totalTeachersCount');
+        const totalStudentsCount = document.getElementById('totalStudentsCount');
+        const urgentNoticesCount = document.getElementById('urgentNoticesCount');
+        const noticeCount = document.getElementById('noticeCount');
+        const teacherCount = document.getElementById('teacherCount');
+        const activityLogTable = document.getElementById('activityLog');
+        const currentDateElement = document.getElementById('currentDate');
+        
+        // Notice Elements
+        const sendNoticeBtn = document.getElementById('sendNoticeBtn');
+        const saveDraftBtn = document.getElementById('saveDraftBtn');
+        const refreshNoticesBtn = document.getElementById('refreshNoticesBtn');
+        const noticesTableBody = document.getElementById('noticesTableBody');
+        
+        // Teacher Elements
+        const addTeacherBtn = document.getElementById('addTeacherBtn');
+        const teachersTableBody = document.getElementById('teachersTableBody');
+        const saveTeacherBtn = document.getElementById('saveTeacherBtn');
+        const cancelTeacherBtn = document.getElementById('cancelTeacherBtn');
+        
+        // Modal Elements
+        const addTeacherModal = document.getElementById('addTeacherModal');
+        const deleteModal = document.getElementById('deleteModal');
+        const closeTeacherModal = document.getElementById('closeTeacherModal');
+        const closeDeleteModal = document.getElementById('closeDeleteModal');
+        const cancelDeleteBtn = document.getElementById('cancelDeleteBtn');
+        const confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
+        
+        // Settings Elements
+        const updateProfileBtn = document.getElementById('updateProfileBtn');
+        const changePasswordBtn = document.getElementById('changePasswordBtn');
+        const logoutBtn = document.getElementById('logoutBtn');
+        
+        // Success Message
+        const successMessage = document.getElementById('successMessage');
+        const successText = document.getElementById('successText');
+
+        // Initialize Application
+        document.addEventListener('DOMContentLoaded', function() {
+            // Set current date
+            const now = new Date();
+            currentDateElement.textContent = now.toLocaleDateString('en-US', { 
+                weekday: 'long', 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric' 
+            });
             
-            if (!utr) {
-                alert('Please enter UTR number');
-                return;
-            }
+            // Set up event listeners
+            setupEventListeners();
             
-            if (!/^\d{12}$/.test(utr)) {
-                alert('Enter valid 12-digit UTR');
-                return;
-            }
+            // Check if user is already logged in
+            checkAuthState();
             
-            this.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Verifying...';
-            this.disabled = true;
-            
-            setTimeout(() => {
-                document.getElementById('videoContainer').style.display = 'block';
-                loadVideo();
-                
-                this.innerHTML = '<i class="fas fa-check"></i> Verified!';
-                this.style.background = '#28a745';
-                
-                document.getElementById('videoContainer').scrollIntoView({ 
-                    behavior: 'smooth',
-                    block: 'start'
+            // Load sample data for demo
+            loadSampleData();
+        });
+
+        // Event Listeners Setup
+        function setupEventListeners() {
+            // Auth Tab Switching
+            authTabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    const tabId = tab.dataset.tab;
+                    
+                    // Update active tab
+                    authTabs.forEach(t => t.classList.remove('active'));
+                    tab.classList.add('active');
+                    
+                    // Show corresponding content
+                    authContents.forEach(content => {
+                        content.classList.remove('active');
+                        if (content.id === tabId + 'Tab') {
+                            content.classList.add('active');
+                        }
+                    });
                 });
-            }, 1000);
-        });
-        
-        function loadVideo() {
-            const videoUrl = "https://drive.google.com/file/d/1oHKp4gAU0sy-2F3McSiCCwHi9u00dWxQ/preview";
-            const videoPlayer = document.getElementById('videoPlayer');
+            });
+
+            // Forgot password link
+            document.querySelector('.forgot-password-link').addEventListener('click', (e) => {
+                e.preventDefault();
+                authTabs.forEach(t => t.classList.remove('active'));
+                document.querySelector('.auth-tab[data-tab="forgot"]').classList.add('active');
+                authContents.forEach(content => content.classList.remove('active'));
+                document.getElementById('forgotTab').classList.add('active');
+            });
+
+            // Login
+            loginBtn.addEventListener('click', handleLogin);
             
-            videoPlayer.innerHTML = `<iframe src="${videoUrl}" allow="autoplay; fullscreen" allowfullscreen title="Video"></iframe>`;
+            // Register
+            registerBtn.addEventListener('click', handleRegister);
+            
+            // Send OTP for password reset
+            sendOtpBtn.addEventListener('click', handleSendOtp);
+            
+            // Verify OTP for password reset
+            verifyOtpBtn.addEventListener('click', handleVerifyOtp);
+            
+            // Reset Password
+            resetPasswordBtn.addEventListener('click', handleResetPassword);
+            
+            // Verify OTP for registration
+            verifyRegOtpBtn.addEventListener('click', handleVerifyRegOtp);
+            
+            // Resend OTP links
+            document.getElementById('regResendLink')?.addEventListener('click', handleResendRegOtp);
+            document.getElementById('forgotResendLink')?.addEventListener('click', handleResendForgotOtp);
+
+            // Navigation
+            navLinks.forEach(link => {
+                link.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    
+                    // Update active nav
+                    navLinks.forEach(l => l.classList.remove('active'));
+                    link.classList.add('active');
+                    
+                    // Show corresponding section
+                    const sectionId = link.dataset.section + 'Section';
+                    contentSections.forEach(section => {
+                        section.style.display = 'none';
+                        if (section.id === sectionId) {
+                            section.style.display = 'block';
+                        }
+                    });
+                    
+                    // Load section data if needed
+                    if (sectionId === 'manageNoticesSection') {
+                        loadNoticesTable();
+                    } else if (sectionId === 'manageTeachersSection') {
+                        loadTeachersTable();
+                    }
+                });
+            });
+
+            // Notice Management
+            sendNoticeBtn.addEventListener('click', sendNotice);
+            saveDraftBtn.addEventListener('click', saveNoticeAsDraft);
+            refreshNoticesBtn.addEventListener('click', loadNoticesTable);
+
+            // Teacher Management
+            addTeacherBtn.addEventListener('click', () => {
+                document.getElementById('addTeacherModal').style.display = 'flex';
+            });
+            
+            saveTeacherBtn.addEventListener('click', saveTeacher);
+            cancelTeacherBtn.addEventListener('click', () => {
+                document.getElementById('addTeacherModal').style.display = 'none';
+                clearTeacherForm();
+            });
+            
+            closeTeacherModal.addEventListener('click', () => {
+                document.getElementById('addTeacherModal').style.display = 'none';
+                clearTeacherForm();
+            });
+
+            // Modal Controls
+            closeDeleteModal.addEventListener('click', () => {
+                document.getElementById('deleteModal').style.display = 'none';
+            });
+            
+            cancelDeleteBtn.addEventListener('click', () => {
+                document.getElementById('deleteModal').style.display = 'none';
+                itemToDelete = null;
+                deleteType = null;
+            });
+            
+            confirmDeleteBtn.addEventListener('click', confirmDelete);
+
+            // Settings
+            updateProfileBtn.addEventListener('click', updateProfile);
+            changePasswordBtn.addEventListener('click', changePassword);
+            logoutBtn.addEventListener('click', handleLogout);
+
+            // OTP Input Handling
+            setupOtpInputs();
         }
-        
-        document.getElementById('utr').addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') document.getElementById('submitBtn').click();
-        });
-        
-        // Auto-focus on UTR input
-        setTimeout(() => document.getElementById('utr').focus(), 500);
+
+        // Firebase Authentication Functions
+        function checkAuthState() {
+            // For demo purposes, we'll simulate checking auth state
+            // In real implementation, use: auth.onAuthStateChanged(user => {...})
+            
+            // Check if user is stored in localStorage (for demo)
+            const storedUser = localStorage.getItem('schoolAdminUser');
+            if (storedUser) {
+                currentUser = JSON.parse(storedUser);
+                showAdminPanel();
+            }
+        }
+
+        function handleLogin() {
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+            
+            if (!email || !password) {
+                showError('Please enter email and password');
+                return;
+            }
+            
+            // For demo - simulate Firebase auth
+            if (email === 'admin@school.com' && password === 'admin123') {
+                currentUser = {
+                    uid: 'admin001',
+                    email: email,
+                    displayName: 'Admin User',
+                    photoURL: null
+                };
+                
+                // Store in localStorage for demo
+                localStorage.setItem('schoolAdminUser', JSON.stringify(currentUser));
+                
+                showSuccess('Login successful!');
+                showAdminPanel();
+            } else {
+                showError('Invalid email or password');
+            }
+            
+            // Real Firebase implementation:
+            /*
+            auth.signInWithEmailAndPassword(email, password)
+                .then((userCredential) => {
+                    currentUser = userCredential.user;
+                    // Fetch admin data from Firestore
+                    return db.collection('admins').doc(currentUser.uid).get();
+                })
+                .then((doc) => {
+                    if (doc.exists) {
+                        currentAdmin = doc.data();
+                        showAdminPanel();
+                    } else {
+                        showError('Admin account not found');
+                        auth.signOut();
+                    }
+                })
+                .catch((error) => {
+                    showError(error.message);
+                });
+            */
+        }
+
+        function handleRegister() {
+            const name = document.getElementById('regName').value;
+            const email = document.getElementById('regEmail').value;
+            const password = document.getElementById('regPassword').value;
+            const confirmPassword = document.getElementById('regConfirmPassword').value;
+            
+            if (!name || !email || !password || !confirmPassword) {
+                showError('Please fill all fields');
+                return;
+            }
+            
+            if (password !== confirmPassword) {
+                showError('Passwords do not match');
+                return;
+            }
+            
+            if (password.length < 6) {
+                showError('Password must be at least 6 characters');
+                return;
+            }
+            
+            // For demo - simulate sending OTP
+            showSuccess('Account created! Please verify your email with OTP.');
+            
+            // Show OTP section
+            document.getElementById('regOtpContainer').style.display = 'flex';
+            document.getElementById('regResendOtp').style.display = 'block';
+            document.getElementById('verifyRegOtpBtn').style.display = 'block';
+            document.getElementById('registerBtn').style.display = 'none';
+            
+            // Start OTP timer
+            startOtpTimer('reg');
+            
+            // Real Firebase implementation:
+            /*
+            // Create user in Firebase Auth
+            auth.createUserWithEmailAndPassword(email, password)
+                .then((userCredential) => {
+                    currentUser = userCredential.user;
+                    
+                    // Send email verification
+                    return currentUser.sendEmailVerification();
+                })
+                .then(() => {
+                    // Store admin data in Firestore
+                    return db.collection('admins').doc(currentUser.uid).set({
+                        name: name,
+                        email: email,
+                        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                        lastLogin: null,
+                        isActive: true
+                    });
+                })
+                .then(() => {
+                    showSuccess('Registration successful! Please verify your email.');
+                    // Switch to login tab
+                    document.querySelector('.auth-tab[data-tab="login"]').click();
+                })
+                .catch((error) => {
+                    showError(error.message);
+                });
+            */
+        }
+
+        function handleSendOtp() {
+            const email = document.getElementById('forgotEmail').value;
+            
+            if (!email) {
+                showError('Please enter your email address');
+                return;
+            }
+            
+            // For demo - simulate sending OTP
+            showSuccess('OTP sent to your email!');
+            
+            // Show OTP section
+            document.getElementById('forgotOtpContainer').style.display = 'flex';
+            document.getElementById('forgotResendOtp').style.display = 'block';
+            document.getElementById('verifyOtpBtn').style.display = 'block';
+            document.getElementById('sendOtpBtn').style.display = 'none';
+            
+            // Start OTP timer
+            startOtpTimer('forgot');
+            
+            // Real Firebase implementation:
+            /*
+            auth.sendPasswordResetEmail(email)
+                .then(() => {
+                    showSuccess('Password reset email sent!');
+                    // Show OTP verification UI
+                    document.getElementById('forgotOtpContainer').style.display = 'flex';
+                    document.getElementById('forgotResendOtp').style.display = 'block';
+                    document.getElementById('verifyOtpBtn').style.display = 'block';
+                    document.getElementById('sendOtpBtn').style.display = 'none';
+                    
+                    startOtpTimer('forgot');
+                })
+                .catch((error) => {
+                    showError(error.message);
+                });
+            */
+        }
+
+        function handleVerifyOtp() {
+            const otp = getOtpValue('forgot');
+            
+            if (!otp || otp.length !== 6) {
+                showError('Please enter a valid 6-digit OTP');
+                return;
+            }
+            
+            // For demo - accept any OTP
+            if (otp === '000000') {
+                showError('Invalid OTP. Please try again.');
+                return;
+            }
+            
+            showSuccess('OTP verified! You can now reset your password.');
+            
+            // Show password reset form
+            document.getElementById('resetPasswordForm').style.display = 'block';
+            document.getElementById('verifyOtpBtn').style.display = 'none';
+            document.getElementById('forgotOtpContainer').style.display = 'none';
+            document.getElementById('forgotResendOtp').style.display = 'none';
+        }
+
+        function handleResetPassword() {
+            const newPassword = document.getElementById('newPassword').value;
+            const confirmNewPassword = document.getElementById('confirmNewPassword').value;
+            
+            if (!newPassword || !confirmNewPassword) {
+                showError('Please fill all fields');
+                return;
+            }
+            
+            if (newPassword !== confirmNewPassword) {
+                showError('Passwords do not match');
+                return;
+            }
+            
+            if (newPassword.length < 6) {
+                showError('Password must be at least 6 characters');
+                return;
+            }
+            
+            // For demo - simulate password reset
+            showSuccess('Password reset successful! You can now login with your new password.');
+            
+            // Switch to login tab
+            document.querySelector('.auth-tab[data-tab="login"]').click();
+            
+            // Reset form
+            document.getElementById('resetPasswordForm').style.display = 'none';
+            document.getElementById('sendOtpBtn').style.display = 'block';
+            document.getElementById('forgotEmail').value = '';
+            
+            // Real Firebase implementation:
+            /*
+            const email = document.getElementById('forgotEmail').value;
+            
+            // First verify the OTP (you would need to implement OTP verification)
+            // Then update password
+            auth.confirmPasswordReset(code, newPassword)
+                .then(() => {
+                    showSuccess('Password reset successful!');
+                    // Switch to login tab
+                    document.querySelector('.auth-tab[data-tab="login"]').click();
+                    
+                    // Reset form
+                    document.getElementById('resetPasswordForm').style.display = 'none';
+                    document.getElementById('sendOtpBtn').style.display = 'block';
+                    document.getElementById('forgotEmail').value = '';
+                })
+                .catch((error) => {
+                    showError(error.message);
+                });
+            */
+        }
+
+        function handleVerifyRegOtp() {
+            const otp = getOtpValue('reg');
+            
+            if (!otp || otp.length !== 6) {
+                showError('Please enter a valid 6-digit OTP');
+                return;
+            }
+            
+            // For demo - accept any OTP except 000000
+            if (otp === '000000') {
+                showError('Invalid OTP. Please try again.');
+                return;
+            }
+            
+            showSuccess('Email verified successfully! You can now login.');
+            
+            // Switch to login tab
+            document.querySelector('.auth-tab[data-tab="login"]').click();
+            
+            // Reset form
+            document.getElementById('regOtpContainer').style.display = 'none';
+            document.getElementById('regResendOtp').style.display = 'none';
+            document.getElementById('verifyRegOtpBtn').style.display = 'none';
+            document.getElementById('registerBtn').style.display = 'block';
+            
+            clearRegistrationForm();
+        }
+
+        function handleResendRegOtp(e) {
+            e.preventDefault();
+            showSuccess('OTP resent to your email!');
+            startOtpTimer('reg');
+        }
+
+        function handleResendForgotOtp(e) {
+            e.preventDefault();
+            showSuccess('OTP resent to your email!');
+            startOtpTimer('forgot');
+        }
+
+        function handleLogout() {
+            // Clear local storage
+            localStorage.removeItem('schoolAdminUser');
+            
+            // Reset app state
+            currentUser = null;
+            currentAdmin = null;
+            
+            // Show auth screen
+            authContainer.style.display = 'flex';
+            adminPanel.style.display = 'none';
+            
+            // Reset forms
+            clearLoginForm();
+            
+            showSuccess('Logged out successfully!');
+        }
+
+        // OTP Functions
+        function setupOtpInputs() {
+            // For registration OTP
+            const regOtpInputs = document.querySelectorAll('#regOtpContainer .otp-input');
+            setupOtpInputBehavior(regOtpInputs);
+            
+            // For forgot password OTP
+            const forgotOtpInputs = document.querySelectorAll('#forgotOtpContainer .otp-input');
+            setupOtpInputBehavior(forgotOtpInputs);
+        }
+
+        function setupOtpInputBehavior(inputs) {
+            inputs.forEach((input, index) => {
+                input.addEventListener('input', (e) => {
+                    // Auto-focus next input
+                    if (e.target.value.length === 1 && index < inputs.length - 1) {
+                        inputs[index + 1].focus();
+                    }
+                    
+                    // Enable paste
+                    if (e.target.value.length > 1) {
+                        const pastedValue = e.target.value;
+                        for (let i = 0; i < Math.min(pastedValue.length, inputs.length); i++) {
+                            inputs[i].value = pastedValue[i];
+                            if (i < inputs.length - 1) {
+                                inputs[i + 1].focus();
+                            }
+                        }
+                        e.target.value = pastedValue[0];
+                    }
+                });
+                
+                input.addEventListener('keydown', (e) => {
+                    // Handle backspace
+                    if (e.key === 'Backspace' && !e.target.value && index > 0) {
+                        inputs[index - 1].focus();
+                    }
+                });
+            });
+        }
+
+        function getOtpValue(type) {
+            const containerId = type === 'reg' ? 'regOtpContainer' : 'forgotOtpContainer';
+            const inputs = document.querySelectorAll(`#${containerId} .otp-input`);
+            let otp = '';
+            inputs.forEach(input => {
+                otp += input.value;
+            });
+            return otp;
+        }
+
+        function startOtpTimer(type) {
+            const timerId = type === 'reg' ? 'regOtpTimer' : 'forgotOtpTimer';
+            const timerElement = document.getElementById(timerId);
+            let timeLeft = 120; // 2 minutes
+            
+            const timer = setInterval(() => {
+                const minutes = Math.floor(timeLeft / 60);
+                const seconds = timeLeft % 60;
+                timerElement.textContent = `OTP expires in: ${minutes}:${seconds.toString().padStart(2, '0')}`;
+                
+                timeLeft--;
+                
+                if (timeLeft < 0) {
+                    clearInterval(timer);
+                    timerElement.textContent = 'OTP expired';
+                    timerElement.style.color = 'var(--danger)';
+                }
+            }, 1000);
+        }
+
+        // Admin Panel Functions
+        function showAdminPanel() {
+            // Update user info
+            adminName.textContent = currentUser.displayName || 'Admin User';
+            adminEmail.textContent = currentUser.email;
+            adminAvatar.textContent = currentUser.displayName ? currentUser.displayName.charAt(0).toUpperCase() : 'A';
+            
+            // Switch to admin panel
+            authContainer.style.display = 'none';
+            adminPanel.style.display = 'block';
+            
+            // Load dashboard data
+            loadDashboardData();
+        }
+
+        function loadDashboardData() {
+            // Update counts
+            totalNoticesCount.textContent = notices.length;
+            totalTeachersCount.textContent = teachers.length;
+            totalStudentsCount.textContent = '2847'; // Simulated data
+            urgentNoticesCount.textContent = notices.filter(n => n.priority === 'high').length;
+            noticeCount.textContent = notices.length;
+            teacherCount.textContent = teachers.length;
+            
+            // Load activity log
+            loadActivityLog();
+        }
+
+        function loadActivityLog() {
+            // Simulated activity data
+            const activities = [
+                { time: '10:30 AM', activity: 'Sent Notice', details: 'Annual Sports Day Announcement', status: 'Completed' },
+                { time: 'Yesterday, 3:15 PM', activity: 'Added Teacher', details: 'Mr. John Smith - Mathematics', status: 'Completed' },
+                { time: 'Mar 12, 9:45 AM', activity: 'Deleted Notice', details: 'Old Library Schedule', status: 'Completed' },
+                { time: 'Mar 10, 2:20 PM', activity: 'Password Changed', details: 'Account security update', status: 'Completed' },
+                { time: 'Mar 8, 11:05 AM', activity: 'Sent Notice', details: 'Parent-Teacher Meeting Schedule', status: 'Completed' }
+            ];
+            
+            activityLogTable.innerHTML = '';
+            activities.forEach(activity => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${activity.time}</td>
+                    <td>${activity.activity}</td>
+                    <td>${activity.details}</td>
+                    <td><span style="color: var(--success); font-weight: 600;">${activity.status}</span></td>
+                `;
+                activityLogTable.appendChild(row);
+            });
+        }
+
+        // Notice Management Functions
+        function sendNotice() {
+            const title = document.getElementById('noticeTitle').value;
+            const content = document.getElementById('noticeContent').value;
+            const priority = document.getElementById('noticePriority').value;
+            const category = document.getElementById('noticeCategory').value;
+            const sendToTeachers = document.getElementById('sendToTeachers').checked;
+            const sendToStudents = document.getElementById('sendToStudents').checked;
+            
+            if (!title || !content) {
+                showError('Please enter notice title and content');
+                return;
+            }
+            
+            if (!sendToTeachers && !sendToStudents) {
+                showError('Please select at least one recipient group');
+                return;
+            }
+            
+            // Create notice object
+            const notice = {
+                id: 'notice_' + Date.now(),
+                title: title,
+                content: content,
+                priority: priority,
+                category: category,
+                recipients: {
+                    teachers: sendToTeachers,
+                    students: sendToStudents
+                },
+                timestamp: new Date().toISOString(),
+                status: 'sent',
+                sentBy: currentUser.displayName || 'Admin'
+            };
+            
+            // Add to notices array
+            notices.unshift(notice);
+            
+            // For demo - simulate saving to Firebase
+            showSuccess('Notice sent successfully to Teachers & Students apps!');
+            
+            // Real Firebase implementation:
+            /*
+            db.collection('notices').add({
+                title: title,
+                content: content,
+                priority: priority,
+                category: category,
+                recipients: {
+                    teachers: sendToTeachers,
+                    students: sendToStudents
+                },
+                timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+                status: 'sent',
+                sentBy: currentUser.uid,
+                sentByName: currentUser.displayName
+            })
+            .then(() => {
+                showSuccess('Notice sent successfully!');
+                clearNoticeForm();
+                loadDashboardData();
+                if (document.getElementById('manageNoticesSection').style.display === 'block') {
+                    loadNoticesTable();
+                }
+            })
+            .catch((error) => {
+                showError('Failed to send notice: ' + error.message);
+            });
+            */
+            
+            // Update dashboard
+            loadDashboardData();
+            
+            // Clear form
+            clearNoticeForm();
+            
+            // If on manage notices tab, refresh
+            if (document.getElementById('manageNoticesSection').style.display === 'block') {
+                loadNoticesTable();
+            }
+            
+            // Log activity
+            addActivityLog('Sent Notice', title);
+        }
+
+        function saveNoticeAsDraft() {
+            const title = document.getElementById('noticeTitle').value;
+            const content = document.getElementById('noticeContent').value;
+            
+            if (!title || !content) {
+                showError('Please enter notice title and content to save as draft');
+                return;
+            }
+            
+            // For demo - simulate saving draft
+            showSuccess('Notice saved as draft successfully!');
+            
+            // Real Firebase implementation would save to a 'drafts' collection
+            
+            // Log activity
+            addActivityLog('Saved Draft', title);
+        }
+
+        function loadNoticesTable() {
+            // Clear table
+            noticesTableBody.innerHTML = '';
+            
+            // Check if we have notices
+            if (notices.length === 0) {
+                noticesTableBody.innerHTML = `
+                    <tr>
+                        <td colspan="6" style="text-align: center; padding: 40px; color: var(--gray);">
+                            <i class="fas fa-inbox" style="font-size: 48px; margin-bottom: 15px; display: block; opacity: 0.5;"></i>
+                            <h3>No notices found</h3>
+                            <p>Send your first notice using the "Send Notice" tab</p>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+            
+            // Add notices to table
+            notices.forEach(notice => {
+                const row = document.createElement('tr');
+                
+                // Format date
+                const date = new Date(notice.timestamp);
+                const formattedDate = date.toLocaleDateString('en-US', { 
+                    month: 'short', 
+                    day: 'numeric',
+                    year: 'numeric'
+                });
+                
+                // Priority badge
+                let priorityBadge = '';
+                if (notice.priority === 'high') {
+                    priorityBadge = '<span class="priority-badge priority-high">High</span>';
+                } else if (notice.priority === 'medium') {
+                    priorityBadge = '<span class="priority-badge priority-medium">Medium</span>';
+                } else {
+                    priorityBadge = '<span class="priority-badge priority-low">Low</span>';
+                }
+                
+                // Recipients text
+                let recipientsText = '';
+                if (notice.recipients.teachers && notice.recipients.students) {
+                    recipientsText = 'All Teachers & Students';
+                } else if (notice.recipients.teachers) {
+                    recipientsText = 'Teachers Only';
+                } else if (notice.recipients.students) {
+                    recipientsText = 'Students Only';
+                }
+                
+                row.innerHTML = `
+                    <td><strong>${notice.title}</strong></td>
+                    <td>${notice.category || 'General'}</td>
+                    <td>${priorityBadge}</td>
+                    <td>${formattedDate}</td>
+                    <td>${recipientsText}</td>
+                    <td>
+                        <div class="action-buttons">
+                            <button class="btn btn-secondary btn-sm view-notice-btn" data-id="${notice.id}">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                            <button class="btn btn-danger btn-sm delete-notice-btn" data-id="${notice.id}">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </td>
+                `;
+                
+                noticesTableBody.appendChild(row);
+            });
+            
+            // Add event listeners to delete buttons
+            document.querySelectorAll('.delete-notice-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const noticeId = this.dataset.id;
+                    showDeleteConfirmation('notice', noticeId, 'Are you sure you want to delete this notice?');
+                });
+            });
+            
+            // Add event listeners to view buttons
+            document.querySelectorAll('.view-notice-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const noticeId = this.dataset.id;
+                    viewNotice(noticeId);
+                });
+            });
+        }
+
+        function viewNotice(noticeId) {
+            const notice = notices.find(n => n.id === noticeId);
+            if (!notice) return;
+            
+            // For demo - show an alert with notice details
+            alert(`Notice Details:\n\nTitle: ${notice.title}\n\nContent: ${notice.content}\n\nPriority: ${notice.priority}\n\nCategory: ${notice.category}\n\nSent to: ${notice.recipients.teachers ? 'Teachers' : ''}${notice.recipients.teachers && notice.recipients.students ? ' & ' : ''}${notice.recipients.students ? 'Students' : ''}\n\nDate: ${new Date(notice.timestamp).toLocaleString()}`);
+            
+            // In a real app, you might show a modal with more details
+        }
+
+        // Teacher Management Functions
+        function loadTeachersTable() {
+            // Clear table
+            teachersTableBody.innerHTML = '';
+            
+            // Check if we have teachers
+            if (teachers.length === 0) {
+                teachersTableBody.innerHTML = `
+                    <tr>
+                        <td colspan="5" style="text-align: center; padding: 40px; color: var(--gray);">
+                            <i class="fas fa-users" style="font-size: 48px; margin-bottom: 15px; display: block; opacity: 0.5;"></i>
+                            <h3>No teachers added yet</h3>
+                            <p>Add your first teacher using the "Add Teacher" button</p>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+            
+            // Add teachers to table
+            teachers.forEach(teacher => {
+                const row = document.createElement('tr');
+                
+                row.innerHTML = `
+                    <td><strong>${teacher.name}</strong></td>
+                    <td>${teacher.subject}</td>
+                    <td>${teacher.phone}</td>
+                    <td>${teacher.email || 'Not provided'}</td>
+                    <td>
+                        <div class="action-buttons">
+                            <a href="tel:${teacher.phone}" class="call-btn" target="_blank">
+                                <i class="fas fa-phone"></i> Call
+                            </a>
+                            <button class="btn btn-danger btn-sm delete-teacher-btn" data-id="${teacher.id}">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </td>
+                `;
+                
+                teachersTableBody.appendChild(row);
+            });
+            
+            // Add event listeners to delete buttons
+            document.querySelectorAll('.delete-teacher-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const teacherId = this.dataset.id;
+                    showDeleteConfirmation('teacher', teacherId, 'Are you sure you want to delete this teacher?');
+                });
+            });
+        }
+
+        function saveTeacher() {
+            const name = document.getElementById('teacherName').value;
+            const subject = document.getElementById('teacherSubject').value;
+            const grade = document.getElementById('teacherGrade').value;
+            const phone = document.getElementById('teacherPhone').value;
+            const email = document.getElementById('teacherEmail').value;
+            
+            if (!name || !subject || !phone) {
+                showError('Please fill all required fields (Name, Subject, Phone)');
+                return;
+            }
+            
+            // Create teacher object
+            const teacher = {
+                id: 'teacher_' + Date.now(),
+                name: name,
+                subject: subject,
+                grade: grade,
+                phone: phone,
+                email: email,
+                addedDate: new Date().toISOString(),
+                addedBy: currentUser.displayName || 'Admin'
+            };
+            
+            // Add to teachers array
+            teachers.push(teacher);
+            
+            // For demo - simulate saving to Firebase
+            showSuccess('Teacher added successfully!');
+            
+            // Real Firebase implementation:
+            /*
+            db.collection('teachers').add({
+                name: name,
+                subject: subject,
+                grade: grade,
+                phone: phone,
+                email: email,
+                addedDate: firebase.firestore.FieldValue.serverTimestamp(),
+                addedBy: currentUser.uid,
+                addedByName: currentUser.displayName,
+                schoolId: currentAdmin.schoolId // Assuming admin belongs to a school
+            })
+            .then(() => {
+                showSuccess('Teacher added successfully!');
+                clearTeacherForm();
+                document.getElementById('addTeacherModal').style.display = 'none';
+                loadDashboardData();
+                if (document.getElementById('manageTeachersSection').style.display === 'block') {
+                    loadTeachersTable();
+                }
+            })
+            .catch((error) => {
+                showError('Failed to add teacher: ' + error.message);
+            });
+            */
+            
+            // Close modal
+            document.getElementById('addTeacherModal').style.display = 'none';
+            
+            // Update dashboard
+            loadDashboardData();
+            
+            // If on manage teachers tab, refresh
+            if (document.getElementById('manageTeachersSection').style.display === 'block') {
+                loadTeachersTable();
+            }
+            
+            // Clear form
+            clearTeacherForm();
+            
+            // Log activity
+            addActivityLog('Added Teacher', `${name} - ${subject}`);
+        }
+
+        function clearTeacherForm() {
+            document.getElementById('teacherName').value = '';
+            document.getElementById('teacherSubject').value = '';
+            document.getElementById('teacherGrade').value = '';
+            document.getElementById('teacherPhone').value = '';
+            document.getElementById('teacherEmail').value = '';
+        }
+
+        // Delete Functions
+        function showDeleteConfirmation(type, id, message) {
+            itemToDelete = id;
+            deleteType = type;
+            
+            document.getElementById('deleteMessage').textContent = message;
+            document.getElementById('deleteModal').style.display = 'flex';
+        }
+
+        function confirmDelete() {
+            if (!itemToDelete || !deleteType) return;
+            
+            if (deleteType === 'notice') {
+                // Delete notice
+                const index = notices.findIndex(n => n.id === itemToDelete);
+                if (index !== -1) {
+                    const noticeTitle = notices[index].title;
+                    notices.splice(index, 1);
+                    
+                    showSuccess(`Notice "${noticeTitle}" deleted successfully!`);
+                    addActivityLog('Deleted Notice', noticeTitle);
+                }
+                
+                // Update UI
+                loadDashboardData();
+                if (document.getElementById('manageNoticesSection').style.display === 'block') {
+                    loadNoticesTable();
+                }
+                
+            } else if (deleteType === 'teacher') {
+                // Delete teacher
+                const index = teachers.findIndex(t => t.id === itemToDelete);
+                if (index !== -1) {
+                    const teacherName = teachers[index].name;
+                    teachers.splice(index, 1);
+                    
+                    showSuccess(`Teacher "${teacherName}" deleted successfully!`);
+                    addActivityLog('Deleted Teacher', teacherName);
+                }
+                
+                // Update UI
+                loadDashboardData();
+                if (document.getElementById('manageTeachersSection').style.display === 'block') {
+                    loadTeachersTable();
+                }
+            }
+            
+            // Close modal
+            document.getElementById('deleteModal').style.display = 'none';
+            itemToDelete = null;
+            deleteType = null;
+            
+            // Real Firebase implementation:
+            /*
+            if (deleteType === 'notice') {
+                db.collection('notices').doc(itemToDelete).delete()
+                    .then(() => {
+                        showSuccess('Notice deleted successfully!');
+                        loadDashboardData();
+                        if (document.getElementById('manageNoticesSection').style.display === 'block') {
+                            loadNoticesTable();
+                        }
+                    })
+                    .catch((error) => {
+                        showError('Failed to delete notice: ' + error.message);
+                    });
+            } else if (deleteType === 'teacher') {
+                db.collection('teachers').doc(itemToDelete).delete()
+                    .then(() => {
+                        showSuccess('Teacher deleted successfully!');
+                        loadDashboardData();
+                        if (document.getElementById('manageTeachersSection').style.display === 'block') {
+                            loadTeachersTable();
+                        }
+                    })
+                    .catch((error) => {
+                        showError('Failed to delete teacher: ' + error.message);
+                    });
+            }
+            */
+        }
+
+        // Settings Functions
+        function updateProfile() {
+            const name = document.getElementById('settingsName').value;
+            
+            if (!name) {
+                showError('Please enter your name');
+                return;
+            }
+            
+            // Update current user
+            currentUser.displayName = name;
+            adminName.textContent = name;
+            adminAvatar.textContent = name.charAt(0).toUpperCase();
+            
+            // Update localStorage for demo
+            localStorage.setItem('schoolAdminUser', JSON.stringify(currentUser));
+            
+            showSuccess('Profile updated successfully!');
+            addActivityLog('Updated Profile', 'Changed display name');
+            
+            // Real Firebase implementation:
+            /*
+            // Update in Firestore
+            db.collection('admins').doc(currentUser.uid).update({
+                name: name,
+                updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+            })
+            .then(() => {
+                // Update in Firebase Auth
+                return currentUser.updateProfile({
+                    displayName: name
+                });
+            })
+            .then(() => {
+                showSuccess('Profile updated successfully!');
+                // Update UI
+                adminName.textContent = name;
+                adminAvatar.textContent = name.charAt(0).toUpperCase();
+            })
+            .catch((error) => {
+                showError('Failed to update profile: ' + error.message);
+            });
+            */
+        }
+
+        function changePassword() {
+            const currentPassword = document.getElementById('currentPassword').value;
+            const newPassword = document.getElementById('settingsNewPassword').value;
+            const confirmPassword = document.getElementById('settingsConfirmPassword').value;
+            
+            if (!currentPassword || !newPassword || !confirmPassword) {
+                showError('Please fill all fields');
+                return;
+            }
+            
+            if (newPassword !== confirmPassword) {
+                showError('New passwords do not match');
+                return;
+            }
+            
+            if (newPassword.length < 6) {
+                showError('New password must be at least 6 characters');
+                return;
+            }
+            
+            // For demo - simulate password change
+            if (currentPassword !== 'admin123') {
+                showError('Current password is incorrect');
+                return;
+            }
+            
+            showSuccess('Password changed successfully!');
+            
+            // Clear form
+            document.getElementById('currentPassword').value = '';
+            document.getElementById('settingsNewPassword').value = '';
+            document.getElementById('settingsConfirmPassword').value = '';
+            
+            // Log activity
+            addActivityLog('Changed Password', 'Account security update');
+            
+            // Real Firebase implementation:
+            /*
+            // Re-authenticate user
+            const credential = firebase.auth.EmailAuthProvider.credential(
+                currentUser.email, 
+                currentPassword
+            );
+            
+            currentUser.reauthenticateWithCredential(credential)
+                .then(() => {
+                    // Change password
+                    return currentUser.updatePassword(newPassword);
+                })
+                .then(() => {
+                    showSuccess('Password changed successfully!');
+                    // Clear form
+                    document.getElementById('currentPassword').value = '';
+                    document.getElementById('settingsNewPassword').value = '';
+                    document.getElementById('settingsConfirmPassword').value = '';
+                })
+                .catch((error) => {
+                    showError('Failed to change password: ' + error.message);
+                });
+            */
+        }
+
+        // Utility Functions
+        function loadSampleData() {
+            // Sample notices
+            notices = [
+                {
+                    id: 'notice_1',
+                    title: 'Annual Sports Day Announcement',
+                    content: 'We are pleased to announce that our Annual Sports Day will be held on 25th November 2023. All students are required to participate in at least one event. Teachers are requested to coordinate with the sports department.',
+                    priority: 'high',
+                    category: 'event',
+                    recipients: { teachers: true, students: true },
+                    timestamp: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
+                    status: 'sent',
+                    sentBy: 'Admin'
+                },
+                {
+                    id: 'notice_2',
+                    title: 'Library Maintenance Notice',
+                    content: 'The main library will be closed for maintenance on 5th October 2023. Students can use the digital library during this period. All borrowed books must be returned by 4th October.',
+                    priority: 'medium',
+                    category: 'academic',
+                    recipients: { teachers: false, students: true },
+                    timestamp: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(),
+                    status: 'sent',
+                    sentBy: 'Admin'
+                },
+                {
+                    id: 'notice_3',
+                    title: 'Parent-Teacher Meeting Schedule',
+                    content: 'Meeting scheduled for all classes from 10th to 15th October 2023. Parents are requested to book their slots through the portal. Teachers should prepare progress reports.',
+                    priority: 'high',
+                    category: 'general',
+                    recipients: { teachers: true, students: true },
+                    timestamp: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(),
+                    status: 'sent',
+                    sentBy: 'Admin'
+                }
+            ];
+            
+            // Sample teachers
+            teachers = [
+                {
+                    id: 'teacher_1',
+                    name: 'Mr. John Smith',
+                    subject: 'Mathematics',
+                    grade: 'Grade 10',
+                    phone: '+91 9876543210',
+                    email: 'john.smith@school.com',
+                    addedDate: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString(),
+                    addedBy: 'Admin'
+                },
+                {
+                    id: 'teacher_2',
+                    name: 'Ms. Sarah Johnson',
+                    subject: 'Science',
+                    grade: 'Grade 9 & 10',
+                    phone: '+91 9876543211',
+                    email: 'sarah.j@school.com',
+                    addedDate: new Date(Date.now() - 15 * 24 * 60 * 60 * 1000).toISOString(),
+                    addedBy: 'Admin'
+                },
+                {
+                    id: 'teacher_3',
+                    name: 'Mr. Robert Williams',
+                    subject: 'English Literature',
+                    grade: 'Grade 11 & 12',
+                    phone: '+91 9876543212',
+                    email: 'robert.w@school.com',
+                    addedDate: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000).toISOString(),
+                    addedBy: 'Admin'
+                }
+            ];
+        }
+
+        function clearNoticeForm() {
+            document.getElementById('noticeTitle').value = '';
+            document.getElementById('noticeContent').value = '';
+            document.getElementById('noticePriority').value = 'low';
+            document.getElementById('noticeCategory').value = 'general';
+            document.getElementById('sendToTeachers').checked = true;
+            document.getElementById('sendToStudents').checked = true;
+        }
+
+        function clearLoginForm() {
+            document.getElementById('loginEmail').value = '';
+            document.getElementById('loginPassword').value = '';
+        }
+
+        function clearRegistrationForm() {
+            document.getElementById('regName').value = '';
+            document.getElementById('regEmail').value = '';
+            document.getElementById('regPassword').value = '';
+            document.getElementById('regConfirmPassword').value = '';
+        }
+
+        function addActivityLog(activity, details) {
+            const now = new Date();
+            const timeString = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+            
+            // Add to beginning of array
+            activityLog.unshift({
+                time: timeString,
+                activity: activity,
+                details: details,
+                status: 'Completed'
+            });
+            
+            // Update activity log table if on dashboard
+            if (document.getElementById('dashboardSection').style.display === 'block') {
+                loadActivityLog();
+            }
+        }
+
+        function showSuccess(message) {
+            successText.textContent = message;
+            successMessage.style.display = 'block';
+            
+            // Auto-hide after 5 seconds
+            setTimeout(() => {
+                successMessage.style.display = 'none';
+            }, 5000);
+        }
+
+        function showError(message) {
+            // For demo - use alert
+            alert('Error: ' + message);
+            
+            // In a real app, you would show a styled error message
+        }
     </script>
 </body>
-</html>
+</html> 
