@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>PhonePe QR Payment</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: system-ui, -apple-system, sans-serif; }
+        
+        body {
+            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+            color: #fff;
+            min-height: 100vh;
+            padding: 10px;
+            font-size: 14px;
+        }
+        
+        .container {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(8px);
+            border-radius: 12px;
+            padding: 15px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+        
+        header { text-align: center; margin-bottom: 15px; }
+        
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-bottom: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        
+        .logo i { color: #5f0fff; font-size: 1.4rem; }
+        
+        .subtitle { font-size: 0.9rem; opacity: 0.9; margin-bottom: 3px; }
+        header p { font-size: 0.8rem; opacity: 0.8; }
+        
+        .content { display: flex; flex-direction: column; gap: 15px; }
+        
+        .qr-section {
+            background: white;
+            border-radius: 10px;
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: #333;
+        }
+        
+        .qr-container {
+            width: 160px;
+            height: 160px;
+            margin: 10px 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .qr-code {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 8px;
+            background: #f5f5f5;
+        }
+        
+        .payment-info { text-align: center; margin: 10px 0; }
+        .payment-info h3 { color: #5f0fff; margin-bottom: 4px; font-size: 1rem; }
+        .payment-info p { font-size: 0.8rem; color: #666; }
+        
+        .name { font-weight: bold; font-size: 0.9rem; text-align: center; margin-top: 5px; }
+        .bank-details { font-size: 0.8rem; color: #666; text-align: center; }
+        
+        .payment-card {
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 10px;
+            padding: 15px;
+        }
+        
+        .payment-card h2 {
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 1rem;
+        }
+        
+        .payment-card h2 i { color: #5f0fff; font-size: 0.9rem; }
+        .payment-card p { font-size: 0.8rem; margin-bottom: 10px; line-height: 1.3; }
+        
+        .form-group { margin-bottom: 10px; }
+        .form-group label { display: block; margin-bottom: 3px; font-weight: 500; font-size: 0.8rem; }
+        .form-group input {
+            width: 100%;
+            padding: 10px;
+            border: none;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.95);
+            font-size: 0.9rem;
+        }
+        
+        .btn {
+            background: #5f0fff;
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            width: 100%;
+        }
+        
+        .btn:active { background: #4a00e0; }
+        
+        ul { padding-left: 18px; margin-top: 8px; }
+        li { font-size: 0.75rem; margin-bottom: 5px; line-height: 1.2; }
+        
+        .video-container {
+            display: none;
+            margin-top: 15px;
+            text-align: center;
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 10px;
+            padding: 15px;
+        }
+        
+        .video-container h2 {
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            font-size: 1rem;
+        }
+        
+        .video-player {
+            width: 100%;
+            height: 180px;
+            background: #000;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            overflow: hidden;
+        }
+        
+        .video-player iframe { width: 100%; height: 100%; border: none; }
+        
+        .video-loading {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            color: white;
+        }
+        
+        .video-loading i {
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+            color: #5f0fff;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .download-link {
+            margin-top: 10px;
+            display: inline-block;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 8px 12px;
+            border-radius: 6px;
+            text-decoration: none;
+            color: white;
+            font-size: 0.8rem;
+        }
+        
+        .download-link i { margin-right: 5px; }
+        .video-container p { font-size: 0.8rem; line-height: 1.3; }
+        
+        footer {
+            margin-top: 15px;
+            text-align: center;
+            font-size: 0.7rem;
+            opacity: 0.8;
+            padding: 0 5px;
+        }
+        
+        /* Very small phones */
+        @media (max-width: 320px) {
+            body { padding: 8px; font-size: 13px; }
+            .container { padding: 12px; }
+            .qr-container { width: 140px; height: 140px; }
+            .video-player { height: 150px; }
+        }
+        
+        /* Prevent zoom for better mobile UX */
+        * { -webkit-tap-highlight-color: transparent; }
+        input, button { -webkit-appearance: none; appearance: none; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo"><i class="fas fa-mobile-alt"></i>PhonePe</div>
+            <p class="subtitle">ACCEPTED HERE</p>
+            <p>Scan & Pay Using PhonePe App</p>
+        </header>
+
+        <div class="content">
+            <div class="qr-section">
+                <div class="payment-info">
+                    <h3>Pay ₹10 via QR Code</h3>
+                    <p>Scan QR code with PhonePe app</p>
+                </div>
+                
+                <div class="qr-container">
+                    <img src="https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=upi://pay?pa=PAPPUKUMARGOND@ybl&pn=PAPPU%20KUMAR%20GOND&am=10&cu=INR" 
+                         alt="QR Code"
+                         class="qr-code">
+                </div>
+                
+                <div class="name">PAY ₹10</div>
+                <div class="bank-details">State Bank of India</div>
+            </div>
+
+            <div class="payment-card">
+                <h2><i class="fas fa-rupee-sign"></i> Payment Confirmation</h2>
+                <p>After payment of ₹10, enter UTR number:</p>
+                
+                <div class="form-group">
+                    <label for="utr">UTR Number</label>
+                    <input type="text" id="utr" placeholder="Enter 12-digit UTR" inputmode="numeric">
+                </div>
+                
+                <button class="btn" id="submitBtn">
+                    <i class="fas fa-paper-plane"></i> Submit UTR & Unlock Video
+                </button>
+            </div>
+            
+            <div class="payment-card">
+                <h2><i class="fas fa-info-circle"></i> Instructions</h2>
+                <ul>
+                    <li>Scan QR code with PhonePe app</li>
+                    <li>Pay exactly ₹10 to the account</li>
+                    <li>Find UTR in transaction history</li>
+                    <li>Enter 12-digit UTR and submit</li>
+                    <li>Video unlocks after verification</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="video-container" id="videoContainer">
+            <h2><i class="fas fa-video"></i> Video Unlocked!</h2>
+            <div class="video-player" id="videoPlayer">
+                <div class="video-loading">
+                    <i class="fas fa-spinner"></i>
+                    <p>Loading video...</p>
+                </div>
+            </div>
+            <p>Thank you for your payment! Enjoy this content.</p>
+            <a href="https://drive.google.com/uc?export=download&id=1oHKp4gAU0sy-2F3McSiCCwHi9u00dWxQ" 
+               class="download-link" 
+               target="_blank">
+                <i class="fas fa-download"></i> Download Video
+            </a>
+        </div>
+    </div>
+
+    <footer>
+        <p>© 2025 PhonePe Ltd</p>
+        <p>(Formerly 'PhonePe Private Ltd')</p>
+    </footer>
+
+    <script>
+        document.getElementById('submitBtn').addEventListener('click', function() {
+            const utr = document.getElementById('utr').value.trim();
+            
+            if (!utr) {
+                alert('Please enter UTR number');
+                return;
+            }
+            
+            if (!/^\d{12}$/.test(utr)) {
+                alert('Enter valid 12-digit UTR');
+                return;
+            }
+            
+            this.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Verifying...';
+            this.disabled = true;
+            
+            setTimeout(() => {
+                document.getElementById('videoContainer').style.display = 'block';
+                loadVideo();
+                
+                this.innerHTML = '<i class="fas fa-check"></i> Verified!';
+                this.style.background = '#28a745';
+                
+                document.getElementById('videoContainer').scrollIntoView({ 
+                    behavior: 'smooth',
+                    block: 'start'
+                });
+            }, 1000);
+        });
+        
+        function loadVideo() {
+            const videoUrl = "https://drive.google.com/file/d/1oHKp4gAU0sy-2F3McSiCCwHi9u00dWxQ/preview";
+            const videoPlayer = document.getElementById('videoPlayer');
+            
+            videoPlayer.innerHTML = `<iframe src="${videoUrl}" allow="autoplay; fullscreen" allowfullscreen title="Video"></iframe>`;
+        }
+        
+        document.getElementById('utr').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') document.getElementById('submitBtn').click();
+        });
+        
+        // Auto-focus on UTR input
+        setTimeout(() => document.getElementById('utr').focus(), 500);
+    </script>
+</body>
+</html>
