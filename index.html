@@ -7,7 +7,7 @@
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
     <!-- EmailJS SDK -->
     <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
     <!-- Font Awesome -->
@@ -1299,32 +1299,32 @@
         // 1. FIREBASE CONFIGURATION
         // REPLACE WITH YOUR ACTUAL FIREBASE CONFIG
         const firebaseConfig = {
-  apiKey: "AIzaSyDcKkAf2SRmfiJizVA71fILOqRZTtUGAdY",
-  authDomain: "schooladmin-51cdd.firebaseapp.com",
-  databaseURL: "https://schooladmin-51cdd-default-rtdb.firebaseio.com",
-  projectId: "schooladmin-51cdd",
-  storageBucket: "schooladmin-51cdd.firebasestorage.app",
-  messagingSenderId: "185301938780",
-  appId: "1:185301938780:web:bdeaabff3c7d2bff2bac99",
-  measurementId: "G-V8C5DE930K"
-};
-
+            apiKey: "AIzaSyDcKkAf2SRmfiJizVA71fILOqRZTtUGAdY",
+            authDomain: "schooladmin-51cdd.firebaseapp.com",
+            databaseURL: "https://schooladmin-51cdd-default-rtdb.firebaseio.com",
+            projectId: "schooladmin-51cdd",
+            storageBucket: "schooladmin-51cdd.firebasestorage.app",
+            messagingSenderId: "185301938780",
+            appId: "1:185301938780:web:bdeaabff3c7d2bff2bac99",
+            measurementId: "G-V8C5DE930K"
+        };
 
         // 2. EMAILJS CONFIGURATION
         // REPLACE WITH YOUR ACTUAL EMAILJS CREDENTIALS
         const EMAILJS_CONFIG = {
             PUBLIC_KEY: "D-8liyb21zvqmvhPc",      // Get from EmailJS Dashboard → Integration
             SERVICE_ID: "service_u035226",      // Get from EmailJS → Email Services
-            TEMPLATE_ID: "D-8liyb21zvqmvhPc"     // Get from EmailJS → Email Templates
+            TEMPLATE_ID: "template_xyk8468"     // Fixed: This should be your actual template ID, not the public key
         };
 
         // Initialize Firebase
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
-        const db = firebase.firestore();
+        const database = firebase.database(); // Changed from Firestore to Realtime Database
 
         // Initialize EmailJS
         emailjs.init(EMAILJS_CONFIG.PUBLIC_KEY);
+        
         // ============================
         // APPLICATION STATE
         // ============================
@@ -1661,15 +1661,34 @@
         // FIREBASE AUTHENTICATION FUNCTIONS
         // ============================
         function checkAuthState() {
-            // For demo purposes, we'll simulate checking auth state
-            // In real implementation, use: auth.onAuthStateChanged(user => {...})
-            
-            // Check if user is stored in localStorage (for demo)
-            const storedUser = localStorage.getItem('schoolAdminUser');
-            if (storedUser) {
-                currentUser = JSON.parse(storedUser);
-                showAdminPanel();
-            }
+            auth.onAuthStateChanged((user) => {
+                if (user) {
+                    currentUser = user;
+                    // Try to get admin data from database
+                    database.ref('admins/' + user.uid).once('value').then((snapshot) => {
+                        if (snapshot.exists()) {
+                            currentAdmin = snapshot.val();
+                            showAdminPanel();
+                        } else {
+                            // For demo purposes, create admin data if not exists
+                            const adminData = {
+                                name: user.displayName || 'Admin User',
+                                email: user.email,
+                                createdAt: new Date().toISOString(),
+                                lastLogin: new Date().toISOString(),
+                                role: 'admin'
+                            };
+                            database.ref('admins/' + user.uid).set(adminData);
+                            currentAdmin = adminData;
+                            showAdminPanel();
+                        }
+                    }).catch((error) => {
+                        console.error('Error getting admin data:', error);
+                        // Still show admin panel for demo
+                        showAdminPanel();
+                    });
+                }
+            });
         }
 
         async function handleLogin() {
@@ -1692,44 +1711,24 @@
                 const userCredential = await auth.signInWithEmailAndPassword(email, password);
                 currentUser = userCredential.user;
                 
-                // Fetch admin data from Firestore
-                const adminDoc = await db.collection('admins').doc(currentUser.uid).get();
-                
-                if (adminDoc.exists) {
-                    currentAdmin = adminDoc.data();
-                    
-                    // Store in localStorage for demo
-                    localStorage.setItem('schoolAdminUser', JSON.stringify({
-                        uid: currentUser.uid,
+                // Update last login in database
+                database.ref('admins/' + currentUser.uid).update({
+                    lastLogin: new Date().toISOString()
+                }).catch(() => {
+                    // If admin record doesn't exist, create it
+                    database.ref('admins/' + currentUser.uid).set({
+                        name: currentUser.displayName || 'Admin User',
                         email: currentUser.email,
-                        displayName: currentUser.displayName || 'Admin User'
-                    }));
-                    
-                    showSuccess('Login successful!');
-                    showAdminPanel();
-                } else {
-                    showError('Admin account not found');
-                    await auth.signOut();
-                }
+                        createdAt: new Date().toISOString(),
+                        lastLogin: new Date().toISOString(),
+                        role: 'admin'
+                    });
+                });
+                
+                showSuccess('Login successful!');
                 
             } catch (error) {
-                // For demo - simulate Firebase auth
-                if (email === 'admin@school.com' && password === 'admin123') {
-                    currentUser = {
-                        uid: 'admin001',
-                        email: email,
-                        displayName: 'Admin User',
-                        photoURL: null
-                    };
-                    
-                    // Store in localStorage for demo
-                    localStorage.setItem('schoolAdminUser', JSON.stringify(currentUser));
-                    
-                    showSuccess('Login successful!');
-                    showAdminPanel();
-                } else {
-                    showError('Invalid email or password: ' + error.message);
-                }
+                showError('Invalid email or password: ' + error.message);
             } finally {
                 // Reset button
                 btn.innerHTML = originalText;
@@ -1853,15 +1852,17 @@
                 // Send email verification
                 await currentUser.sendEmailVerification();
                 
-                // Store admin data in Firestore
-                await db.collection('admins').doc(currentUser.uid).set({
+                // Store admin data in Realtime Database
+                const adminData = {
                     name: name,
                     email: email,
-                    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                    createdAt: new Date().toISOString(),
                     lastLogin: null,
                     isActive: true,
                     role: 'admin'
-                });
+                };
+                
+                await database.ref('admins/' + currentUser.uid).set(adminData);
                 
                 showSuccess('Account created successfully! Please check your email to verify your account.');
                 
@@ -2092,21 +2093,25 @@
         }
 
         function handleLogout() {
-            // Clear local storage
-            localStorage.removeItem('schoolAdminUser');
-            
-            // Reset app state
-            currentUser = null;
-            currentAdmin = null;
-            
-            // Show auth screen
-            authContainer.style.display = 'flex';
-            adminPanel.style.display = 'none';
-            
-            // Reset forms
-            clearLoginForm();
-            
-            showSuccess('Logged out successfully!');
+            auth.signOut().then(() => {
+                // Clear local storage
+                localStorage.removeItem('schoolAdminUser');
+                
+                // Reset app state
+                currentUser = null;
+                currentAdmin = null;
+                
+                // Show auth screen
+                authContainer.style.display = 'flex';
+                adminPanel.style.display = 'none';
+                
+                // Reset forms
+                clearLoginForm();
+                
+                showSuccess('Logged out successfully!');
+            }).catch((error) => {
+                showError('Logout failed: ' + error.message);
+            });
         }
 
         // ============================
@@ -2272,7 +2277,7 @@
         }
 
         // ============================
-        // NOTICE MANAGEMENT FUNCTIONS
+        // NOTICE MANAGEMENT FUNCTIONS (USING REALTIME DATABASE)
         // ============================
         async function sendNotice() {
             const title = document.getElementById('noticeTitle').value;
@@ -2299,27 +2304,10 @@
             btn.disabled = true;
             
             try {
-                // REAL FIREBASE IMPLEMENTATION
-                const noticeRef = await db.collection('notices').add({
-                    title: title,
-                    content: content,
-                    priority: priority,
-                    category: category,
-                    recipients: {
-                        teachers: sendToTeachers,
-                        students: sendToStudents
-                    },
-                    timestamp: firebase.firestore.FieldValue.serverTimestamp(),
-                    status: 'sent',
-                    sentBy: currentUser.uid,
-                    sentByName: currentUser.displayName || 'Admin'
-                });
-                
-                showSuccess('Notice sent successfully to Teachers & Students apps!');
-                
-                // Create notice object for local state
-                const notice = {
-                    id: noticeRef.id,
+                // REALTIME DATABASE IMPLEMENTATION
+                const noticeId = database.ref().child('notices').push().key;
+                const noticeData = {
+                    id: noticeId,
                     title: title,
                     content: content,
                     priority: priority,
@@ -2330,11 +2318,16 @@
                     },
                     timestamp: new Date().toISOString(),
                     status: 'sent',
-                    sentBy: currentUser.displayName || 'Admin'
+                    sentBy: currentUser.uid,
+                    sentByName: currentUser.displayName || 'Admin'
                 };
                 
+                await database.ref('notices/' + noticeId).set(noticeData);
+                
+                showSuccess('Notice sent successfully to Teachers & Students apps!');
+                
                 // Add to notices array
-                notices.unshift(notice);
+                notices.unshift(noticeData);
                 
                 // Update dashboard
                 loadDashboardData();
@@ -2380,21 +2373,16 @@
             refreshNoticesBtn.disabled = true;
             
             try {
-                // REAL FIREBASE IMPLEMENTATION
-                const querySnapshot = await db.collection('notices')
-                    .orderBy('timestamp', 'desc')
-                    .limit(20)
-                    .get();
+                // REALTIME DATABASE IMPLEMENTATION
+                const snapshot = await database.ref('notices').orderByChild('timestamp').once('value');
                 
                 notices = [];
-                querySnapshot.forEach(doc => {
-                    const data = doc.data();
-                    notices.push({
-                        id: doc.id,
-                        ...data,
-                        timestamp: data.timestamp?.toDate() || new Date()
+                if (snapshot.exists()) {
+                    snapshot.forEach((childSnapshot) => {
+                        const notice = childSnapshot.val();
+                        notices.unshift(notice); // Add to beginning to show newest first
                     });
-                });
+                }
                 
                 // Clear table
                 noticesTableBody.innerHTML = '';
@@ -2499,20 +2487,21 @@
         }
 
         // ============================
-        // TEACHER MANAGEMENT FUNCTIONS
+        // TEACHER MANAGEMENT FUNCTIONS (USING REALTIME DATABASE)
         // ============================
         async function loadTeachersTable() {
             try {
-                // REAL FIREBASE IMPLEMENTATION
-                const querySnapshot = await db.collection('teachers').get();
+                // REALTIME DATABASE IMPLEMENTATION
+                const snapshot = await database.ref('teachers').once('value');
                 
                 teachers = [];
-                querySnapshot.forEach(doc => {
-                    teachers.push({
-                        id: doc.id,
-                        ...doc.data()
+                if (snapshot.exists()) {
+                    snapshot.forEach((childSnapshot) => {
+                        const teacher = childSnapshot.val();
+                        teacher.id = childSnapshot.key;
+                        teachers.push(teacher);
                     });
-                });
+                }
                 
                 // Clear table
                 teachersTableBody.innerHTML = '';
@@ -2587,34 +2576,26 @@
             btn.disabled = true;
             
             try {
-                // REAL FIREBASE IMPLEMENTATION
-                const teacherRef = await db.collection('teachers').add({
-                    name: name,
-                    subject: subject,
-                    grade: grade,
-                    phone: phone,
-                    email: email,
-                    addedDate: firebase.firestore.FieldValue.serverTimestamp(),
-                    addedBy: currentUser.uid,
-                    addedByName: currentUser.displayName || 'Admin'
-                });
-                
-                showSuccess('Teacher added successfully!');
-                
-                // Create teacher object for local state
-                const teacher = {
-                    id: teacherRef.id,
+                // REALTIME DATABASE IMPLEMENTATION
+                const teacherId = database.ref().child('teachers').push().key;
+                const teacherData = {
+                    id: teacherId,
                     name: name,
                     subject: subject,
                     grade: grade,
                     phone: phone,
                     email: email,
                     addedDate: new Date().toISOString(),
-                    addedBy: currentUser.displayName || 'Admin'
+                    addedBy: currentUser.uid,
+                    addedByName: currentUser.displayName || 'Admin'
                 };
                 
+                await database.ref('teachers/' + teacherId).set(teacherData);
+                
+                showSuccess('Teacher added successfully!');
+                
                 // Add to teachers array
-                teachers.push(teacher);
+                teachers.push(teacherData);
                 
                 // Close modal
                 document.getElementById('addTeacherModal').style.display = 'none';
@@ -2651,7 +2632,7 @@
         }
 
         // ============================
-        // DELETE FUNCTIONS
+        // DELETE FUNCTIONS (USING REALTIME DATABASE)
         // ============================
         function showDeleteConfirmation(type, id, message) {
             itemToDelete = id;
@@ -2670,8 +2651,8 @@
             
             try {
                 if (deleteType === 'notice') {
-                    // REAL FIREBASE IMPLEMENTATION
-                    await db.collection('notices').doc(itemToDelete).delete();
+                    // REALTIME DATABASE IMPLEMENTATION
+                    await database.ref('notices/' + itemToDelete).remove();
                     
                     // Remove from local state
                     const index = notices.findIndex(n => n.id === itemToDelete);
@@ -2690,8 +2671,8 @@
                     }
                     
                 } else if (deleteType === 'teacher') {
-                    // REAL FIREBASE IMPLEMENTATION
-                    await db.collection('teachers').doc(itemToDelete).delete();
+                    // REALTIME DATABASE IMPLEMENTATION
+                    await database.ref('teachers/' + itemToDelete).remove();
                     
                     // Remove from local state
                     const index = teachers.findIndex(t => t.id === itemToDelete);
@@ -2725,7 +2706,7 @@
         }
 
         // ============================
-        // SETTINGS FUNCTIONS
+        // SETTINGS FUNCTIONS (USING REALTIME DATABASE)
         // ============================
         async function updateProfile() {
             const name = document.getElementById('settingsName').value;
@@ -2742,10 +2723,10 @@
             btn.disabled = true;
             
             try {
-                // Update in Firestore
-                await db.collection('admins').doc(currentUser.uid).update({
+                // Update in Realtime Database
+                await database.ref('admins/' + currentUser.uid).update({
                     name: name,
-                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                    updatedAt: new Date().toISOString()
                 });
                 
                 // Update in Firebase Auth
@@ -2757,13 +2738,6 @@
                 currentUser.displayName = name;
                 adminName.textContent = name;
                 adminAvatar.textContent = name.charAt(0).toUpperCase();
-                
-                // Update localStorage for demo
-                localStorage.setItem('schoolAdminUser', JSON.stringify({
-                    uid: currentUser.uid,
-                    email: currentUser.email,
-                    displayName: name
-                }));
                 
                 showSuccess('Profile updated successfully!');
                 addActivityLog('Updated Profile', 'Changed display name');
