@@ -1100,6 +1100,29 @@
                             <input type="password" id="settingsConfirmPassword" class="form-control" placeholder="Confirm new password">
                         </div>
                         
+                        <!-- Password Requirements Display -->
+                        <div class="password-requirements" id="passwordRequirements" style="display: none;">
+                            <h4>Password Requirements:</h4>
+                            <ul>
+                                <li id="reqLength">
+                                    <i class="fas fa-circle requirement-not-met"></i>
+                                    At least 6 characters
+                                </li>
+                                <li id="reqLowercase">
+                                    <i class="fas fa-circle requirement-not-met"></i>
+                                    Contains lowercase letter
+                                </li>
+                                <li id="reqUppercase">
+                                    <i class="fas fa-circle requirement-not-met"></i>
+                                    Contains uppercase letter
+                                </li>
+                                <li id="reqNumber">
+                                    <i class="fas fa-circle requirement-not-met"></i>
+                                    Contains number
+                                </li>
+                            </ul>
+                        </div>
+                        
                         <div class="form-actions">
                             <button type="button" class="btn btn-primary" id="changePasswordBtn">
                                 <i class="fas fa-key"></i> Change Password
@@ -1283,6 +1306,10 @@
         const changePasswordBtn = document.getElementById('changePasswordBtn');
         const logoutBtn = document.getElementById('logoutBtn');
         
+        // Password Requirements Elements
+        const passwordRequirements = document.getElementById('passwordRequirements');
+        const newPasswordInput = document.getElementById('settingsNewPassword');
+        
         // Success Message
         const successMessage = document.getElementById('successMessage');
         const successText = document.getElementById('successText');
@@ -1384,6 +1411,74 @@
             updateProfileBtn.addEventListener('click', updateProfile);
             changePasswordBtn.addEventListener('click', changePassword);
             logoutBtn.addEventListener('click', handleLogout);
+            
+            // Password requirement checking
+            newPasswordInput.addEventListener('input', checkPasswordRequirements);
+            newPasswordInput.addEventListener('focus', () => {
+                passwordRequirements.style.display = 'block';
+            });
+            newPasswordInput.addEventListener('blur', () => {
+                setTimeout(() => {
+                    if (!newPasswordInput.matches(':focus')) {
+                        passwordRequirements.style.display = 'none';
+                    }
+                }, 200);
+            });
+        }
+
+        // ============================
+        // PASSWORD REQUIREMENT CHECKING
+        // ============================
+        function checkPasswordRequirements() {
+            const password = newPasswordInput.value;
+            
+            if (!password) {
+                passwordRequirements.style.display = 'none';
+                return;
+            }
+            
+            // Show requirements box
+            passwordRequirements.style.display = 'block';
+            
+            // Check length
+            const lengthReq = document.getElementById('reqLength');
+            if (password.length >= 6) {
+                lengthReq.querySelector('i').className = 'fas fa-check-circle requirement-met';
+                lengthReq.style.color = 'var(--success)';
+            } else {
+                lengthReq.querySelector('i').className = 'fas fa-circle requirement-not-met';
+                lengthReq.style.color = 'var(--danger)';
+            }
+            
+            // Check lowercase
+            const lowercaseReq = document.getElementById('reqLowercase');
+            if (/[a-z]/.test(password)) {
+                lowercaseReq.querySelector('i').className = 'fas fa-check-circle requirement-met';
+                lowercaseReq.style.color = 'var(--success)';
+            } else {
+                lowercaseReq.querySelector('i').className = 'fas fa-circle requirement-not-met';
+                lowercaseReq.style.color = 'var(--danger)';
+            }
+            
+            // Check uppercase
+            const uppercaseReq = document.getElementById('reqUppercase');
+            if (/[A-Z]/.test(password)) {
+                uppercaseReq.querySelector('i').className = 'fas fa-check-circle requirement-met';
+                uppercaseReq.style.color = 'var(--success)';
+            } else {
+                uppercaseReq.querySelector('i').className = 'fas fa-circle requirement-not-met';
+                uppercaseReq.style.color = 'var(--danger)';
+            }
+            
+            // Check number
+            const numberReq = document.getElementById('reqNumber');
+            if (/[0-9]/.test(password)) {
+                numberReq.querySelector('i').className = 'fas fa-check-circle requirement-met';
+                numberReq.style.color = 'var(--success)';
+            } else {
+                numberReq.querySelector('i').className = 'fas fa-circle requirement-not-met';
+                numberReq.style.color = 'var(--danger)';
+            }
         }
 
         // ============================
@@ -2030,24 +2125,24 @@
                 return;
             }
             
+            // Check password requirements
+            let requirements = [];
+            
             if (newPassword.length < 6) {
-                showError('New password must be at least 6 characters');
-                return;
+                requirements.push('at least 6 characters');
             }
-            
-            // Check password strength
             if (!/[a-z]/.test(newPassword)) {
-                showError('New password must contain at least one lowercase letter');
-                return;
+                requirements.push('one lowercase letter');
             }
-            
             if (!/[A-Z]/.test(newPassword)) {
-                showError('New password must contain at least one uppercase letter');
-                return;
+                requirements.push('one uppercase letter');
+            }
+            if (!/[0-9]/.test(newPassword)) {
+                requirements.push('one number');
             }
             
-            if (!/[0-9]/.test(newPassword)) {
-                showError('New password must contain at least one number');
+            if (requirements.length > 0) {
+                showError('Password must contain: ' + requirements.join(', '));
                 return;
             }
             
@@ -2076,11 +2171,27 @@
                 document.getElementById('settingsNewPassword').value = '';
                 document.getElementById('settingsConfirmPassword').value = '';
                 
+                // Hide password requirements
+                passwordRequirements.style.display = 'none';
+                
                 // Log activity
                 addActivityLog('Changed Password', 'Account security update');
                 
             } catch (error) {
-                showError('Failed to change password: ' + error.message);
+                // Handle specific Firebase errors
+                let errorMessage = 'Failed to change password. ';
+                
+                if (error.code === 'auth/wrong-password') {
+                    errorMessage += 'Current password is incorrect.';
+                } else if (error.code === 'auth/weak-password') {
+                    errorMessage += 'New password is too weak.';
+                } else if (error.code === 'auth/requires-recent-login') {
+                    errorMessage += 'Please log in again and try.';
+                } else {
+                    errorMessage += error.message;
+                }
+                
+                showError(errorMessage);
             } finally {
                 // Reset button
                 btn.innerHTML = originalText;
@@ -2224,4 +2335,4 @@
         }
     </script>
 </body>
-    </html>
+</html>
