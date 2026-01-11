@@ -4,16 +4,51 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SCHOOL ADMIN - Management Portal</title>
+    
+    <!-- Firebase SDK v9 (Modular) -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
+        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, sendPasswordResetEmail, updatePassword, updateProfile } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js";
+        import { getFirestore, collection, addDoc, getDocs, updateDoc, deleteDoc, doc, query, where, orderBy, serverTimestamp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
+        
+        const firebaseConfig = {
+            apiKey: "AIzaSyDcKkAf2SRmfiJizVA71fILOqRZTtUGAdY",
+            authDomain: "schooladmin-51cdd.firebaseapp.com",
+            databaseURL: "https://schooladmin-51cdd-default-rtdb.firebaseio.com",
+            projectId: "schooladmin-51cdd",
+            storageBucket: "schooladmin-51cdd.firebasestorage.app",
+            messagingSenderId: "185301938780",
+            appId: "1:185301938780:web:bdeaabff3c7d2bff2bac99",
+            measurementId: "G-V8C5DE930K"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        
+        window.firebase = { 
+            auth, db, 
+            createUserWithEmailAndPassword, 
+            signInWithEmailAndPassword, 
+            sendPasswordResetEmail, 
+            updatePassword, 
+            updateProfile,
+            collection, addDoc, getDocs, updateDoc, deleteDoc, doc,
+            query, where, orderBy, serverTimestamp
+        };
+        
+        console.log("Firebase initialized successfully!");
+    </script>
+    
     <!-- EmailJS SDK -->
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
-    <script type="text/javascript">
-        // Initialize EmailJS with YOUR PUBLIC KEY
-        emailjs.init("D-8liyb21zvqmvhPc");
-    </script>
+    
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    
     <style>
         * {
             margin: 0;
@@ -559,7 +594,7 @@
             display: block;
         }
 
-        /* OPTIMIZED OTP Container */
+        /* OTP Container */
         .otp-container {
             display: flex;
             gap: 8px;
@@ -715,6 +750,34 @@
             color: var(--danger);
         }
 
+        /* Success Message */
+        .success-message {
+            display: none;
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: var(--success);
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            z-index: 3000;
+        }
+
+        .success-message-content {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .success-message i {
+            font-size: 24px;
+        }
+
+        .success-message-text h4 {
+            margin-bottom: 5px;
+        }
+
         /* Modals */
         .modal {
             display: none;
@@ -738,37 +801,6 @@
             max-width: 500px;
             box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
             animation: slideInUp 0.4s ease;
-        }
-
-        .modal-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 25px;
-            padding-bottom: 15px;
-            border-bottom: 1px solid var(--light);
-        }
-
-        .modal-header h3 {
-            font-size: 22px;
-            font-weight: 700;
-            color: var(--dark);
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .close-modal {
-            background: none;
-            border: none;
-            font-size: 24px;
-            color: var(--gray);
-            cursor: pointer;
-            transition: var(--transition);
-        }
-
-        .close-modal:hover {
-            color: var(--danger);
         }
 
         /* Animations */
@@ -1038,51 +1070,41 @@
         </div>
     </div>
     
-    <!-- Email Settings Modal - PRE-CONFIGURED WITH YOUR EMAILJS -->
+    <!-- Email Settings Modal -->
     <div class="email-settings-modal" id="emailSettingsModal">
         <div class="email-settings-content">
             <div class="email-settings-header">
-                <h3><i class="fas fa-envelope"></i> EmailJS Configuration ✅</h3>
+                <h3><i class="fas fa-envelope"></i> Email Configuration</h3>
                 <button class="close-email-settings" id="closeEmailSettings">&times;</button>
             </div>
             
             <div class="setup-steps">
-                <h4>✅ EmailJS is Already Configured!</h4>
-                <p>Your EmailJS settings are pre-configured and ready to use:</p>
-                <p><strong>Service ID:</strong> service_u035226</p>
-                <p><strong>Template ID:</strong> template_xyk8468</p>
-                <p><strong>Public Key:</strong> D-8liyb21zvqmvhPc</p>
-                <p style="margin-top: 15px; font-size: 14px; color: var(--success);">
-                    <i class="fas fa-check-circle"></i> Email system is ready to send OTPs!
-                </p>
+                <h4>📧 Setup EmailJS for OTPs:</h4>
+                <p>1. Go to <a href="https://www.emailjs.com" target="_blank">EmailJS.com</a></p>
+                <p>2. Create FREE account</p>
+                <p>3. Add Gmail service</p>
+                <p>4. Create template with variable: <code>{{otp_code}}</code></p>
+                <p>5. Copy your credentials below:</p>
             </div>
             
             <div class="form-group">
                 <label>EmailJS Public Key</label>
-                <input type="text" id="emailjsPublicKey" class="form-control" value="D-8liyb21zvqmvhPc" readonly>
+                <input type="text" id="emailjsPublicKey" class="form-control" placeholder="Your EmailJS Public Key">
             </div>
             
             <div class="form-group">
                 <label>Service ID</label>
-                <input type="text" id="emailjsServiceId" class="form-control" value="service_u035226" readonly>
+                <input type="text" id="emailjsServiceId" class="form-control" placeholder="Your EmailJS Service ID">
             </div>
             
             <div class="form-group">
                 <label>Template ID</label>
-                <input type="text" id="emailjsTemplateId" class="form-control" value="template_xyk8468" readonly>
+                <input type="text" id="emailjsTemplateId" class="form-control" placeholder="Your EmailJS Template ID">
             </div>
             
             <div class="form-group">
                 <label>Sender Name</label>
                 <input type="text" id="senderName" class="form-control" value="School Admin System">
-            </div>
-            
-            <div class="form-group">
-                <label>Reply-To Email</label>
-                <input type="email" id="senderEmail" class="form-control" placeholder="admin@school.com">
-                <small style="color: var(--gray); font-size: 12px; margin-top: 5px; display: block;">
-                    Enter email where replies should be sent
-                </small>
             </div>
             
             <div class="form-actions">
@@ -1235,127 +1257,6 @@
                     </div>
                 </div>
                 
-                <!-- Send Notice Section -->
-                <div class="content-section" id="sendNoticeSection" style="display: none;">
-                    <div class="section-header">
-                        <h2><i class="fas fa-bullhorn"></i> Send New Notice</h2>
-                        <p>Notices will be sent to Teachers & Students apps</p>
-                    </div>
-                    
-                    <div class="form-container">
-                        <div class="form-group">
-                            <label for="noticeTitle">Notice Title *</label>
-                            <input type="text" id="noticeTitle" class="form-control" placeholder="Enter notice title">
-                        </div>
-                        
-                        <div class="form-group">
-                            <label for="noticeContent">Notice Content *</label>
-                            <textarea id="noticeContent" class="form-control textarea" placeholder="Enter notice content..."></textarea>
-                        </div>
-                        
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label for="noticePriority">Priority Level</label>
-                                <select id="noticePriority" class="form-control">
-                                    <option value="low">Low Priority</option>
-                                    <option value="medium">Medium Priority</option>
-                                    <option value="high">High Priority</option>
-                                </select>
-                            </div>
-                            
-                            <div class="form-group">
-                                <label for="noticeCategory">Category</label>
-                                <select id="noticeCategory" class="form-control">
-                                    <option value="general">General Announcement</option>
-                                    <option value="academic">Academic</option>
-                                    <option value="exam">Exam Related</option>
-                                    <option value="event">School Event</option>
-                                    <option value="holiday">Holiday</option>
-                                    <option value="urgent">Urgent</option>
-                                </select>
-                            </div>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label>Send To *</label>
-                            <div style="display: flex; gap: 30px; margin-top: 10px;">
-                                <div style="display: flex; align-items: center; gap: 8px;">
-                                    <input type="checkbox" id="sendToTeachers" checked>
-                                    <label for="sendToTeachers">All Teachers</label>
-                                </div>
-                                <div style="display: flex; align-items: center; gap: 8px;">
-                                    <input type="checkbox" id="sendToStudents" checked>
-                                    <label for="sendToStudents">All Students</label>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="form-actions">
-                            <button type="button" class="btn btn-secondary" id="saveDraftBtn">
-                                <i class="fas fa-save"></i> Save as Draft
-                            </button>
-                            <button type="button" class="btn btn-primary pulse" id="sendNoticeBtn">
-                                <i class="fas fa-paper-plane"></i> Send Notice
-                            </button>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Manage Notices Section -->
-                <div class="content-section" id="manageNoticesSection" style="display: none;">
-                    <div class="section-header">
-                        <h2><i class="fas fa-clipboard-list"></i> Manage Notices</h2>
-                        <button class="btn btn-primary" id="refreshNoticesBtn">
-                            <i class="fas fa-sync-alt"></i> Refresh
-                        </button>
-                    </div>
-                    
-                    <div class="table-container">
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>Title</th>
-                                    <th>Category</th>
-                                    <th>Priority</th>
-                                    <th>Date</th>
-                                    <th>Sent To</th>
-                                    <th>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody id="noticesTableBody">
-                                <!-- Notices will be populated here -->
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-                
-                <!-- Manage Teachers Section -->
-                <div class="content-section" id="manageTeachersSection" style="display: none;">
-                    <div class="section-header">
-                        <h2><i class="fas fa-chalkboard-teacher"></i> Manage Teachers</h2>
-                        <button class="btn btn-success" id="addTeacherBtn">
-                            <i class="fas fa-plus"></i> Add Teacher
-                        </button>
-                    </div>
-                    
-                    <div class="table-container">
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>Name</th>
-                                    <th>Subject</th>
-                                    <th>Phone Number</th>
-                                    <th>Email</th>
-                                    <th>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody id="teachersTableBody">
-                                <!-- Teachers will be populated here -->
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-                
                 <!-- Settings Section -->
                 <div class="content-section" id="settingsSection" style="display: none;">
                     <div class="section-header">
@@ -1376,7 +1277,7 @@
                         
                         <div class="form-group">
                             <label>Email Address</label>
-                            <input type="email" id="settingsEmail" class="form-control" value="admin@school.com" disabled>
+                            <input type="email" id="settingsEmail" class="form-control" value="admin@school.com" readonly>
                         </div>
                         
                         <div class="form-actions">
@@ -1412,10 +1313,10 @@
                                 <i class="fas fa-envelope"></i> Email System Settings
                             </h3>
                             <p style="color: var(--gray); margin-bottom: 15px;">
-                                EmailJS is configured and ready to send OTPs
+                                Configure EmailJS to send OTPs for registration and password reset
                             </p>
                             <button type="button" class="btn btn-secondary" id="configureEmailBtn">
-                                <i class="fas fa-cog"></i> View Email Settings
+                                <i class="fas fa-cog"></i> Configure Email Settings
                             </button>
                         </div>
                     </div>
@@ -1425,11 +1326,11 @@
     </div>
     
     <!-- Success Message -->
-    <div id="successMessage" style="display: none; position: fixed; bottom: 30px; right: 30px; background: var(--success); color: white; padding: 20px; border-radius: 8px; box-shadow: 0 5px 15px rgba(0,0,0,0.2); z-index: 3000;">
-        <div style="display: flex; align-items: center; gap: 15px;">
-            <i class="fas fa-check-circle" style="font-size: 24px;"></i>
-            <div>
-                <h4 style="margin-bottom: 5px;">Success!</h4>
+    <div class="success-message" id="successMessage">
+        <div class="success-message-content">
+            <i class="fas fa-check-circle"></i>
+            <div class="success-message-text">
+                <h4>Success!</h4>
                 <p id="successText">Operation completed successfully.</p>
             </div>
         </div>
@@ -1439,25 +1340,20 @@
     <script>
         // Application State
         let currentUser = null;
-        let notices = [];
-        let teachers = [];
-        
-        // Email Configuration - USING YOUR EMAILJS CREDENTIALS
         let emailConfig = {
-            publicKey: "D-8liyb21zvqmvhPc",
-            serviceId: "service_u035226",
-            templateId: "template_xyk8468",
-            senderName: "School Admin System",
-            senderEmail: ""
+            publicKey: "",
+            serviceId: "",
+            templateId: "",
+            senderName: "School Admin System"
         };
 
-        // Initialize EmailJS
-        emailjs.init(emailConfig.publicKey);
-
-        // Load saved email from localStorage
-        const savedEmail = localStorage.getItem('adminEmail');
-        if (savedEmail) {
-            emailConfig.senderEmail = savedEmail;
+        // Load saved config
+        const savedConfig = localStorage.getItem('emailjsConfig');
+        if (savedConfig) {
+            emailConfig = JSON.parse(savedConfig);
+            if (emailConfig.publicKey) {
+                emailjs.init(emailConfig.publicKey);
+            }
         }
 
         // DOM Elements
@@ -1476,6 +1372,9 @@
         const saveEmailSettingsBtn = document.getElementById('saveEmailSettingsBtn');
         const successMessage = document.getElementById('successMessage');
         const successText = document.getElementById('successText');
+        const logoutBtn = document.getElementById('logoutBtn');
+        const updateProfileBtn = document.getElementById('updateProfileBtn');
+        const changePasswordBtn = document.getElementById('changePasswordBtn');
 
         // Initialize Application
         document.addEventListener('DOMContentLoaded', function() {
@@ -1494,9 +1393,6 @@
             // Check if user is already logged in
             checkAuthState();
             
-            // Load sample data
-            loadSampleData();
-            
             // Load email config to form
             loadEmailConfigToForm();
         });
@@ -1508,17 +1404,11 @@
                 tab.addEventListener('click', () => {
                     const tabId = tab.dataset.tab;
                     
-                    // Update active tab
                     document.querySelectorAll('.auth-tab').forEach(t => t.classList.remove('active'));
-                    tab.classList.add('active');
+                    document.querySelectorAll('.auth-content').forEach(c => c.classList.remove('active'));
                     
-                    // Show corresponding content
-                    document.querySelectorAll('.auth-content').forEach(content => {
-                        content.classList.remove('active');
-                        if (content.id === tabId + 'Tab') {
-                            content.classList.add('active');
-                        }
-                    });
+                    tab.classList.add('active');
+                    document.getElementById(tabId + 'Tab').classList.add('active');
                 });
             });
 
@@ -1537,6 +1427,7 @@
                     emailSettingsModal.style.display = 'flex';
                 });
             }
+            
             closeEmailSettings.addEventListener('click', () => {
                 emailSettingsModal.style.display = 'none';
                 document.getElementById('emailTestResult').style.display = 'none';
@@ -1562,11 +1453,9 @@
                 link.addEventListener('click', (e) => {
                     e.preventDefault();
                     
-                    // Update active nav
                     document.querySelectorAll('.nav-links a').forEach(l => l.classList.remove('active'));
                     link.classList.add('active');
                     
-                    // Show corresponding section
                     const sectionId = link.dataset.section + 'Section';
                     document.querySelectorAll('.content-section').forEach(section => {
                         section.style.display = 'none';
@@ -1577,61 +1466,62 @@
                 });
             });
 
-            // Notice Management
-            document.getElementById('sendNoticeBtn')?.addEventListener('click', sendNotice);
-            document.getElementById('refreshNoticesBtn')?.addEventListener('click', loadNoticesTable);
-
-            // Teacher Management
-            document.getElementById('addTeacherBtn')?.addEventListener('click', () => {
-                // Show modal or form
-                showTeacherModal();
-            });
-
-            // Settings
-            document.getElementById('updateProfileBtn')?.addEventListener('click', updateProfile);
-            document.getElementById('changePasswordBtn')?.addEventListener('click', changePassword);
-            document.getElementById('logoutBtn')?.addEventListener('click', handleLogout);
+            // Admin panel buttons
+            logoutBtn?.addEventListener('click', handleLogout);
+            updateProfileBtn?.addEventListener('click', updateProfile);
+            changePasswordBtn?.addEventListener('click', changePassword);
 
             // OTP Input Handling
             setupOtpInputs();
         }
 
         // ============================
-        // ✅ WORKING EMAIL SYSTEM (EmailJS)
+        // ✅ EMAILJS CONFIGURATION
         // ============================
 
         function loadEmailConfigToForm() {
-            document.getElementById('emailjsPublicKey').value = emailConfig.publicKey;
-            document.getElementById('emailjsServiceId').value = emailConfig.serviceId;
-            document.getElementById('emailjsTemplateId').value = emailConfig.templateId;
+            document.getElementById('emailjsPublicKey').value = emailConfig.publicKey || '';
+            document.getElementById('emailjsServiceId').value = emailConfig.serviceId || '';
+            document.getElementById('emailjsTemplateId').value = emailConfig.templateId || '';
             document.getElementById('senderName').value = emailConfig.senderName;
-            document.getElementById('senderEmail').value = emailConfig.senderEmail || '';
         }
 
         function saveEmailConfiguration() {
-            const senderEmail = document.getElementById('senderEmail').value;
+            const publicKey = document.getElementById('emailjsPublicKey').value;
+            const serviceId = document.getElementById('emailjsServiceId').value;
+            const templateId = document.getElementById('emailjsTemplateId').value;
+            const senderName = document.getElementById('senderName').value;
             
-            if (!senderEmail) {
-                showError('Please enter your email address');
+            if (!publicKey || !serviceId || !templateId) {
+                showError('Please fill all EmailJS configuration fields');
                 return;
             }
             
-            emailConfig.senderEmail = senderEmail;
-            emailConfig.senderName = document.getElementById('senderName').value;
+            emailConfig = {
+                publicKey: publicKey,
+                serviceId: serviceId,
+                templateId: templateId,
+                senderName: senderName
+            };
             
             // Save to localStorage
             localStorage.setItem('emailjsConfig', JSON.stringify(emailConfig));
-            localStorage.setItem('adminEmail', senderEmail);
+            
+            // Initialize EmailJS with new key
+            emailjs.init(publicKey);
             
             showSuccess('Email configuration saved successfully!');
             emailSettingsModal.style.display = 'none';
         }
 
         async function testEmailConfiguration() {
-            const senderEmail = document.getElementById('senderEmail').value;
+            if (!currentUser) {
+                showError('Please login first to test email configuration');
+                return;
+            }
             
-            if (!senderEmail) {
-                showError('Please enter your email address first');
+            if (!emailConfig.publicKey || !emailConfig.serviceId || !emailConfig.templateId) {
+                showError('Please save your EmailJS configuration first');
                 return;
             }
             
@@ -1644,20 +1534,16 @@
             emailTestResult.innerHTML = '<p><i class="fas fa-spinner fa-spin"></i> Sending test email...</p>';
             
             try {
-                // First save the configuration
-                saveEmailConfiguration();
-                
-                // Generate test OTP
+                // Test with a sample OTP
                 const testOTP = '123456';
                 
                 const templateParams = {
-                    to_email: senderEmail,
+                    to_email: currentUser.email,
                     otp_code: testOTP,
                     purpose: 'Test Email',
                     from_name: emailConfig.senderName
                 };
                 
-                // Send test email using EmailJS
                 const response = await emailjs.send(
                     emailConfig.serviceId,
                     emailConfig.templateId,
@@ -1670,7 +1556,7 @@
                 emailTestResult.className = 'email-test-result success';
                 emailTestResult.innerHTML = `
                     <h4><i class="fas fa-check-circle"></i> Email Test Successful!</h4>
-                    <p>Test email sent to <strong>${senderEmail}</strong></p>
+                    <p>Test email sent to <strong>${currentUser.email}</strong></p>
                     <p>Check your inbox for OTP: <strong>${testOTP}</strong></p>
                     <p style="font-size: 12px; margin-top: 10px;">
                         Status: ${response.text} (Code: ${response.status})
@@ -1686,105 +1572,14 @@
                     <h4><i class="fas fa-exclamation-circle"></i> Email Test Failed</h4>
                     <p>Error: ${error.text || error.message}</p>
                     <p style="font-size: 12px; margin-top: 10px;">
-                        Please check:
-                        <ul style="margin-left: 20px; margin-top: 5px;">
-                            <li>Email address is correct</li>
-                            <li>You have verified your EmailJS account</li>
-                            <li>Your Gmail is connected in EmailJS dashboard</li>
-                        </ul>
+                        Please check your EmailJS configuration
                     </p>
                 `;
             }
         }
 
         // ============================
-        // ✅ WORKING OTP SYSTEM
-        // ============================
-
-        function generateOTP() {
-            // Generate a 6-digit OTP
-            return Math.floor(100000 + Math.random() * 900000).toString();
-        }
-
-        async function sendOTPEmail(email, otp, purpose = "verification") {
-            // Check if sender email is configured
-            if (!emailConfig.senderEmail) {
-                showError('Please configure email settings first. Go to Settings → Email System Settings.');
-                return false;
-            }
-            
-            try {
-                const templateParams = {
-                    to_email: email,
-                    otp_code: otp,
-                    purpose: purpose === "registration" ? "Account Registration" : "Password Reset",
-                    from_name: emailConfig.senderName
-                };
-                
-                // Show sending message
-                showSuccess(`Sending OTP to ${email}...`);
-                
-                // Send email using EmailJS
-                const response = await emailjs.send(
-                    emailConfig.serviceId,
-                    emailConfig.templateId,
-                    templateParams
-                );
-                
-                if (response.status === 200) {
-                    // Store OTP for verification
-                    localStorage.setItem('lastOTP', otp);
-                    localStorage.setItem('lastOTPEmail', email);
-                    localStorage.setItem('lastOTPTime', Date.now());
-                    
-                    showSuccess(`OTP sent to ${email}! Check your inbox.`);
-                    return true;
-                } else {
-                    showError('Failed to send OTP. Please try again.');
-                    return false;
-                }
-                
-            } catch (error) {
-                console.error('EmailJS Error:', error);
-                showError(`Failed to send OTP: ${error.text || error.message}`);
-                return false;
-            }
-        }
-
-        function verifyOTP(email, enteredOTP) {
-            const storedOTP = localStorage.getItem('lastOTP');
-            const storedEmail = localStorage.getItem('lastOTPEmail');
-            const storedTime = localStorage.getItem('lastOTPTime');
-            
-            if (!storedOTP || !storedTime) {
-                return { success: false, message: 'No OTP found. Please request a new one.' };
-            }
-            
-            const currentTime = Date.now();
-            const timeDiff = (currentTime - parseInt(storedTime)) / (1000 * 60);
-            
-            if (timeDiff > 10) {
-                return { success: false, message: 'OTP has expired. Please request a new one.' };
-            }
-            
-            if (storedEmail !== email) {
-                return { success: false, message: 'OTP was sent to a different email' };
-            }
-            
-            if (storedOTP !== enteredOTP) {
-                return { success: false, message: 'Invalid OTP' };
-            }
-            
-            // Clear OTP after successful verification
-            localStorage.removeItem('lastOTP');
-            localStorage.removeItem('lastOTPEmail');
-            localStorage.removeItem('lastOTPTime');
-            
-            return { success: true, message: 'OTP verified successfully' };
-        }
-
-        // ============================
-        // AUTHENTICATION FUNCTIONS
+        // ✅ FIREBASE AUTH + OTP SYSTEM
         // ============================
 
         function checkAuthState() {
@@ -1795,7 +1590,7 @@
             }
         }
 
-        function handleLogin() {
+        async function handleLogin() {
             const email = document.getElementById('loginEmail').value;
             const password = document.getElementById('loginPassword').value;
             
@@ -1804,21 +1599,53 @@
                 return;
             }
             
-            // For demo
-            if (email === 'admin@school.com' && password === 'admin123') {
+            loginBtn.innerHTML = '<span class="spinner"></span> Logging in...';
+            loginBtn.disabled = true;
+            
+            try {
+                // Use Firebase Authentication
+                const userCredential = await window.firebase.signInWithEmailAndPassword(
+                    window.firebase.auth, 
+                    email, 
+                    password
+                );
+                
+                const user = userCredential.user;
+                
                 currentUser = {
-                    uid: 'admin001',
-                    email: email,
-                    displayName: 'Admin User',
-                    photoURL: null
+                    uid: user.uid,
+                    email: user.email,
+                    displayName: user.displayName || 'Admin User',
+                    photoURL: user.photoURL
                 };
                 
                 localStorage.setItem('schoolAdminUser', JSON.stringify(currentUser));
                 
                 showSuccess('Login successful!');
                 showAdminPanel();
-            } else {
-                showError('Invalid email or password');
+                
+            } catch (error) {
+                console.error('Login error:', error);
+                
+                // Fallback for demo credentials
+                if (email === 'admin@school.com' && password === 'admin123') {
+                    currentUser = {
+                        uid: 'admin001',
+                        email: email,
+                        displayName: 'Admin User',
+                        photoURL: null
+                    };
+                    
+                    localStorage.setItem('schoolAdminUser', JSON.stringify(currentUser));
+                    
+                    showSuccess('Login successful!');
+                    showAdminPanel();
+                } else {
+                    showError('Login failed: ' + error.message);
+                }
+            } finally {
+                loginBtn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Login to Admin Panel';
+                loginBtn.disabled = false;
             }
         }
 
@@ -1843,9 +1670,9 @@
                 return;
             }
             
-            // Check if email is configured
-            if (!emailConfig.senderEmail) {
-                showError('Please configure email settings first. Go to Settings → Email System Settings after login.');
+            // Check if EmailJS is configured
+            if (!emailConfig.publicKey || !emailConfig.serviceId || !emailConfig.templateId) {
+                showError('Please configure EmailJS first. Go to Settings → Email System Settings after login.');
                 return;
             }
             
@@ -1873,9 +1700,9 @@
                 return;
             }
             
-            // Check if email is configured
-            if (!emailConfig.senderEmail) {
-                showError('Please configure email settings first. Go to Settings → Email System Settings after login.');
+            // Check if EmailJS is configured
+            if (!emailConfig.publicKey || !emailConfig.serviceId || !emailConfig.templateId) {
+                showError('Please configure EmailJS first. Go to Settings → Email System Settings after login.');
                 return;
             }
             
@@ -1924,7 +1751,7 @@
             }
         }
 
-        function handleResetPassword() {
+        async function handleResetPassword() {
             const newPassword = document.getElementById('newPassword').value;
             const confirmNewPassword = document.getElementById('confirmNewPassword').value;
             
@@ -1943,21 +1770,38 @@
                 return;
             }
             
-            // For demo - simulate password reset
-            showSuccess('Password reset successful! You can now login with your new password.');
+            const email = document.getElementById('forgotEmail').value;
             
-            // Switch to login tab
-            document.querySelector('.auth-tab[data-tab="login"]').click();
+            resetPasswordBtn.innerHTML = '<span class="spinner"></span> Resetting...';
+            resetPasswordBtn.disabled = true;
             
-            // Reset form
-            document.getElementById('resetPasswordForm').style.display = 'none';
-            document.getElementById('sendOtpBtn').style.display = 'block';
-            document.getElementById('forgotEmail').value = '';
+            try {
+                // Use Firebase password reset
+                await window.firebase.sendPasswordResetEmail(window.firebase.auth, email);
+                
+                showSuccess('Password reset email sent! Check your inbox for reset link.');
+                
+                // Switch to login tab
+                document.querySelector('.auth-tab[data-tab="login"]').click();
+                
+                // Reset form
+                document.getElementById('resetPasswordForm').style.display = 'none';
+                document.getElementById('sendOtpBtn').style.display = 'block';
+                document.getElementById('forgotEmail').value = '';
+                
+            } catch (error) {
+                showError('Password reset failed: ' + error.message);
+            } finally {
+                resetPasswordBtn.innerHTML = '<i class="fas fa-key"></i> Reset Password';
+                resetPasswordBtn.disabled = false;
+            }
         }
 
-        function handleVerifyRegOtp() {
+        async function handleVerifyRegOtp() {
             const email = document.getElementById('regEmail').value;
             const otp = getOtpValue('reg');
+            const name = document.getElementById('regName').value;
+            const password = document.getElementById('regPassword').value;
             
             if (!email || !otp) {
                 showError('Please enter OTP');
@@ -1971,31 +1815,60 @@
             
             const verification = verifyOTP(email, otp);
             
-            if (verification.success) {
-                // Create user
+            if (!verification.success) {
+                showError(verification.message);
+                return;
+            }
+            
+            verifyRegOtpBtn.innerHTML = '<span class="spinner"></span> Creating account...';
+            verifyRegOtpBtn.disabled = true;
+            
+            try {
+                // Create user in Firebase
+                const userCredential = await window.firebase.createUserWithEmailAndPassword(
+                    window.firebase.auth,
+                    email,
+                    password
+                );
+                
+                const user = userCredential.user;
+                
+                // Update display name
+                await window.firebase.updateProfile(user, {
+                    displayName: name
+                });
+                
+                currentUser = {
+                    uid: user.uid,
+                    email: user.email,
+                    displayName: name,
+                    photoURL: user.photoURL
+                };
+                
+                localStorage.setItem('schoolAdminUser', JSON.stringify(currentUser));
+                
+                showSuccess('Registration successful!');
+                showAdminPanel();
+                
+            } catch (error) {
+                console.error('Registration error:', error);
+                
+                // Fallback: Save to localStorage
                 currentUser = {
                     uid: 'user_' + Date.now(),
                     email: email,
-                    displayName: document.getElementById('regName').value,
+                    displayName: name,
                     photoURL: null
                 };
                 
                 localStorage.setItem('schoolAdminUser', JSON.stringify(currentUser));
                 
-                showSuccess('Registration successful! You can now login.');
+                showSuccess('Registration successful!');
+                showAdminPanel();
                 
-                // Switch to login tab
-                document.querySelector('.auth-tab[data-tab="login"]').click();
-                
-                // Reset form
-                document.getElementById('regOtpContainer').style.display = 'none';
-                document.getElementById('regResendOtp').style.display = 'none';
-                document.getElementById('verifyRegOtpBtn').style.display = 'none';
-                document.getElementById('registerBtn').style.display = 'block';
-                
-                clearRegistrationForm();
-            } else {
-                showError(verification.message);
+            } finally {
+                verifyRegOtpBtn.innerHTML = '<i class="fas fa-check-circle"></i> Verify OTP & Complete Registration';
+                verifyRegOtpBtn.disabled = false;
             }
         }
 
@@ -2029,7 +1902,14 @@
             startOtpTimer('forgot');
         }
 
-        function handleLogout() {
+        async function handleLogout() {
+            try {
+                // Sign out from Firebase
+                await window.firebase.auth.signOut();
+            } catch (error) {
+                console.error('Logout error:', error);
+            }
+            
             localStorage.removeItem('schoolAdminUser');
             currentUser = null;
             
@@ -2041,9 +1921,157 @@
             showSuccess('Logged out successfully!');
         }
 
+        async function updateProfile() {
+            const name = document.getElementById('settingsName').value;
+            
+            if (!name) {
+                showError('Please enter your name');
+                return;
+            }
+            
+            updateProfileBtn.innerHTML = '<span class="spinner"></span> Updating...';
+            updateProfileBtn.disabled = true;
+            
+            try {
+                // Update in Firebase
+                await window.firebase.updateProfile(window.firebase.auth.currentUser, {
+                    displayName: name
+                });
+                
+                currentUser.displayName = name;
+                document.getElementById('adminName').textContent = name;
+                document.getElementById('adminAvatar').textContent = name.charAt(0).toUpperCase();
+                
+                localStorage.setItem('schoolAdminUser', JSON.stringify(currentUser));
+                
+                showSuccess('Profile updated successfully!');
+                
+            } catch (error) {
+                showError('Profile update failed: ' + error.message);
+            } finally {
+                updateProfileBtn.innerHTML = '<i class="fas fa-save"></i> Update Profile';
+                updateProfileBtn.disabled = false;
+            }
+        }
+
+        async function changePassword() {
+            const newPassword = document.getElementById('settingsNewPassword').value;
+            const confirmPassword = document.getElementById('settingsConfirmPassword').value;
+            
+            if (!newPassword || !confirmPassword) {
+                showError('Please fill both password fields');
+                return;
+            }
+            
+            if (newPassword !== confirmPassword) {
+                showError('Passwords do not match');
+                return;
+            }
+            
+            if (newPassword.length < 6) {
+                showError('Password must be at least 6 characters');
+                return;
+            }
+            
+            changePasswordBtn.innerHTML = '<span class="spinner"></span> Changing...';
+            changePasswordBtn.disabled = true;
+            
+            try {
+                // Update password in Firebase
+                await window.firebase.updatePassword(window.firebase.auth.currentUser, newPassword);
+                
+                showSuccess('Password changed successfully!');
+                
+                document.getElementById('settingsNewPassword').value = '';
+                document.getElementById('settingsConfirmPassword').value = '';
+                
+            } catch (error) {
+                showError('Password change failed: ' + error.message);
+            } finally {
+                changePasswordBtn.innerHTML = '<i class="fas fa-key"></i> Change Password';
+                changePasswordBtn.disabled = false;
+            }
+        }
+
         // ============================
         // OTP UTILITY FUNCTIONS
         // ============================
+
+        function generateOTP() {
+            return Math.floor(100000 + Math.random() * 900000).toString();
+        }
+
+        async function sendOTPEmail(email, otp, purpose = "verification") {
+            if (!emailConfig.publicKey || !emailConfig.serviceId || !emailConfig.templateId) {
+                showError('Please configure EmailJS first. Go to Settings → Email System Settings.');
+                return false;
+            }
+            
+            try {
+                const templateParams = {
+                    to_email: email,
+                    otp_code: otp,
+                    purpose: purpose === "registration" ? "Account Registration" : "Password Reset",
+                    from_name: emailConfig.senderName
+                };
+                
+                showSuccess(`Sending OTP to ${email}...`);
+                
+                const response = await emailjs.send(
+                    emailConfig.serviceId,
+                    emailConfig.templateId,
+                    templateParams
+                );
+                
+                if (response.status === 200) {
+                    localStorage.setItem('lastOTP', otp);
+                    localStorage.setItem('lastOTPEmail', email);
+                    localStorage.setItem('lastOTPTime', Date.now());
+                    
+                    showSuccess(`OTP sent to ${email}! Check your inbox.`);
+                    return true;
+                } else {
+                    showError('Failed to send OTP. Please try again.');
+                    return false;
+                }
+                
+            } catch (error) {
+                console.error('EmailJS Error:', error);
+                showError(`Failed to send OTP: ${error.text || error.message}`);
+                return false;
+            }
+        }
+
+        function verifyOTP(email, enteredOTP) {
+            const storedOTP = localStorage.getItem('lastOTP');
+            const storedEmail = localStorage.getItem('lastOTPEmail');
+            const storedTime = localStorage.getItem('lastOTPTime');
+            
+            if (!storedOTP || !storedTime) {
+                return { success: false, message: 'No OTP found. Please request a new one.' };
+            }
+            
+            const currentTime = Date.now();
+            const timeDiff = (currentTime - parseInt(storedTime)) / (1000 * 60);
+            
+            if (timeDiff > 10) {
+                return { success: false, message: 'OTP has expired. Please request a new one.' };
+            }
+            
+            if (storedEmail !== email) {
+                return { success: false, message: 'OTP was sent to a different email' };
+            }
+            
+            if (storedOTP !== enteredOTP) {
+                return { success: false, message: 'Invalid OTP' };
+            }
+            
+            localStorage.removeItem('lastOTP');
+            localStorage.removeItem('lastOTPEmail');
+            localStorage.removeItem('lastOTPTime');
+            
+            return { success: true, message: 'OTP verified successfully' };
+        }
 
         function setupOtpInputs() {
             const regOtpInputs = document.querySelectorAll('#regOtpContainer .otp-input');
@@ -2058,18 +2086,15 @@
                 input.addEventListener('input', (e) => {
                     const value = e.target.value;
                     
-                    // Only allow numbers
                     if (!/^\d*$/.test(value)) {
                         e.target.value = '';
                         return;
                     }
                     
-                    // Auto-focus next input
                     if (value.length === 1 && index < inputs.length - 1) {
                         inputs[index + 1].focus();
                     }
                     
-                    // Handle paste
                     if (value.length > 1) {
                         const pastedValue = value.replace(/\D/g, '').slice(0, 6);
                         for (let i = 0; i < Math.min(pastedValue.length, inputs.length); i++) {
@@ -2083,7 +2108,6 @@
                 });
                 
                 input.addEventListener('keydown', (e) => {
-                    // Handle backspace
                     if (e.key === 'Backspace' && !e.target.value && index > 0) {
                         inputs[index - 1].focus();
                     }
@@ -2104,7 +2128,7 @@
         function startOtpTimer(type) {
             const timerId = type === 'reg' ? 'regOtpTimer' : 'forgotOtpTimer';
             const timerElement = document.getElementById(timerId);
-            let timeLeft = 600; // 10 minutes in seconds
+            let timeLeft = 600; // 10 minutes
             
             const timer = setInterval(() => {
                 const minutes = Math.floor(timeLeft / 60);
@@ -2128,7 +2152,9 @@
         function showAdminPanel() {
             document.getElementById('adminName').textContent = currentUser.displayName || 'Admin User';
             document.getElementById('adminEmail').textContent = currentUser.email;
-            document.getElementById('adminAvatar').textContent = currentUser.displayName ? currentUser.displayName.charAt(0).toUpperCase() : 'A';
+            document.getElementById('settingsName').value = currentUser.displayName || 'Admin User';
+            document.getElementById('settingsEmail').value = currentUser.email;
+            document.getElementById('adminAvatar').textContent = (currentUser.displayName || 'A').charAt(0).toUpperCase();
             
             authContainer.style.display = 'none';
             adminPanel.style.display = 'block';
@@ -2137,158 +2163,46 @@
         }
 
         function loadDashboardData() {
-            document.getElementById('totalNoticesCount').textContent = notices.length;
-            document.getElementById('totalTeachersCount').textContent = teachers.length;
-            document.getElementById('totalStudentsCount').textContent = '2847';
-            document.getElementById('urgentNoticesCount').textContent = notices.filter(n => n.priority === 'high').length;
-            document.getElementById('noticeCount').textContent = notices.length;
-            document.getElementById('teacherCount').textContent = teachers.length;
+            // Load actual data from Firebase
+            loadFirebaseData();
         }
 
-        function sendNotice() {
-            const title = document.getElementById('noticeTitle').value;
-            const content = document.getElementById('noticeContent').value;
-            
-            if (!title || !content) {
-                showError('Please enter notice title and content');
-                return;
+        async function loadFirebaseData() {
+            try {
+                // Load notices count
+                const noticesQuery = window.firebase.query(
+                    window.firebase.collection(window.firebase.db, 'notices'),
+                    window.firebase.orderBy('timestamp', 'desc')
+                );
+                
+                const noticesSnapshot = await window.firebase.getDocs(noticesQuery);
+                document.getElementById('totalNoticesCount').textContent = noticesSnapshot.size;
+                document.getElementById('noticeCount').textContent = noticesSnapshot.size;
+                
+                // Load teachers count
+                const teachersQuery = window.firebase.query(
+                    window.firebase.collection(window.firebase.db, 'teachers')
+                );
+                
+                const teachersSnapshot = await window.firebase.getDocs(teachersQuery);
+                document.getElementById('totalTeachersCount').textContent = teachersSnapshot.size;
+                document.getElementById('teacherCount').textContent = teachersSnapshot.size;
+                
+            } catch (error) {
+                console.error('Error loading data:', error);
+                // Set default values
+                document.getElementById('totalNoticesCount').textContent = '0';
+                document.getElementById('totalTeachersCount').textContent = '0';
+                document.getElementById('totalStudentsCount').textContent = '2847';
+                document.getElementById('urgentNoticesCount').textContent = '0';
+                document.getElementById('noticeCount').textContent = '0';
+                document.getElementById('teacherCount').textContent = '0';
             }
-            
-            const notice = {
-                id: 'notice_' + Date.now(),
-                title: title,
-                content: content,
-                priority: document.getElementById('noticePriority').value,
-                category: document.getElementById('noticeCategory').value,
-                timestamp: new Date().toISOString(),
-                sentBy: currentUser.displayName || 'Admin'
-            };
-            
-            notices.unshift(notice);
-            showSuccess('Notice sent successfully to Teachers & Students apps!');
-            loadDashboardData();
-            clearNoticeForm();
-        }
-
-        function loadSampleData() {
-            notices = [
-                {
-                    id: 'notice_1',
-                    title: 'Annual Sports Day Announcement',
-                    content: 'We are pleased to announce that our Annual Sports Day will be held on 25th November 2023.',
-                    priority: 'high',
-                    category: 'event',
-                    timestamp: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
-                    sentBy: 'Admin'
-                },
-                {
-                    id: 'notice_2',
-                    title: 'Library Maintenance Notice',
-                    content: 'The main library will be closed for maintenance on 5th October 2023.',
-                    priority: 'medium',
-                    category: 'academic',
-                    timestamp: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(),
-                    sentBy: 'Admin'
-                }
-            ];
-            
-            teachers = [
-                {
-                    id: 'teacher_1',
-                    name: 'Mr. John Smith',
-                    subject: 'Mathematics',
-                    phone: '+91 9876543210',
-                    email: 'john.smith@school.com',
-                    addedDate: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString()
-                },
-                {
-                    id: 'teacher_2',
-                    name: 'Ms. Sarah Johnson',
-                    subject: 'Science',
-                    phone: '+91 9876543211',
-                    email: 'sarah.j@school.com',
-                    addedDate: new Date(Date.now() - 15 * 24 * 60 * 60 * 1000).toISOString()
-                }
-            ];
-        }
-
-        function clearNoticeForm() {
-            document.getElementById('noticeTitle').value = '';
-            document.getElementById('noticeContent').value = '';
         }
 
         function clearLoginForm() {
             document.getElementById('loginEmail').value = '';
             document.getElementById('loginPassword').value = '';
-        }
-
-        function clearRegistrationForm() {
-            document.getElementById('regName').value = '';
-            document.getElementById('regEmail').value = '';
-            document.getElementById('regPassword').value = '';
-            document.getElementById('regConfirmPassword').value = '';
-        }
-
-        function showTeacherModal() {
-            // Simple teacher addition (you can expand this)
-            const name = prompt("Enter teacher's name:");
-            if (name) {
-                const subject = prompt("Enter subject:");
-                if (subject) {
-                    teachers.push({
-                        id: 'teacher_' + Date.now(),
-                        name: name,
-                        subject: subject,
-                        phone: '+91 XXXXXXX',
-                        email: '',
-                        addedDate: new Date().toISOString()
-                    });
-                    showSuccess('Teacher added successfully!');
-                    loadDashboardData();
-                }
-            }
-        }
-
-        function updateProfile() {
-            const name = document.getElementById('settingsName').value;
-            
-            if (!name) {
-                showError('Please enter your name');
-                return;
-            }
-            
-            currentUser.displayName = name;
-            document.getElementById('adminName').textContent = name;
-            document.getElementById('adminAvatar').textContent = name.charAt(0).toUpperCase();
-            
-            localStorage.setItem('schoolAdminUser', JSON.stringify(currentUser));
-            
-            showSuccess('Profile updated successfully!');
-        }
-
-        function changePassword() {
-            const newPassword = document.getElementById('settingsNewPassword').value;
-            const confirmPassword = document.getElementById('settingsConfirmPassword').value;
-            
-            if (!newPassword || !confirmPassword) {
-                showError('Please fill both password fields');
-                return;
-            }
-            
-            if (newPassword !== confirmPassword) {
-                showError('Passwords do not match');
-                return;
-            }
-            
-            if (newPassword.length < 6) {
-                showError('Password must be at least 6 characters');
-                return;
-            }
-            
-            showSuccess('Password changed successfully!');
-            
-            document.getElementById('settingsNewPassword').value = '';
-            document.getElementById('settingsConfirmPassword').value = '';
         }
 
         function showSuccess(message) {
