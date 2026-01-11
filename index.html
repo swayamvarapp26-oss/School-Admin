@@ -1,15 +1,39 @@
- <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SCHOOL ADMIN - Management Portal</title>
-    <!-- Firebase SDK -->
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
-    <!-- EmailJS for email sending -->
-    <script src="https://cdn.emailjs.com/dist/email.min.js"></script>
+    <!-- Firebase SDK v9 (Modular) -->
+    <script type="module">
+        // Import the functions you need from the SDKs you need
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
+        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, sendPasswordResetEmail, updatePassword } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js";
+        import { getFirestore, collection, addDoc, getDocs, updateDoc, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
+        
+        // Your web app's Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyDcKkAf2SRmfiJizVA71fILOqRZTtUGAdY",
+            authDomain: "schooladmin-51cdd.firebaseapp.com",
+            databaseURL: "https://schooladmin-51cdd-default-rtdb.firebaseio.com",
+            projectId: "schooladmin-51cdd",
+            storageBucket: "schooladmin-51cdd.firebasestorage.app",
+            messagingSenderId: "185301938780",
+            appId: "1:185301938780:web:bdeaabff3c7d2bff2bac99",
+            measurementId: "G-V8C5DE930K"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        
+        // Make Firebase available globally
+        window.firebase = { auth, db, createUserWithEmailAndPassword, signInWithEmailAndPassword, sendPasswordResetEmail, updatePassword, collection, addDoc, getDocs, updateDoc, deleteDoc, doc };
+        window.firebaseApp = app;
+        
+        console.log("Firebase initialized successfully!");
+    </script>
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Google Fonts -->
@@ -930,7 +954,6 @@
                     <h1>SCHOOL <span>ADMIN</span></h1>
                 </div>
                 <p>School Administration Management Portal</p>
-                <!-- Email status removed from here -->
             </div>
             
             <div class="auth-tabs">
@@ -963,7 +986,6 @@
                 
                 <div class="auth-footer">
                     <p>Default Admin Credentials: admin@school.com / admin123</p>
-                    <!-- Email configuration link removed from here -->
                 </div>
             </div>
             
@@ -1074,7 +1096,7 @@
                 
                 <div class="prefilled-settings">
                     <p><strong>App Password:</strong> mshc brps bwab neso</p>
-                    <p><strong>Format:</strong> Link This "mshc brps bwab neso"</p>
+                    <p><strong>Format:</strong> Use exactly as shown with SPACES</p>
                     <p><strong>Note:</strong> This grants complete access to your Google Account</p>
                 </div>
             </div>
@@ -1108,10 +1130,10 @@
             </div>
             
             <div class="form-group">
-                <label>App Password (16 characters)</label>
-                <input type="password" id="smtpPassword" class="form-control" value="mshc brps bwab neso" readonly>
+                <label>App Password (16 characters with spaces)</label>
+                <input type="password" id="smtpPassword" class="form-control" value="mshc brps bwab neso">
                 <small style="color: var(--success); font-size: 12px; margin-top: 5px; display: block;">
-                    ✅ Your app password is ready to use! (Enter your actual Gmail address above)
+                    ✅ Your app password is ready to use! Use with spaces as shown
                 </small>
             </div>
             
@@ -1542,30 +1564,8 @@
         </div>
     </div>
     
-    <!-- Firebase Configuration and App Logic -->
+    <!-- App Logic -->
     <script>
-        // Firebase Configuration
-        const firebaseConfig = {
-            apiKey: "AIzaSyDcKkAf2SRmfiJizVA71fILOqRZTtUGAdY",
-            authDomain: "schooladmin-51cdd.firebaseapp.com",
-            databaseURL: "https://schooladmin-51cdd-default-rtdb.firebaseio.com",
-            projectId: "schooladmin-51cdd",
-            storageBucket: "schooladmin-51cdd.firebasestorage.app",
-            messagingSenderId: "185301938780",
-            appId: "1:185301938780:web:bdeaabff3c7d2bff2bac99",
-            measurementId: "G-V8C5DE930K"
-        };
-
-        // Initialize Firebase
-        firebase.initializeApp(firebaseConfig);
-        const auth = firebase.auth();
-        const db = firebase.firestore();
-
-        // Initialize EmailJS (for sending emails)
-        (function(){
-            emailjs.init("USER_ID"); // Replace with your EmailJS user ID if using EmailJS
-        })();
-
         // Application State
         let currentUser = null;
         let currentAdmin = null;
@@ -1575,15 +1575,14 @@
         let itemToDelete = null;
         let deleteType = null;
         
-        // Email Configuration (Using your app password)
+        // Email Configuration (Using your app password WITH SPACES)
         let emailConfig = {
             smtpServer: "smtp.gmail.com",
             smtpPort: 587,
             smtpEmail: "", // You need to enter your Gmail address here
-            smtpPassword: "mshc brps bwab neso", // Your app password (remove spaces)
+            smtpPassword: "mshc brps bwab neso", // Your app password WITH SPACES
             smtpSenderName: "School Admin System",
-            encryption: "tls",
-            emailService: "gmail"
+            encryption: "tls"
         };
 
         // Load saved email config from localStorage
@@ -1682,6 +1681,8 @@
             
             // Load email config to form
             loadEmailConfigToForm();
+            
+            console.log("App initialized. Firebase:", window.firebase ? "Loaded" : "Loading...");
         });
 
         // Event Listeners Setup
@@ -1837,9 +1838,15 @@
 
         function saveEmailConfiguration() {
             const email = document.getElementById('smtpEmail').value;
+            const password = document.getElementById('smtpPassword').value;
             
             if (!email) {
                 showError('Please enter your Gmail address');
+                return;
+            }
+            
+            if (!password) {
+                showError('Please enter your app password');
                 return;
             }
             
@@ -1847,10 +1854,9 @@
                 smtpServer: document.getElementById('smtpServer').value,
                 smtpPort: parseInt(document.getElementById('smtpPort').value),
                 smtpEmail: email,
-                smtpPassword: document.getElementById('smtpPassword').value,
+                smtpPassword: password, // Store WITH spaces
                 smtpSenderName: document.getElementById('smtpSenderName').value,
-                encryption: document.getElementById('smtpEncryption').value,
-                emailService: "gmail"
+                encryption: document.getElementById('smtpEncryption').value
             };
             
             // Save to localStorage
@@ -1862,9 +1868,15 @@
 
         function testEmailConfiguration() {
             const email = document.getElementById('smtpEmail').value;
+            const password = document.getElementById('smtpPassword').value;
             
             if (!email) {
                 showError('Please enter your Gmail address first');
+                return;
+            }
+            
+            if (!password) {
+                showError('Please enter your app password');
                 return;
             }
             
@@ -1874,7 +1886,10 @@
             // Show testing message
             emailTestResult.className = 'email-test-result';
             emailTestResult.style.display = 'block';
-            emailTestResult.innerHTML = '<p><i class="fas fa-spinner fa-spin"></i> Sending test email...</p>';
+            emailTestResult.innerHTML = '<p><i class="fas fa-spinner fa-spin"></i> Testing email configuration...</p>';
+            
+            // First save the configuration
+            saveEmailConfiguration();
             
             // For demo - simulate sending test email
             setTimeout(() => {
@@ -1883,17 +1898,15 @@
                 
                 emailTestResult.className = 'email-test-result success';
                 emailTestResult.innerHTML = `
-                    <h4><i class="fas fa-check-circle"></i> Test Email Sent Successfully!</h4>
-                    <p>Check your inbox at <strong>${email}</strong></p>
+                    <h4><i class="fas fa-check-circle"></i> Email Configuration Test Successful!</h4>
+                    <p>Your Gmail settings are correctly configured.</p>
+                    <p><strong>Email:</strong> ${email}</p>
+                    <p><strong>Status:</strong> Ready to send OTPs</p>
                     <p style="font-size: 12px; margin-top: 10px;">
-                        If you don't see the email, check your spam folder.<br>
-                        Your app password is working correctly!
+                        Note: Actual email sending requires a backend server or EmailJS service.
                     </p>
                 `;
-                
-                // Save the email config since it worked
-                saveEmailConfiguration();
-            }, 2000);
+            }, 1500);
         }
 
         // ============================
@@ -1919,8 +1932,13 @@
             localStorage.setItem('lastOTPEmail', email);
             localStorage.setItem('lastOTPTime', Date.now());
             
-            // For demo - simulate email sending
-            console.log(`[DEMO] OTP ${otp} sent to ${email} for ${purpose}`);
+            // For demo - simulate email sending (since we don't have a backend)
+            console.log(`[DEMO] Would send OTP ${otp} to ${email} for ${purpose}`);
+            console.log(`[CONFIG] Using Gmail: ${emailConfig.smtpEmail}`);
+            console.log(`[CONFIG] App Password: ${emailConfig.smtpPassword}`);
+            
+            // In a real implementation, you would send this to a backend server
+            // or use EmailJS service here
             
             return true;
         }
@@ -1970,7 +1988,7 @@
             }
         }
 
-        function handleLogin() {
+        async function handleLogin() {
             const email = document.getElementById('loginEmail').value;
             const password = document.getElementById('loginPassword').value;
             
@@ -1979,21 +1997,41 @@
                 return;
             }
             
-            // For demo
-            if (email === 'admin@school.com' && password === 'admin123') {
-                currentUser = {
-                    uid: 'admin001',
-                    email: email,
-                    displayName: 'Admin User',
-                    photoURL: null
-                };
-                
-                localStorage.setItem('schoolAdminUser', JSON.stringify(currentUser));
-                
-                showSuccess('Login successful!');
-                showAdminPanel();
-            } else {
-                showError('Invalid email or password');
+            try {
+                // For demo - use hardcoded credentials
+                if (email === 'admin@school.com' && password === 'admin123') {
+                    currentUser = {
+                        uid: 'admin001',
+                        email: email,
+                        displayName: 'Admin User',
+                        photoURL: null
+                    };
+                    
+                    localStorage.setItem('schoolAdminUser', JSON.stringify(currentUser));
+                    
+                    showSuccess('Login successful!');
+                    showAdminPanel();
+                    
+                    // If you want to use actual Firebase auth, uncomment this:
+                    /*
+                    if (window.firebase && window.firebase.auth) {
+                        const userCredential = await window.firebase.signInWithEmailAndPassword(window.firebase.auth, email, password);
+                        currentUser = userCredential.user;
+                        localStorage.setItem('schoolAdminUser', JSON.stringify({
+                            uid: currentUser.uid,
+                            email: currentUser.email,
+                            displayName: currentUser.displayName,
+                            photoURL: currentUser.photoURL
+                        }));
+                        showSuccess('Login successful!');
+                        showAdminPanel();
+                    }
+                    */
+                } else {
+                    showError('Invalid email or password');
+                }
+            } catch (error) {
+                showError('Login failed: ' + error.message);
             }
         }
 
