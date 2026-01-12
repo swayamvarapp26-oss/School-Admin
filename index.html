@@ -1055,12 +1055,6 @@
                     <input type="email" id="forgotEmail" class="form-control" placeholder="admin@school.com">
                 </div>
                 
-                <!-- Email not registered error message -->
-                <div class="email-not-registered" id="emailNotRegistered">
-                    <i class="fas fa-exclamation-circle"></i>
-                    <p>Sorry, this email is not registered in the list of admins.</p>
-                </div>
-                
                 <button class="btn btn-warning btn-block" id="sendResetOtpBtn">
                     <i class="fas fa-key"></i> Send Reset OTP
                 </button>
@@ -1642,7 +1636,7 @@
                     <input type="text" class="otp-input" maxlength="1" data-index="1">
                     <input type="text" class="otp-input" maxlength="1" data-index="2">
                     <input type="text" class="otp-input" maxlength="1" data-index="3">
-                    <input type="text" class="otp-input" maxlength="1" data-index="4">
+                    <input type="text" class.otp-input" maxlength="1" data-index="4">
                     <input type="text" class="otp-input" maxlength="1" data-index="5">
                 </div>
             </div>
@@ -1766,7 +1760,6 @@
         let pendingPasswordReset = null;
         let currentOtp = null;
         let otpType = null;
-        let isAdminEmail = false; // Track if email is in admin list
 
         // ============================
         // DOM ELEMENTS
@@ -1785,7 +1778,6 @@
         const sendResetOtpBtn = document.getElementById('sendResetOtpBtn');
         const resetPasswordBtn = document.getElementById('resetPasswordBtn');
         const otpInputs = document.querySelectorAll('.otp-input');
-        const emailNotRegistered = document.getElementById('emailNotRegistered');
         const newPasswordFields = document.getElementById('newPasswordFields');
         const newPasswordInput = document.getElementById('newPassword');
         const confirmNewPasswordInput = document.getElementById('confirmNewPassword');
@@ -1833,23 +1825,6 @@
         const updateProfileBtn = document.getElementById('updateProfileBtn');
         const changePasswordBtn = document.getElementById('changePasswordBtn');
         const logoutBtn = document.getElementById('logoutBtn');
-        
-        // Modal Elements
-        const addTeacherModal = document.getElementById('addTeacherModal');
-        const addAdminModal = document.getElementById('addAdminModal');
-        const otpModal = document.getElementById('otpModal');
-        const deleteModal = document.getElementById('deleteModal');
-        const teacherDetailsModal = document.getElementById('teacherDetailsModal');
-        const closeTeacherModal = document.getElementById('closeTeacherModal');
-        const closeAdminModal = document.getElementById('closeAdminModal');
-        const closeOtpModal = document.getElementById('closeOtpModal');
-        const closeDeleteModal = document.getElementById('closeDeleteModal');
-        const closeTeacherDetailsModal = document.getElementById('closeTeacherDetailsModal');
-        const cancelDeleteBtn = document.getElementById('cancelDeleteBtn');
-        const confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
-        const teacherDetailsContent = document.getElementById('teacherDetailsContent');
-        const verifyOtpBtn = document.getElementById('verifyOtpBtn');
-        const resendOtpBtn = document.getElementById('resendOtpBtn');
         
         // Password Requirements Elements
         const passwordRequirements = document.getElementById('passwordRequirements');
@@ -1911,10 +1886,7 @@
                     newPasswordFields.style.display = 'none';
                     document.getElementById('resetPasswordBtn').style.display = 'none';
                     document.getElementById('sendResetOtpBtn').style.display = 'block';
-                    emailNotRegistered.style.display = 'none';
                     
-                    // Reset isAdminEmail flag
-                    isAdminEmail = false;
                 });
             });
             
@@ -2141,7 +2113,7 @@
         }
 
         // ============================
-        // UPDATED PASSWORD RESET FLOW - SIMPLIFIED
+        // SIMPLIFIED PASSWORD RESET FLOW
         // ============================
         async function sendPasswordResetOtp() {
             const email = document.getElementById('forgotEmail').value.trim().toLowerCase();
@@ -2164,33 +2136,6 @@
             btn.disabled = true;
             
             try {
-                // Check if email exists in Firebase Auth
-                const methods = await auth.fetchSignInMethodsForEmail(email);
-                
-                if (methods.length === 0) {
-                    // Email is NOT registered in Firebase Auth
-                    emailNotRegistered.style.display = 'block';
-                    emailNotRegistered.innerHTML = `
-                        <i class="fas fa-exclamation-circle"></i>
-                        <p>Sorry, this email is not registered in the list of admins.</p>
-                    `;
-                    
-                    // Hide OTP and password sections
-                    document.getElementById('resetOtpSection').style.display = 'none';
-                    newPasswordFields.style.display = 'none';
-                    document.getElementById('resetPasswordBtn').style.display = 'none';
-                    sendResetOtpBtn.style.display = 'block';
-                    
-                    isAdminEmail = false;
-                    
-                    showError('Email not found in admin records.');
-                    return;
-                }
-                
-                // Email IS registered in Firebase Auth
-                isAdminEmail = true;
-                emailNotRegistered.style.display = 'none';
-                
                 // Generate OTP
                 currentOtp = generateOtp();
                 otpType = 'password_reset';
@@ -2215,8 +2160,8 @@
                 }
                 
             } catch (authError) {
-                console.error('Auth check failed:', authError);
-                showError('Error checking email: ' + authError.message);
+                console.error('Error:', authError);
+                showError('Error: ' + authError.message);
             } finally {
                 // Reset button
                 btn.innerHTML = originalText;
@@ -2334,45 +2279,31 @@
                 // Get the email from pending reset
                 const email = pendingPasswordReset.email;
                 
-                // First, try to get the current user
-                try {
-                    // Try to sign in with current user to get user reference
-                    const signInMethods = await auth.fetchSignInMethodsForEmail(email);
-                    
-                    if (signInMethods.length > 0) {
-                        // Send password reset email using Firebase
-                        await auth.sendPasswordResetEmail(email);
-                        
-                        showSuccess('Password reset email sent! Check your inbox for reset instructions.');
-                        
-                        // Switch to login tab
-                        authTabs.forEach(t => t.classList.remove('active'));
-                        authTabs[0].classList.add('active');
-                        authTabContents.forEach(content => content.style.display = 'none');
-                        document.getElementById('loginTab').style.display = 'block';
-                        
-                        // Clear reset form
-                        document.getElementById('forgotEmail').value = '';
-                        newPasswordInput.value = '';
-                        confirmNewPasswordInput.value = '';
-                        document.getElementById('resetOtpSection').style.display = 'none';
-                        newPasswordFields.style.display = 'none';
-                        document.getElementById('resetPasswordBtn').style.display = 'none';
-                        document.getElementById('sendResetOtpBtn').style.display = 'block';
-                        emailNotRegistered.style.display = 'none';
-                        clearOtpInputs();
-                        
-                        // Reset state
-                        pendingPasswordReset = null;
-                        currentOtp = null;
-                        otpType = null;
-                        isAdminEmail = false;
-                    } else {
-                        showError('User not found');
-                    }
-                } catch (error) {
-                    showError('Password reset failed: ' + error.message);
-                }
+                // Send password reset email using Firebase
+                await auth.sendPasswordResetEmail(email);
+                
+                showSuccess('Password reset email sent! Check your inbox for reset instructions.');
+                
+                // Switch to login tab
+                authTabs.forEach(t => t.classList.remove('active'));
+                authTabs[0].classList.add('active');
+                authTabContents.forEach(content => content.style.display = 'none');
+                document.getElementById('loginTab').style.display = 'block';
+                
+                // Clear reset form
+                document.getElementById('forgotEmail').value = '';
+                newPasswordInput.value = '';
+                confirmNewPasswordInput.value = '';
+                document.getElementById('resetOtpSection').style.display = 'none';
+                newPasswordFields.style.display = 'none';
+                document.getElementById('resetPasswordBtn').style.display = 'none';
+                document.getElementById('sendResetOtpBtn').style.display = 'block';
+                clearOtpInputs();
+                
+                // Reset state
+                pendingPasswordReset = null;
+                currentOtp = null;
+                otpType = null;
                 
             } catch (error) {
                 showError('Password reset failed: ' + error.message);
@@ -3314,7 +3245,7 @@
                                 <p style="font-size: 18px; font-weight: 600;">${teacher.grade || 'Not specified'}</p>
                             </div>
                             <div>
-                                <h4 style="color: var(--gray); margin-bottom: 8px;">User ID</h4>
+                                <h4 style="color: var(--gray); margin-bottom = 8px;">User ID</h4>
                                 <p style="font-size: 14px; font-family: monospace;">${teacher.uid || teacher.id}</p>
                             </div>
                             <div>
