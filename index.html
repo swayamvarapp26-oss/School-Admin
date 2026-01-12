@@ -881,6 +881,71 @@
             display: none;
         }
 
+        /* Profile Image Container */
+        .profile-image-container {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, var(--secondary) 0%, var(--secondary-dark) 100%);
+        }
+
+        .profile-image-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .profile-image-container i {
+            font-size: 20px;
+            color: white;
+        }
+
+        .profile-large-container {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, var(--secondary) 0%, var(--secondary-dark) 100%);
+            border: 4px solid var(--secondary);
+            margin: 0 auto 20px;
+        }
+
+        .profile-large-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .profile-large-container i {
+            font-size: 48px;
+            color: white;
+        }
+
+        /* Simple Forgot Password Button */
+        .simple-forgot-btn {
+            background: none;
+            border: none;
+            color: var(--secondary);
+            cursor: pointer;
+            font-size: 14px;
+            margin-top: 10px;
+            text-align: right;
+            width: 100%;
+            transition: var(--transition);
+        }
+        
+        .simple-forgot-btn:hover {
+            color: var(--secondary-dark);
+            text-decoration: underline;
+        }
+
         /* Responsive */
         @media (max-width: 992px) {
             .container {
@@ -969,6 +1034,11 @@
                     <input type="password" id="loginPassword" class="form-control" placeholder="Enter password" value="admin123">
                 </div>
                 
+                <!-- Simple Forgot Password Button -->
+                <button class="simple-forgot-btn" id="simpleForgotBtn">
+                    <i class="fas fa-key"></i> Forgot Password?
+                </button>
+                
                 <button class="btn btn-primary btn-block" id="loginBtn">
                     <i class="fas fa-sign-in-alt"></i> Login to Admin Panel
                 </button>
@@ -1007,13 +1077,41 @@
                     </div>
                 </div>
                 
-                <div class="form-group" id="newPasswordSection" style="display: none;">
-                    <label>New Password *</label>
-                    <input type="password" id="newPassword" class="form-control" placeholder="Enter new password">
+                <div id="newPasswordFields" style="display: none;">
+                    <div class="form-group">
+                        <label>New Password *</label>
+                        <input type="password" id="newPassword" class="form-control" placeholder="Enter new password">
+                        <div class="password-requirements">
+                            <h4>Password Requirements:</h4>
+                            <ul>
+                                <li id="forgotReqLength">
+                                    <i class="fas fa-circle requirement-not-met"></i>
+                                    At least 6 characters
+                                </li>
+                                <li id="forgotReqLowercase">
+                                    <i class="fas fa-circle requirement-not-met"></i>
+                                    Contains lowercase letter
+                                </li>
+                                <li id="forgotReqUppercase">
+                                    <i class="fas fa-circle requirement-not-met"></i>
+                                    Contains uppercase letter
+                                </li>
+                                <li id="forgotReqNumber">
+                                    <i class="fas fa-circle requirement-not-met"></i>
+                                    Contains number
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Confirm New Password *</label>
+                        <input type="password" id="confirmNewPassword" class="form-control" placeholder="Confirm new password">
+                    </div>
                 </div>
                 
                 <button class="btn btn-primary btn-block" id="resetPasswordBtn" style="display: none; margin-top: 20px;">
-                    <i class="fas fa-sync-alt"></i> Reset Password
+                    <i class="fas fa-sync-alt"></i> Change Password
                 </button>
             </div>
         </div>
@@ -1029,7 +1127,7 @@
             </div>
             
             <div class="user-info">
-                <div class="user-avatar" id="adminAvatar">
+                <div class="profile-image-container" id="adminAvatar">
                     <i class="fas fa-user"></i>
                 </div>
                 <div class="user-details">
@@ -1344,8 +1442,8 @@
                         </div>
                         
                         <div class="form-group" style="text-align: center;">
-                            <div class="admin-profile-large" id="settingsProfileImage" style="background: linear-gradient(135deg, var(--secondary) 0%, var(--secondary-dark) 100%); display: flex; align-items: center; justify-content: center;">
-                                <i class="fas fa-user" style="font-size: 48px; color: white;"></i>
+                            <div class="profile-large-container" id="settingsProfileImage">
+                                <i class="fas fa-user"></i>
                             </div>
                             <button type="button" class="btn btn-secondary" id="changeProfileBtn" style="margin-top: 10px;">
                                 <i class="fas fa-camera"></i> Change Profile Picture
@@ -1477,8 +1575,8 @@
             </div>
             
             <div class="form-group" style="text-align: center;">
-                <div class="admin-profile-large" id="adminModalProfileImage" style="background: linear-gradient(135deg, var(--secondary) 0%, var(--secondary-dark) 100%); display: flex; align-items: center; justify-content: center;">
-                    <i class="fas fa-user" style="font-size: 48px; color: white;"></i>
+                <div class="profile-large-container" id="adminModalProfileImage">
+                    <i class="fas fa-user"></i>
                 </div>
                 <button type="button" class="btn btn-secondary" id="changeAdminProfileBtn" style="margin-top: 10px;">
                     <i class="fas fa-camera"></i> Change Profile
@@ -1683,10 +1781,14 @@
         const authTabs = document.querySelectorAll('.auth-tab');
         const authTabContents = document.querySelectorAll('.auth-tab-content');
         const loginBtn = document.getElementById('loginBtn');
+        const simpleForgotBtn = document.getElementById('simpleForgotBtn');
         const sendResetOtpBtn = document.getElementById('sendResetOtpBtn');
         const resetPasswordBtn = document.getElementById('resetPasswordBtn');
         const otpInputs = document.querySelectorAll('.otp-input');
         const emailNotRegistered = document.getElementById('emailNotRegistered');
+        const newPasswordFields = document.getElementById('newPasswordFields');
+        const newPasswordInput = document.getElementById('newPassword');
+        const confirmNewPasswordInput = document.getElementById('confirmNewPassword');
         
         // Navigation
         const navLinks = document.querySelectorAll('.nav-links a');
@@ -1751,7 +1853,7 @@
         
         // Password Requirements Elements
         const passwordRequirements = document.getElementById('passwordRequirements');
-        const newPasswordInput = document.getElementById('settingsNewPassword');
+        const settingsNewPasswordInput = document.getElementById('settingsNewPassword');
         
         // Success/Error Messages
         const successMessage = document.getElementById('successMessage');
@@ -1806,13 +1908,26 @@
                     // Clear OTP fields when switching tabs
                     clearOtpInputs();
                     document.getElementById('resetOtpSection').style.display = 'none';
-                    document.getElementById('newPasswordSection').style.display = 'none';
+                    newPasswordFields.style.display = 'none';
                     document.getElementById('resetPasswordBtn').style.display = 'none';
                     document.getElementById('sendResetOtpBtn').style.display = 'block';
                     emailNotRegistered.style.display = 'none';
                     
                     // Reset isAdminEmail flag
                     isAdminEmail = false;
+                });
+            });
+            
+            // Simple Forgot Password Button
+            simpleForgotBtn.addEventListener('click', function() {
+                // Switch to forgot password tab
+                authTabs.forEach(t => t.classList.remove('active'));
+                authTabs[1].classList.add('active');
+                authTabContents.forEach(content => {
+                    content.style.display = 'none';
+                    if (content.id === 'forgotTab') {
+                        content.style.display = 'block';
+                    }
                 });
             });
             
@@ -1978,18 +2093,21 @@
             changePasswordBtn.addEventListener('click', changePassword);
             logoutBtn.addEventListener('click', handleLogout);
             
-            // Password requirement checking
-            newPasswordInput.addEventListener('input', checkPasswordRequirements);
-            newPasswordInput.addEventListener('focus', () => {
+            // Password requirement checking for settings
+            settingsNewPasswordInput.addEventListener('input', checkPasswordRequirements);
+            settingsNewPasswordInput.addEventListener('focus', () => {
                 passwordRequirements.style.display = 'block';
             });
-            newPasswordInput.addEventListener('blur', () => {
+            settingsNewPasswordInput.addEventListener('blur', () => {
                 setTimeout(() => {
-                    if (!newPasswordInput.matches(':focus')) {
+                    if (!settingsNewPasswordInput.matches(':focus')) {
                         passwordRequirements.style.display = 'none';
                     }
                 }, 200);
             });
+            
+            // Password requirement checking for forgot password
+            newPasswordInput.addEventListener('input', checkForgotPasswordRequirements);
         }
 
         // ============================
@@ -2023,71 +2141,43 @@
         }
 
         // ============================
-        // UPDATED PASSWORD RESET FLOW WITH PERMISSION FIX
+        // UPDATED PASSWORD RESET FLOW - SIMPLIFIED
         // ============================
         async function sendPasswordResetOtp() {
-            const email = document.getElementById('forgotEmail').value;
+            const email = document.getElementById('forgotEmail').value.trim().toLowerCase();
             
             if (!email) {
                 showError('Please enter your email address');
                 return;
             }
             
+            // Validate email format
+            if (!validateEmail(email)) {
+                showError('Please enter a valid email address');
+                return;
+            }
+            
             // Show loading
             const btn = sendResetOtpBtn;
             const originalText = btn.innerHTML;
-            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Checking...';
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending OTP...';
             btn.disabled = true;
             
             try {
-                // FIRST: Check if email exists in admins database
-                // We'll try to get all admins, but if permission denied, we'll check with a different approach
-                let isAdmin = false;
+                // Check if email exists in Firebase Auth
+                const methods = await auth.fetchSignInMethodsForEmail(email);
                 
-                try {
-                    // Try to get all admins first
-                    const adminsSnapshot = await database.ref('admins').once('value');
-                    
-                    if (adminsSnapshot.exists()) {
-                        adminsSnapshot.forEach((childSnapshot) => {
-                            const admin = childSnapshot.val();
-                            if (admin.email && admin.email.toLowerCase() === email.toLowerCase()) {
-                                isAdmin = true;
-                            }
-                        });
-                    }
-                } catch (permissionError) {
-                    console.warn('Permission denied for /admins, trying alternative approach:', permissionError.message);
-                    
-                    // Alternative approach: Check if user exists in Firebase Auth
-                    // This doesn't require database permissions
-                    try {
-                        // Try to fetch sign-in methods for the email
-                        // This will work if the email is registered in Firebase Auth
-                        const methods = await auth.fetchSignInMethodsForEmail(email);
-                        if (methods && methods.length > 0) {
-                            // Email exists in Firebase Auth
-                            // For this demo, we'll assume it's an admin
-                            // In production, you should have proper security rules
-                            isAdmin = true;
-                            console.log('Email found in Firebase Auth, assuming admin access');
-                        }
-                    } catch (authError) {
-                        console.error('Auth check failed:', authError);
-                    }
-                }
-                
-                if (!isAdmin) {
-                    // Email is NOT in admin list
+                if (methods.length === 0) {
+                    // Email is NOT registered in Firebase Auth
                     emailNotRegistered.style.display = 'block';
                     emailNotRegistered.innerHTML = `
                         <i class="fas fa-exclamation-circle"></i>
-                        <p>Sorry, your email is not registered in the list of admins.</p>
+                        <p>Sorry, this email is not registered in the list of admins.</p>
                     `;
                     
                     // Hide OTP and password sections
                     document.getElementById('resetOtpSection').style.display = 'none';
-                    document.getElementById('newPasswordSection').style.display = 'none';
+                    newPasswordFields.style.display = 'none';
                     document.getElementById('resetPasswordBtn').style.display = 'none';
                     sendResetOtpBtn.style.display = 'block';
                     
@@ -2097,7 +2187,7 @@
                     return;
                 }
                 
-                // Email IS in admin list - proceed with OTP
+                // Email IS registered in Firebase Auth
                 isAdminEmail = true;
                 emailNotRegistered.style.display = 'none';
                 
@@ -2114,10 +2204,8 @@
                 if (emailSent) {
                     showSuccess('Password reset OTP sent to your email! Please check your inbox.');
                     
-                    // Show OTP and new password sections
+                    // Show OTP section
                     document.getElementById('resetOtpSection').style.display = 'block';
-                    document.getElementById('newPasswordSection').style.display = 'block';
-                    document.getElementById('resetPasswordBtn').style.display = 'block';
                     sendResetOtpBtn.style.display = 'none';
                     
                     // Focus first OTP input
@@ -2126,8 +2214,9 @@
                     showError('Failed to send OTP. Please try again.');
                 }
                 
-            } catch (error) {
-                showError('Error sending OTP: ' + error.message);
+            } catch (authError) {
+                console.error('Auth check failed:', authError);
+                showError('Error checking email: ' + authError.message);
             } finally {
                 // Reset button
                 btn.innerHTML = originalText;
@@ -2149,15 +2238,59 @@
             });
         }
 
-        async function handlePasswordReset() {
-            // First check if email is in admin list
-            if (!isAdminEmail) {
-                showError('Email is not registered in admin list.');
+        function checkForgotPasswordRequirements() {
+            const password = newPasswordInput.value;
+            
+            if (!password) {
                 return;
             }
             
+            // Check length
+            const lengthReq = document.getElementById('forgotReqLength');
+            if (password.length >= 6) {
+                lengthReq.querySelector('i').className = 'fas fa-check-circle requirement-met';
+                lengthReq.style.color = 'var(--success)';
+            } else {
+                lengthReq.querySelector('i').className = 'fas fa-circle requirement-not-met';
+                lengthReq.style.color = 'var(--danger)';
+            }
+            
+            // Check lowercase
+            const lowercaseReq = document.getElementById('forgotReqLowercase');
+            if (/[a-z]/.test(password)) {
+                lowercaseReq.querySelector('i').className = 'fas fa-check-circle requirement-met';
+                lowercaseReq.style.color = 'var(--success)';
+            } else {
+                lowercaseReq.querySelector('i').className = 'fas fa-circle requirement-not-met';
+                lowercaseReq.style.color = 'var(--danger)';
+            }
+            
+            // Check uppercase
+            const uppercaseReq = document.getElementById('forgotReqUppercase');
+            if (/[A-Z]/.test(password)) {
+                uppercaseReq.querySelector('i').className = 'fas fa-check-circle requirement-met';
+                uppercaseReq.style.color = 'var(--success)';
+            } else {
+                uppercaseReq.querySelector('i').className = 'fas fa-circle requirement-not-met';
+                uppercaseReq.style.color = 'var(--danger)';
+            }
+            
+            // Check number
+            const numberReq = document.getElementById('forgotReqNumber');
+            if (/[0-9]/.test(password)) {
+                numberReq.querySelector('i').className = 'fas fa-check-circle requirement-met';
+                numberReq.style.color = 'var(--success)';
+            } else {
+                numberReq.querySelector('i').className = 'fas fa-circle requirement-not-met';
+                numberReq.style.color = 'var(--danger)';
+            }
+        }
+
+        async function handlePasswordReset() {
+            // First check if OTP is correct
             const enteredOtp = getOtpFromInputs();
             const newPassword = document.getElementById('newPassword').value;
+            const confirmNewPassword = document.getElementById('confirmNewPassword').value;
             
             if (enteredOtp.length !== 6) {
                 showError('Please enter the complete 6-digit OTP');
@@ -2169,8 +2302,13 @@
                 return;
             }
             
-            if (!newPassword) {
-                showError('Please enter a new password');
+            if (!newPassword || !confirmNewPassword) {
+                showError('Please enter new password and confirm it');
+                return;
+            }
+            
+            if (newPassword !== confirmNewPassword) {
+                showError('Passwords do not match');
                 return;
             }
             
@@ -2189,39 +2327,52 @@
             // Show loading
             const btn = resetPasswordBtn;
             const originalText = btn.innerHTML;
-            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Resetting...';
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Changing Password...';
             btn.disabled = true;
             
             try {
                 // Get the email from pending reset
                 const email = pendingPasswordReset.email;
                 
-                // Send password reset email using Firebase
-                await auth.sendPasswordResetEmail(email);
-                
-                showSuccess('Password reset email sent! Check your inbox for reset instructions.');
-                
-                // Switch to login tab
-                authTabs.forEach(t => t.classList.remove('active'));
-                authTabs[0].classList.add('active');
-                authTabContents.forEach(content => content.style.display = 'none');
-                document.getElementById('loginTab').style.display = 'block';
-                
-                // Clear reset form
-                document.getElementById('forgotEmail').value = '';
-                document.getElementById('newPassword').value = '';
-                document.getElementById('resetOtpSection').style.display = 'none';
-                document.getElementById('newPasswordSection').style.display = 'none';
-                document.getElementById('resetPasswordBtn').style.display = 'none';
-                document.getElementById('sendResetOtpBtn').style.display = 'block';
-                emailNotRegistered.style.display = 'none';
-                clearOtpInputs();
-                
-                // Reset state
-                pendingPasswordReset = null;
-                currentOtp = null;
-                otpType = null;
-                isAdminEmail = false;
+                // First, try to get the current user
+                try {
+                    // Try to sign in with current user to get user reference
+                    const signInMethods = await auth.fetchSignInMethodsForEmail(email);
+                    
+                    if (signInMethods.length > 0) {
+                        // Send password reset email using Firebase
+                        await auth.sendPasswordResetEmail(email);
+                        
+                        showSuccess('Password reset email sent! Check your inbox for reset instructions.');
+                        
+                        // Switch to login tab
+                        authTabs.forEach(t => t.classList.remove('active'));
+                        authTabs[0].classList.add('active');
+                        authTabContents.forEach(content => content.style.display = 'none');
+                        document.getElementById('loginTab').style.display = 'block';
+                        
+                        // Clear reset form
+                        document.getElementById('forgotEmail').value = '';
+                        newPasswordInput.value = '';
+                        confirmNewPasswordInput.value = '';
+                        document.getElementById('resetOtpSection').style.display = 'none';
+                        newPasswordFields.style.display = 'none';
+                        document.getElementById('resetPasswordBtn').style.display = 'none';
+                        document.getElementById('sendResetOtpBtn').style.display = 'block';
+                        emailNotRegistered.style.display = 'none';
+                        clearOtpInputs();
+                        
+                        // Reset state
+                        pendingPasswordReset = null;
+                        currentOtp = null;
+                        otpType = null;
+                        isAdminEmail = false;
+                    } else {
+                        showError('User not found');
+                    }
+                } catch (error) {
+                    showError('Password reset failed: ' + error.message);
+                }
                 
             } catch (error) {
                 showError('Password reset failed: ' + error.message);
@@ -2233,10 +2384,80 @@
         }
 
         // ============================
+        // OTP VERIFICATION FUNCTIONS
+        // ============================
+        async function verifyOtp() {
+            const enteredOtp = getOtpFromInputs();
+            
+            if (enteredOtp.length !== 6) {
+                showError('Please enter the complete 6-digit OTP');
+                return;
+            }
+            
+            if (enteredOtp !== currentOtp) {
+                showError('Invalid OTP. Please try again.');
+                return;
+            }
+            
+            // Handle based on otpType
+            if (otpType === 'password_reset' && pendingPasswordReset) {
+                // Hide OTP modal
+                document.getElementById('otpModal').style.display = 'none';
+                clearOtpInputs();
+                
+                // Show new password fields
+                newPasswordFields.style.display = 'block';
+                document.getElementById('resetPasswordBtn').style.display = 'block';
+                
+                showSuccess('OTP verified! Now enter your new password.');
+            }
+        }
+
+        async function resendOtp() {
+            if (!pendingPasswordReset) {
+                showError('No pending operation to resend OTP');
+                return;
+            }
+            
+            // Show loading
+            const btn = resendOtpBtn;
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Resending...';
+            btn.disabled = true;
+            
+            try {
+                // Generate new OTP
+                currentOtp = generateOtp();
+                
+                let email, type;
+                if (pendingPasswordReset) {
+                    email = pendingPasswordReset.email;
+                    type = 'password_reset';
+                }
+                
+                // Send OTP via EmailJS
+                const emailSent = await sendOtpEmail(email, currentOtp, type);
+                
+                if (emailSent) {
+                    showSuccess('New OTP sent to your email!');
+                } else {
+                    showError('Failed to resend OTP. Please try again.');
+                }
+                
+            } catch (error) {
+                showError('Error resending OTP: ' + error.message);
+            } finally {
+                // Reset button
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            }
+        }
+
+        // ============================
         // PASSWORD REQUIREMENT CHECKING
         // ============================
         function checkPasswordRequirements() {
-            const password = newPasswordInput.value;
+            const password = settingsNewPasswordInput.value;
             
             if (!password) {
                 passwordRequirements.style.display = 'none';
@@ -2399,8 +2620,9 @@
             adminName.textContent = currentUser.displayName || 'Admin User';
             adminEmail.textContent = currentUser.email;
             
-            // Update admin avatar to use human icon (no external image)
-            // The avatar is already set as a div with user icon in HTML
+            // Update admin avatar
+            updateProfileImage(adminAvatar, currentAdmin?.profileImage);
+            updateProfileImage(settingsProfileImage, currentAdmin?.profileImage);
             
             // Switch to admin panel
             authContainer.style.display = 'none';
@@ -2408,6 +2630,30 @@
             
             // Load dashboard data
             loadDashboardData();
+        }
+
+        // Function to update profile image
+        function updateProfileImage(container, imageUrl) {
+            if (!container) return;
+            
+            if (imageUrl && imageUrl.startsWith('http')) {
+                // If image URL exists and is valid, create img element
+                const img = document.createElement('img');
+                img.src = imageUrl;
+                img.alt = "Profile";
+                img.style.width = '100%';
+                img.style.height = '100%';
+                img.style.objectFit = 'cover';
+                img.onerror = function() {
+                    // If image fails to load, show icon instead
+                    container.innerHTML = '<i class="fas fa-user"></i>';
+                };
+                container.innerHTML = '';
+                container.appendChild(img);
+            } else {
+                // If no image URL, show icon
+                container.innerHTML = '<i class="fas fa-user"></i>';
+            }
         }
 
         async function loadDashboardData() {
@@ -2858,13 +3104,13 @@
                         statusClass = 'status-rejected';
                     }
                     
-                    // Profile image - use human icon instead of external image
-                    const profileImage = teacher.profileImage || `https://ui-avatars.com/api/?name=${encodeURIComponent(teacher.fullName || teacher.name)}&background=3498db&color=fff&size=100`;
-                    
                     row.innerHTML = `
                         <td>
-                            <div style="width: 50px; height: 50px; border-radius: 50%; background: linear-gradient(135deg, var(--secondary) 0%, var(--secondary-dark) 100%); display: flex; align-items: center; justify-content: center; color: white; font-size: 20px;">
-                                <i class="fas fa-user"></i>
+                            <div class="profile-image-container">
+                                ${teacher.profileImage && teacher.profileImage.startsWith('http') ? 
+                                    `<img src="${teacher.profileImage}" alt="${teacher.fullName || teacher.name}" onerror="this.parentElement.innerHTML='<i class=\\'fas fa-user\\'></i>';">` : 
+                                    `<i class="fas fa-user"></i>`
+                                }
                             </div>
                         </td>
                         <td><strong>${teacher.fullName || teacher.name}</strong></td>
@@ -2972,7 +3218,7 @@
                     
                     row.innerHTML = `
                         <td>
-                            <div style="width: 50px; height: 50px; border-radius: 50%; background: linear-gradient(135deg, var(--secondary) 0%, var(--secondary-dark) 100%); display: flex; align-items: center; justify-content: center; color: white; font-size: 20px;">
+                            <div class="profile-image-container">
                                 <i class="fas fa-user"></i>
                             </div>
                         </td>
@@ -3046,7 +3292,10 @@
                     <div style="display: flex; flex-direction: column; gap: 25px;">
                         <div style="display: flex; gap: 25px; align-items: center;">
                             <div style="width: 120px; height: 120px; border-radius: 50%; background: linear-gradient(135deg, var(--secondary) 0%, var(--secondary-dark) 100%); display: flex; align-items: center; justify-content: center; border: 4px solid var(--light);">
-                                <i class="fas fa-user" style="font-size: 48px; color: white;"></i>
+                                ${teacher.profileImage && teacher.profileImage.startsWith('http') ? 
+                                    `<img src="${teacher.profileImage}" alt="${teacher.fullName || teacher.name}" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;" onerror="this.parentElement.innerHTML='<i class=\\'fas fa-user\\' style=\\'font-size: 48px; color: white;\\'></i>';">` : 
+                                    `<i class="fas fa-user" style="font-size: 48px; color: white;"></i>`
+                                }
                             </div>
                             <div>
                                 <h2 style="color: var(--primary); margin-bottom: 10px;">${teacher.fullName || teacher.name}</h2>
@@ -3315,8 +3564,11 @@
                     
                     row.innerHTML = `
                         <td>
-                            <div style="width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, var(--secondary) 0%, var(--secondary-dark) 100%); display: flex; align-items: center; justify-content: center; color: white; border: 2px solid var(--light);">
-                                <i class="fas fa-user"></i>
+                            <div class="profile-image-container">
+                                ${admin.profileImage && admin.profileImage.startsWith('http') ? 
+                                    `<img src="${admin.profileImage}" alt="${admin.name}" onerror="this.parentElement.innerHTML='<i class=\\'fas fa-user\\'></i>';">` : 
+                                    `<i class="fas fa-user"></i>`
+                                }
                             </div>
                         </td>
                         <td><strong>${admin.name}</strong></td>
@@ -3381,7 +3633,7 @@
                     
                     row.innerHTML = `
                         <td>
-                            <div style="width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, var(--secondary) 0%, var(--secondary-dark) 100%); display: flex; align-items: center; justify-content: center; color: white; border: 2px solid var(--light);">
+                            <div class="profile-image-container">
                                 <i class="fas fa-user"></i>
                             </div>
                         </td>
@@ -3690,20 +3942,9 @@
                 // Create object URL for preview
                 const imageUrl = URL.createObjectURL(file);
                 
-                // Update profile images - replace the icon with the uploaded image
-                adminAvatar.innerHTML = `<img src="${imageUrl}" alt="Profile" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;">`;
-                
-                // For settings profile image
-                const settingsImg = document.createElement('img');
-                settingsImg.src = imageUrl;
-                settingsImg.alt = "Profile";
-                settingsImg.style.width = '100%';
-                settingsImg.style.height = '100%';
-                settingsImg.style.borderRadius = '50%';
-                settingsImg.style.objectFit = 'cover';
-                
-                settingsProfileImage.innerHTML = '';
-                settingsProfileImage.appendChild(settingsImg);
+                // Update profile images
+                updateProfileImage(adminAvatar, imageUrl);
+                updateProfileImage(settingsProfileImage, imageUrl);
                 
                 // Save to Firebase (in real app, upload to Cloudinary first)
                 if (currentUser) {
@@ -4024,73 +4265,6 @@
             setTimeout(() => {
                 errorMessage.style.display = 'none';
             }, 5000);
-        }
-
-        // ============================
-        // OTP MODAL FUNCTIONS
-        // ============================
-        function verifyOtp() {
-            const enteredOtp = getOtpFromInputs();
-            
-            if (enteredOtp.length !== 6) {
-                showError('Please enter the complete 6-digit OTP');
-                return;
-            }
-            
-            if (enteredOtp !== currentOtp) {
-                showError('Invalid OTP. Please try again.');
-                return;
-            }
-            
-            // Handle based on otpType
-            if (otpType === 'password_reset' && pendingPasswordReset) {
-                // Proceed with password reset
-                handlePasswordReset();
-            }
-            
-            // Close OTP modal
-            document.getElementById('otpModal').style.display = 'none';
-            clearOtpInputs();
-        }
-
-        async function resendOtp() {
-            if (!pendingPasswordReset) {
-                showError('No pending operation to resend OTP');
-                return;
-            }
-            
-            // Show loading
-            const btn = resendOtpBtn;
-            const originalText = btn.innerHTML;
-            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Resending...';
-            btn.disabled = true;
-            
-            try {
-                // Generate new OTP
-                currentOtp = generateOtp();
-                
-                let email, type;
-                if (pendingPasswordReset) {
-                    email = pendingPasswordReset.email;
-                    type = 'password_reset';
-                }
-                
-                // Send OTP via EmailJS
-                const emailSent = await sendOtpEmail(email, currentOtp, type);
-                
-                if (emailSent) {
-                    showSuccess('New OTP sent to your email!');
-                } else {
-                    showError('Failed to resend OTP. Please try again.');
-                }
-                
-            } catch (error) {
-                showError('Error resending OTP: ' + error.message);
-            } finally {
-                // Reset button
-                btn.innerHTML = originalText;
-                btn.disabled = false;
-            }
         }
     </script>
 </body>
