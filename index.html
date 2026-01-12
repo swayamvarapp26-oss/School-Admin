@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+ <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -1048,74 +1048,73 @@
                 </div>
             </div>
             
-            <!-- Forgot Password Form -->
-            <div id="forgotTab" class="auth-tab-content" style="display: none;">
-                <div class="form-group">
-                    <label>Email Address *</label>
-                    <input type="email" id="forgotEmail" class="form-control" placeholder="admin@school.com">
-                </div>
-                
-                <button class="btn btn-warning btn-block" id="sendResetOtpBtn">
-                    <i class="fas fa-key"></i> Send Reset OTP
-                </button>
-                
-                <div class="form-group" id="resetOtpSection" style="display: none;">
-                    <label>Enter OTP *</label>
-                    <div class="otp-container">
-                        <input type="text" class="otp-input" maxlength="1" data-index="0">
-                        <input type="text" class="otp-input" maxlength="1" data-index="1">
-                        <input type="text" class="otp-input" maxlength="1" data-index="2">
-                        <input type="text" class="otp-input" maxlength="1" data-index="3">
-                        <input type="text" class="otp-input" maxlength="1" data-index="4">
-                        <input type="text" class="otp-input" maxlength="1" data-index="5">
-                    </div>
-                </div>
-                
-                <!-- ADDED: Verify OTP Button -->
-                <button class="btn btn-primary btn-block" id="verifyOtpBtn" style="display: none; margin-top: 20px;">
-                    <i class="fas fa-check"></i> Verify OTP
-                </button>
-                
-                <div id="newPasswordFields" style="display: none;">
-                    <div class="form-group">
-                        <label>New Password *</label>
-                        <input type="password" id="newPassword" class="form-control" placeholder="Enter new password">
-                        <div class="password-requirements">
-                            <h4>Password Requirements:</h4>
-                            <ul>
-                                <li id="forgotReqLength">
-                                    <i class="fas fa-circle requirement-not-met"></i>
-                                    At least 6 characters
-                                </li>
-                                <li id="forgotReqLowercase">
-                                    <i class="fas fa-circle requirement-not-met"></i>
-                                    Contains lowercase letter
-                                </li>
-                                <li id="forgotReqUppercase">
-                                    <i class="fas fa-circle requirement-not-met"></i>
-                                    Contains uppercase letter
-                                </li>
-                                <li id="forgotReqNumber">
-                                    <i class="fas fa-circle requirement-not-met"></i>
-                                    Contains number
-                                </li>
-                            </ul>
-                        </div>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label>Confirm New Password *</label>
-                        <input type="password" id="confirmNewPassword" class="form-control" placeholder="Confirm new password">
-                    </div>
-                </div>
-                
-                <button class="btn btn-primary btn-block" id="resetPasswordBtn" style="display: none; margin-top: 20px;">
-                    <i class="fas fa-sync-alt"></i> Change Password
-                </button>
-            </div>
+          <!-- Forgot Password Form -->
+<div id="forgotTab" class="auth-tab-content" style="display: none;">
+    <div class="form-group">
+        <label>Email Address *</label>
+        <input type="email" id="forgotEmail" class="form-control" placeholder="admin@school.com">
+    </div>
+    
+    <button class="btn btn-warning btn-block" id="sendResetOtpBtn">
+        <i class="fas fa-key"></i> Send Reset OTP
+    </button>
+    
+    <div class="form-group" id="resetOtpSection" style="display: none;">
+        <label>Enter OTP *</label>
+        <div class="otp-container">
+            <input type="text" class="otp-input" maxlength="1" data-index="0">
+            <input type="text" class="otp-input" maxlength="1" data-index="1">
+            <input type="text" class="otp-input" maxlength="1" data-index="2">
+            <input type="text" class="otp-input" maxlength="1" data-index="3">
+            <input type="text" class="otp-input" maxlength="1" data-index="4">
+            <input type="text" class="otp-input" maxlength="1" data-index="5">
         </div>
     </div>
     
+    <!-- VERIFY OTP BUTTON -->
+    <button class="btn btn-primary btn-block" id="verifyOtpBtn" style="display: none; margin-top: 20px;">
+        <i class="fas fa-check"></i> Verify OTP
+    </button>
+    
+    <!-- NEW PASSWORD FIELDS -->
+    <div id="newPasswordFields" style="display: none;">
+        <div class="form-group">
+            <label>New Password *</label>
+            <input type="password" id="newPassword" class="form-control" placeholder="Enter new password">
+            <div class="password-requirements">
+                <h4>Password Requirements:</h4>
+                <ul>
+                    <li id="forgotReqLength">
+                        <i class="fas fa-circle requirement-not-met"></i>
+                        At least 6 characters
+                    </li>
+                    <li id="forgotReqLowercase">
+                        <i class="fas fa-circle requirement-not-met"></i>
+                        Contains lowercase letter
+                    </li>
+                    <li id="forgotReqUppercase">
+                        <i class="fas fa-circle requirement-not-met"></i>
+                        Contains uppercase letter
+                    </li>
+                    <li id="forgotReqNumber">
+                        <i class="fas fa-circle requirement-not-met"></i>
+                        Contains number
+                    </li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="form-group">
+            <label>Confirm New Password *</label>
+            <input type="password" id="confirmNewPassword" class="form-control" placeholder="Confirm new password">
+        </div>
+        
+        <!-- CHANGE PASSWORD BUTTON -->
+        <button class="btn btn-primary btn-block" id="resetPasswordBtn" style="margin-top: 20px;">
+            <i class="fas fa-sync-alt"></i> Change Password
+        </button>
+    </div>
+</div>
     <!-- Main Admin Panel -->
     <div id="adminPanel" style="display: none;">
         <!-- Header -->
@@ -1781,12 +1780,14 @@
         const loginBtn = document.getElementById('loginBtn');
         const simpleForgotBtn = document.getElementById('simpleForgotBtn');
         const sendResetOtpBtn = document.getElementById('sendResetOtpBtn');
-        const verifyOtpBtn = document.getElementById('verifyOtpBtn');
         const resetPasswordBtn = document.getElementById('resetPasswordBtn');
         const otpInputs = document.querySelectorAll('.otp-input');
         const newPasswordFields = document.getElementById('newPasswordFields');
         const newPasswordInput = document.getElementById('newPassword');
         const confirmNewPasswordInput = document.getElementById('confirmNewPassword');
+        
+        // NEW: Verify OTP Button in Forgot Password Form
+        const verifyOtpBtnForgot = document.getElementById('verifyOtpBtn');
         
         // Navigation
         const navLinks = document.querySelectorAll('.nav-links a');
@@ -1889,9 +1890,9 @@
                     // Clear OTP fields when switching tabs
                     clearOtpInputs();
                     document.getElementById('resetOtpSection').style.display = 'none';
-                    verifyOtpBtn.style.display = 'none';
                     newPasswordFields.style.display = 'none';
                     document.getElementById('resetPasswordBtn').style.display = 'none';
+                    verifyOtpBtnForgot.style.display = 'none';
                     document.getElementById('sendResetOtpBtn').style.display = 'block';
                     
                 });
@@ -1952,10 +1953,13 @@
             // Auth Buttons
             loginBtn.addEventListener('click', handleLogin);
             sendResetOtpBtn.addEventListener('click', sendPasswordResetOtp);
-            verifyOtpBtn.addEventListener('click', verifyOtp);
             resetPasswordBtn.addEventListener('click', handlePasswordReset);
             
+            // NEW: Verify OTP Button in Forgot Password Form
+            verifyOtpBtnForgot.addEventListener('click', verifyOtpInForgotForm);
+            
             // OTP Modal
+            verifyOtpBtn.addEventListener('click', verifyOtp);
             resendOtpBtn.addEventListener('click', resendOtp);
             
             // Navigation
@@ -2158,7 +2162,7 @@
                     
                     // Show OTP section and Verify OTP button
                     document.getElementById('resetOtpSection').style.display = 'block';
-                    verifyOtpBtn.style.display = 'block';
+                    verifyOtpBtnForgot.style.display = 'block';
                     sendResetOtpBtn.style.display = 'none';
                     
                     // Focus first OTP input
@@ -2170,6 +2174,46 @@
             } catch (authError) {
                 console.error('Error:', authError);
                 showError('Error: ' + authError.message);
+            } finally {
+                // Reset button
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            }
+        }
+
+        // NEW: Verify OTP in Forgot Password Form
+        async function verifyOtpInForgotForm() {
+            const enteredOtp = getOtpFromInputs();
+            
+            if (enteredOtp.length !== 6) {
+                showError('Please enter the complete 6-digit OTP');
+                return;
+            }
+            
+            if (enteredOtp !== currentOtp) {
+                showError('Invalid OTP. Please try again.');
+                return;
+            }
+            
+            // Show loading
+            const btn = verifyOtpBtnForgot;
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Verifying...';
+            btn.disabled = true;
+            
+            try {
+                // OTP verified successfully
+                showSuccess('OTP verified successfully! Now you can set your new password.');
+                
+                // Hide OTP section and Verify button
+                document.getElementById('resetOtpSection').style.display = 'none';
+                verifyOtpBtnForgot.style.display = 'none';
+                
+                // Show new password fields
+                newPasswordFields.style.display = 'block';
+                
+            } catch (error) {
+                showError('OTP verification failed: ' + error.message);
             } finally {
                 // Reset button
                 btn.innerHTML = originalText;
@@ -2239,45 +2283,6 @@
             }
         }
 
-        async function verifyOtp() {
-            const enteredOtp = getOtpFromInputs();
-            
-            if (enteredOtp.length !== 6) {
-                showError('Please enter the complete 6-digit OTP');
-                return;
-            }
-            
-            if (enteredOtp !== currentOtp) {
-                showError('Invalid OTP. Please try again.');
-                return;
-            }
-            
-            // Show loading
-            const btn = verifyOtpBtn;
-            const originalText = btn.innerHTML;
-            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Verifying...';
-            btn.disabled = true;
-            
-            try {
-                // OTP verified successfully
-                showSuccess('OTP verified successfully!');
-                
-                // Hide OTP section and Verify button
-                verifyOtpBtn.style.display = 'none';
-                
-                // Show new password fields and Change Password button
-                newPasswordFields.style.display = 'block';
-                document.getElementById('resetPasswordBtn').style.display = 'block';
-                
-            } catch (error) {
-                showError('Error verifying OTP: ' + error.message);
-            } finally {
-                // Reset button
-                btn.innerHTML = originalText;
-                btn.disabled = false;
-            }
-        }
-
         async function handlePasswordReset() {
             const newPassword = document.getElementById('newPassword').value;
             const confirmNewPassword = document.getElementById('confirmNewPassword').value;
@@ -2330,9 +2335,9 @@
                 newPasswordInput.value = '';
                 confirmNewPasswordInput.value = '';
                 document.getElementById('resetOtpSection').style.display = 'none';
-                verifyOtpBtn.style.display = 'none';
                 newPasswordFields.style.display = 'none';
                 document.getElementById('resetPasswordBtn').style.display = 'none';
+                verifyOtpBtnForgot.style.display = 'none';
                 document.getElementById('sendResetOtpBtn').style.display = 'block';
                 clearOtpInputs();
                 
@@ -2351,8 +2356,35 @@
         }
 
         // ============================
-        // OTP VERIFICATION FUNCTIONS
+        // OTP VERIFICATION FUNCTIONS (Modal)
         // ============================
+        async function verifyOtp() {
+            const enteredOtp = getOtpFromInputs();
+            
+            if (enteredOtp.length !== 6) {
+                showError('Please enter the complete 6-digit OTP');
+                return;
+            }
+            
+            if (enteredOtp !== currentOtp) {
+                showError('Invalid OTP. Please try again.');
+                return;
+            }
+            
+            // Handle based on otpType
+            if (otpType === 'password_reset' && pendingPasswordReset) {
+                // Hide OTP modal
+                document.getElementById('otpModal').style.display = 'none';
+                clearOtpInputs();
+                
+                // Show new password fields
+                newPasswordFields.style.display = 'block';
+                document.getElementById('resetPasswordBtn').style.display = 'block';
+                
+                showSuccess('OTP verified! Now enter your new password.');
+            }
+        }
+
         async function resendOtp() {
             if (!pendingPasswordReset) {
                 showError('No pending operation to resend OTP');
@@ -3144,7 +3176,6 @@
                 filteredTeachers.forEach(teacher => {
                     const row = document.createElement('tr');
                     
-               
                     // Determine status
                     let status = 'Pending';
                     let statusClass = 'status-pending';
@@ -4210,4 +4241,3 @@
     </script>
 </body>
 </html>
- 
