@@ -1,4 +1,4 @@
-  <!DOCTYPE html>
+ <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -1187,13 +1187,11 @@
                         </div>
                         
                         <div class="form-group">
-                            <label>Current Password</label>
-                            <input type="password" id="currentPassword" class="form-control" placeholder="Enter current password">
-                        </div>
-                        
-                        <div class="form-group">
                             <label>New Password</label>
                             <input type="password" id="settingsNewPassword" class="form-control" placeholder="Enter new password">
+                            <small style="color: var(--gray); font-size: 13px; margin-top: 5px; display: block;">
+                                Enter your new password. No need to enter current password.
+                            </small>
                         </div>
                         
                         <div class="form-group">
@@ -1291,16 +1289,16 @@
     <!-- Firebase Configuration and App Logic -->
     <script>
         // Firebase Configuration (Replace with your actual Firebase config)
-      const firebaseConfig = {
-  apiKey: "AIzaSyDcKkAf2SRmfiJizVA71fILOqRZTtUGAdY",
-  authDomain: "schooladmin-51cdd.firebaseapp.com",
-  databaseURL: "https://schooladmin-51cdd-default-rtdb.firebaseio.com",
-  projectId: "schooladmin-51cdd",
-  storageBucket: "schooladmin-51cdd.firebasestorage.app",
-  messagingSenderId: "185301938780",
-  appId: "1:185301938780:web:bdeaabff3c7d2bff2bac99",
-  measurementId: "G-V8C5DE930K"
-};
+        const firebaseConfig = {
+            apiKey: "AIzaSyDcKkAf2SRmfiJizVA71fILOqRZTtUGAdY",
+            authDomain: "schooladmin-51cdd.firebaseapp.com",
+            databaseURL: "https://schooladmin-51cdd-default-rtdb.firebaseio.com",
+            projectId: "schooladmin-51cdd",
+            storageBucket: "schooladmin-51cdd.firebasestorage.app",
+            messagingSenderId: "185301938780",
+            appId: "1:185301938780:web:bdeaabff3c7d2bff2bac99",
+            measurementId: "G-V8C5DE930K"
+        };
 
         // Initialize Firebase
         firebase.initializeApp(firebaseConfig);
@@ -2405,63 +2403,61 @@
         }
 
         function changePassword() {
-            const currentPassword = document.getElementById('currentPassword').value;
             const newPassword = document.getElementById('settingsNewPassword').value;
             const confirmPassword = document.getElementById('settingsConfirmPassword').value;
             
-            if (!currentPassword || !newPassword || !confirmPassword) {
-                showError('Please fill all fields');
+            if (!newPassword || !confirmPassword) {
+                showError('Please fill both password fields');
                 return;
             }
             
             if (newPassword !== confirmPassword) {
-                showError('New passwords do not match');
+                showError('Passwords do not match');
                 return;
             }
             
             if (newPassword.length < 6) {
-                showError('New password must be at least 6 characters');
+                showError('Password must be at least 6 characters');
                 return;
             }
             
             // For demo - simulate password change
-            if (currentPassword !== 'admin123') {
-                showError('Current password is incorrect');
-                return;
-            }
-            
+            // Note: In the demo version, we don't require current password
             showSuccess('Password changed successfully!');
             
+            // Update the stored user password in localStorage for demo
+            if (currentUser) {
+                // In a real app, you would update Firebase Auth here
+                // For demo, we'll just update localStorage
+                currentUser.password = newPassword; // Note: This is just for demo
+                localStorage.setItem('schoolAdminUser', JSON.stringify(currentUser));
+            }
+            
             // Clear form
-            document.getElementById('currentPassword').value = '';
             document.getElementById('settingsNewPassword').value = '';
             document.getElementById('settingsConfirmPassword').value = '';
             
             // Log activity
             addActivityLog('Changed Password', 'Account security update');
             
-            // Real Firebase implementation:
+            // Real Firebase implementation (without current password requirement):
             /*
-            // Re-authenticate user
-            const credential = firebase.auth.EmailAuthProvider.credential(
-                currentUser.email, 
-                currentPassword
-            );
+            // Note: This requires the user to be recently signed in
+            // In a real app, you might want to implement additional security measures
             
-            currentUser.reauthenticateWithCredential(credential)
-                .then(() => {
-                    // Change password
-                    return currentUser.updatePassword(newPassword);
-                })
+            currentUser.updatePassword(newPassword)
                 .then(() => {
                     showSuccess('Password changed successfully!');
                     // Clear form
-                    document.getElementById('currentPassword').value = '';
                     document.getElementById('settingsNewPassword').value = '';
                     document.getElementById('settingsConfirmPassword').value = '';
                 })
                 .catch((error) => {
-                    showError('Failed to change password: ' + error.message);
+                    if (error.code === 'auth/requires-recent-login') {
+                        showError('For security, please log out and log in again before changing password.');
+                    } else {
+                        showError('Failed to change password: ' + error.message);
+                    }
                 });
             */
         }
