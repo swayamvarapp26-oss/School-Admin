@@ -1,4 +1,4 @@
- <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -1071,6 +1071,11 @@
                     </div>
                 </div>
                 
+                <!-- ADDED: Verify OTP Button -->
+                <button class="btn btn-primary btn-block" id="verifyOtpBtn" style="display: none; margin-top: 20px;">
+                    <i class="fas fa-check"></i> Verify OTP
+                </button>
+                
                 <div id="newPasswordFields" style="display: none;">
                     <div class="form-group">
                         <label>New Password *</label>
@@ -1636,7 +1641,7 @@
                     <input type="text" class="otp-input" maxlength="1" data-index="1">
                     <input type="text" class="otp-input" maxlength="1" data-index="2">
                     <input type="text" class="otp-input" maxlength="1" data-index="3">
-                    <input type="text" class.otp-input" maxlength="1" data-index="4">
+                    <input type="text" class="otp-input" maxlength="1" data-index="4">
                     <input type="text" class="otp-input" maxlength="1" data-index="5">
                 </div>
             </div>
@@ -1776,6 +1781,7 @@
         const loginBtn = document.getElementById('loginBtn');
         const simpleForgotBtn = document.getElementById('simpleForgotBtn');
         const sendResetOtpBtn = document.getElementById('sendResetOtpBtn');
+        const verifyOtpBtn = document.getElementById('verifyOtpBtn');
         const resetPasswordBtn = document.getElementById('resetPasswordBtn');
         const otpInputs = document.querySelectorAll('.otp-input');
         const newPasswordFields = document.getElementById('newPasswordFields');
@@ -1883,6 +1889,7 @@
                     // Clear OTP fields when switching tabs
                     clearOtpInputs();
                     document.getElementById('resetOtpSection').style.display = 'none';
+                    verifyOtpBtn.style.display = 'none';
                     newPasswordFields.style.display = 'none';
                     document.getElementById('resetPasswordBtn').style.display = 'none';
                     document.getElementById('sendResetOtpBtn').style.display = 'block';
@@ -1945,10 +1952,10 @@
             // Auth Buttons
             loginBtn.addEventListener('click', handleLogin);
             sendResetOtpBtn.addEventListener('click', sendPasswordResetOtp);
+            verifyOtpBtn.addEventListener('click', verifyOtp);
             resetPasswordBtn.addEventListener('click', handlePasswordReset);
             
             // OTP Modal
-            verifyOtpBtn.addEventListener('click', verifyOtp);
             resendOtpBtn.addEventListener('click', resendOtp);
             
             // Navigation
@@ -2149,8 +2156,9 @@
                 if (emailSent) {
                     showSuccess('Password reset OTP sent to your email! Please check your inbox.');
                     
-                    // Show OTP section
+                    // Show OTP section and Verify OTP button
                     document.getElementById('resetOtpSection').style.display = 'block';
+                    verifyOtpBtn.style.display = 'block';
                     sendResetOtpBtn.style.display = 'none';
                     
                     // Focus first OTP input
@@ -2231,11 +2239,8 @@
             }
         }
 
-        async function handlePasswordReset() {
-            // First check if OTP is correct
+        async function verifyOtp() {
             const enteredOtp = getOtpFromInputs();
-            const newPassword = document.getElementById('newPassword').value;
-            const confirmNewPassword = document.getElementById('confirmNewPassword').value;
             
             if (enteredOtp.length !== 6) {
                 showError('Please enter the complete 6-digit OTP');
@@ -2246,6 +2251,36 @@
                 showError('Invalid OTP. Please try again.');
                 return;
             }
+            
+            // Show loading
+            const btn = verifyOtpBtn;
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Verifying...';
+            btn.disabled = true;
+            
+            try {
+                // OTP verified successfully
+                showSuccess('OTP verified successfully!');
+                
+                // Hide OTP section and Verify button
+                verifyOtpBtn.style.display = 'none';
+                
+                // Show new password fields and Change Password button
+                newPasswordFields.style.display = 'block';
+                document.getElementById('resetPasswordBtn').style.display = 'block';
+                
+            } catch (error) {
+                showError('Error verifying OTP: ' + error.message);
+            } finally {
+                // Reset button
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            }
+        }
+
+        async function handlePasswordReset() {
+            const newPassword = document.getElementById('newPassword').value;
+            const confirmNewPassword = document.getElementById('confirmNewPassword').value;
             
             if (!newPassword || !confirmNewPassword) {
                 showError('Please enter new password and confirm it');
@@ -2295,6 +2330,7 @@
                 newPasswordInput.value = '';
                 confirmNewPasswordInput.value = '';
                 document.getElementById('resetOtpSection').style.display = 'none';
+                verifyOtpBtn.style.display = 'none';
                 newPasswordFields.style.display = 'none';
                 document.getElementById('resetPasswordBtn').style.display = 'none';
                 document.getElementById('sendResetOtpBtn').style.display = 'block';
@@ -2317,33 +2353,6 @@
         // ============================
         // OTP VERIFICATION FUNCTIONS
         // ============================
-        async function verifyOtp() {
-            const enteredOtp = getOtpFromInputs();
-            
-            if (enteredOtp.length !== 6) {
-                showError('Please enter the complete 6-digit OTP');
-                return;
-            }
-            
-            if (enteredOtp !== currentOtp) {
-                showError('Invalid OTP. Please try again.');
-                return;
-            }
-            
-            // Handle based on otpType
-            if (otpType === 'password_reset' && pendingPasswordReset) {
-                // Hide OTP modal
-                document.getElementById('otpModal').style.display = 'none';
-                clearOtpInputs();
-                
-                // Show new password fields
-                newPasswordFields.style.display = 'block';
-                document.getElementById('resetPasswordBtn').style.display = 'block';
-                
-                showSuccess('OTP verified! Now enter your new password.');
-            }
-        }
-
         async function resendOtp() {
             if (!pendingPasswordReset) {
                 showError('No pending operation to resend OTP');
@@ -3135,6 +3144,7 @@
                 filteredTeachers.forEach(teacher => {
                     const row = document.createElement('tr');
                     
+               
                     // Determine status
                     let status = 'Pending';
                     let statusClass = 'status-pending';
@@ -4200,3 +4210,4 @@
     </script>
 </body>
 </html>
+ 
