@@ -1,4 +1,4 @@
- <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -7,7 +7,7 @@
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Google Fonts -->
@@ -526,77 +526,50 @@
             color: var(--primary);
         }
 
-        .auth-tabs {
-            display: flex;
-            margin-bottom: 30px;
-            border-bottom: 2px solid var(--light);
-        }
-
-        .auth-tab {
-            flex: 1;
-            text-align: center;
-            padding: 15px;
-            font-size: 18px;
-            font-weight: 600;
-            color: var(--gray);
-            cursor: pointer;
-            transition: var(--transition);
-            border-bottom: 3px solid transparent;
-        }
-
-        .auth-tab.active {
-            color: var(--secondary);
-            border-bottom: 3px solid var(--secondary);
-        }
-
-        .auth-content {
-            display: none;
-        }
-
-        .auth-content.active {
-            display: block;
-        }
-
-        .otp-container {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 25px;
-        }
-
-        .otp-input {
-            flex: 1;
-            height: 60px;
-            text-align: center;
-            font-size: 24px;
-            font-weight: 700;
-            border: 2px solid var(--light-gray);
-            border-radius: 8px;
-            transition: var(--transition);
-        }
-
-        .otp-input:focus {
-            border-color: var(--secondary);
-            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
-        }
-
-        .resend-otp {
-            text-align: center;
-            margin-top: 20px;
-            color: var(--gray);
-            font-size: 14px;
-        }
-
-        .resend-otp a {
-            color: var(--secondary);
-            text-decoration: none;
-            font-weight: 600;
-        }
-
         .auth-footer {
             text-align: center;
             margin-top: 30px;
             color: var(--gray);
             font-size: 14px;
+        }
+
+        /* Password Requirements */
+        .password-requirements {
+            background-color: rgba(52, 152, 219, 0.1);
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 10px;
+            font-size: 14px;
+        }
+
+        .password-requirements h4 {
+            margin-bottom: 8px;
+            color: var(--dark);
+        }
+
+        .password-requirements ul {
+            list-style: none;
+            padding-left: 5px;
+        }
+
+        .password-requirements li {
+            margin-bottom: 5px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .password-requirements li i {
+            font-size: 12px;
+            width: 16px;
+        }
+
+        .requirement-met {
+            color: var(--success);
+        }
+
+        .requirement-not-met {
+            color: var(--danger);
         }
 
         /* Modals */
@@ -693,6 +666,35 @@
             animation: pulse 2s infinite;
         }
 
+        /* Success Message */
+        #successMessage {
+            display: none;
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: var(--success);
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            z-index: 3000;
+            max-width: 350px;
+        }
+
+        #errorMessage {
+            display: none;
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: var(--danger);
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            z-index: 3000;
+            max-width: 350px;
+        }
+
         /* Responsive */
         @media (max-width: 992px) {
             .container {
@@ -763,14 +765,8 @@
                 <p>School Administration Management Portal</p>
             </div>
             
-            <div class="auth-tabs">
-                <div class="auth-tab active" data-tab="login">Login</div>
-                <div class="auth-tab" data-tab="register">Create Account</div>
-                <div class="auth-tab" data-tab="forgot">Reset Password</div>
-            </div>
-            
-            <!-- Login Tab -->
-            <div class="auth-content active" id="loginTab">
+            <!-- Login Form Only -->
+            <div id="loginTab">
                 <div class="form-group">
                     <label>Email Address</label>
                     <input type="email" id="loginEmail" class="form-control" placeholder="admin@school.com" value="admin@school.com">
@@ -781,109 +777,12 @@
                     <input type="password" id="loginPassword" class="form-control" placeholder="Enter password" value="admin123">
                 </div>
                 
-                <div class="form-group" style="text-align: right;">
-                    <a href="#" class="forgot-password-link" style="color: var(--secondary); text-decoration: none; font-size: 14px;">
-                        Forgot Password?
-                    </a>
-                </div>
-                
                 <button class="btn btn-primary btn-block" id="loginBtn">
                     <i class="fas fa-sign-in-alt"></i> Login to Admin Panel
                 </button>
                 
                 <div class="auth-footer">
                     <p>Default Admin Credentials: admin@school.com / admin123</p>
-                </div>
-            </div>
-            
-            <!-- Register Tab -->
-            <div class="auth-content" id="registerTab">
-                <div class="form-group">
-                    <label>Full Name</label>
-                    <input type="text" id="regName" class="form-control" placeholder="Enter your full name">
-                </div>
-                
-                <div class="form-group">
-                    <label>Email Address</label>
-                    <input type="email" id="regEmail" class="form-control" placeholder="Enter your school email">
-                </div>
-                
-                <div class="form-group">
-                    <label>Create Password</label>
-                    <input type="password" id="regPassword" class="form-control" placeholder="Create a strong password">
-                </div>
-                
-                <div class="form-group">
-                    <label>Confirm Password</label>
-                    <input type="password" id="regConfirmPassword" class="form-control" placeholder="Confirm your password">
-                </div>
-                
-                <button class="btn btn-success btn-block" id="registerBtn">
-                    <i class="fas fa-user-plus"></i> Create Admin Account
-                </button>
-                
-                <div class="otp-container" id="regOtpContainer" style="display: none;">
-                    <input type="text" class="otp-input" maxlength="1">
-                    <input type="text" class="otp-input" maxlength="1">
-                    <input type="text" class="otp-input" maxlength="1">
-                    <input type="text" class="otp-input" maxlength="1">
-                    <input type="text" class="otp-input" maxlength="1">
-                    <input type="text" class="otp-input" maxlength="1">
-                </div>
-                
-                <div class="resend-otp" id="regResendOtp" style="display: none;">
-                    <p>Didn't receive OTP? <a href="#" id="regResendLink">Resend OTP</a></p>
-                    <p id="regOtpTimer" style="color: var(--danger); font-weight: 600;"></p>
-                </div>
-                
-                <button class="btn btn-primary btn-block" id="verifyRegOtpBtn" style="display: none;">
-                    <i class="fas fa-check-circle"></i> Verify OTP & Complete Registration
-                </button>
-            </div>
-            
-            <!-- Forgot Password Tab -->
-            <div class="auth-content" id="forgotTab">
-                <div class="form-group">
-                    <label>Email Address</label>
-                    <input type="email" id="forgotEmail" class="form-control" placeholder="Enter your registered email">
-                </div>
-                
-                <button class="btn btn-primary btn-block" id="sendOtpBtn">
-                    <i class="fas fa-paper-plane"></i> Send OTP to Email
-                </button>
-                
-                <div class="otp-container" id="forgotOtpContainer" style="display: none; margin-top: 30px;">
-                    <input type="text" class="otp-input" maxlength="1">
-                    <input type="text" class="otp-input" maxlength="1">
-                    <input type="text" class="otp-input" maxlength="1">
-                    <input type="text" class="otp-input" maxlength="1">
-                    <input type="text" class="otp-input" maxlength="1">
-                    <input type="text" class="otp-input" maxlength="1">
-                </div>
-                
-                <div class="resend-otp" id="forgotResendOtp" style="display: none;">
-                    <p>Didn't receive OTP? <a href="#" id="forgotResendLink">Resend OTP</a></p>
-                    <p id="forgotOtpTimer" style="color: var(--danger); font-weight: 600;"></p>
-                </div>
-                
-                <button class="btn btn-success btn-block" id="verifyOtpBtn" style="display: none;">
-                    <i class="fas fa-check-circle"></i> Verify OTP
-                </button>
-                
-                <div id="resetPasswordForm" style="display: none;">
-                    <div class="form-group">
-                        <label>New Password</label>
-                        <input type="password" id="newPassword" class="form-control" placeholder="Enter new password">
-                    </div>
-                    
-                    <div class="form-group">
-                        <label>Confirm New Password</label>
-                        <input type="password" id="confirmNewPassword" class="form-control" placeholder="Confirm new password">
-                    </div>
-                    
-                    <button class="btn btn-primary btn-block" id="resetPasswordBtn">
-                        <i class="fas fa-key"></i> Reset Password
-                    </button>
                 </div>
             </div>
         </div>
@@ -1187,16 +1086,41 @@
                         </div>
                         
                         <div class="form-group">
+                            <label>Current Password</label>
+                            <input type="password" id="currentPassword" class="form-control" placeholder="Enter current password">
+                        </div>
+                        
+                        <div class="form-group">
                             <label>New Password</label>
                             <input type="password" id="settingsNewPassword" class="form-control" placeholder="Enter new password">
-                            <small style="color: var(--gray); font-size: 13px; margin-top: 5px; display: block;">
-                                Enter your new password. No need to enter current password.
-                            </small>
                         </div>
                         
                         <div class="form-group">
                             <label>Confirm New Password</label>
                             <input type="password" id="settingsConfirmPassword" class="form-control" placeholder="Confirm new password">
+                        </div>
+                        
+                        <!-- Password Requirements Display -->
+                        <div class="password-requirements" id="passwordRequirements" style="display: none;">
+                            <h4>Password Requirements:</h4>
+                            <ul>
+                                <li id="reqLength">
+                                    <i class="fas fa-circle requirement-not-met"></i>
+                                    At least 6 characters
+                                </li>
+                                <li id="reqLowercase">
+                                    <i class="fas fa-circle requirement-not-met"></i>
+                                    Contains lowercase letter
+                                </li>
+                                <li id="reqUppercase">
+                                    <i class="fas fa-circle requirement-not-met"></i>
+                                    Contains uppercase letter
+                                </li>
+                                <li id="reqNumber">
+                                    <i class="fas fa-circle requirement-not-met"></i>
+                                    Contains number
+                                </li>
+                            </ul>
                         </div>
                         
                         <div class="form-actions">
@@ -1276,7 +1200,7 @@
     </div>
     
     <!-- Success Message -->
-    <div id="successMessage" style="display: none; position: fixed; bottom: 30px; right: 30px; background: var(--success); color: white; padding: 20px; border-radius: 8px; box-shadow: 0 5px 15px rgba(0,0,0,0.2); z-index: 3000;">
+    <div id="successMessage" style="display: none;">
         <div style="display: flex; align-items: center; gap: 15px;">
             <i class="fas fa-check-circle" style="font-size: 24px;"></i>
             <div>
@@ -1286,9 +1210,24 @@
         </div>
     </div>
     
+    <!-- Error Message -->
+    <div id="errorMessage" style="display: none;">
+        <div style="display: flex; align-items: center; gap: 15px;">
+            <i class="fas fa-exclamation-circle" style="font-size: 24px;"></i>
+            <div>
+                <h4 style="margin-bottom: 5px;">Error!</h4>
+                <p id="errorText">An error occurred.</p>
+            </div>
+        </div>
+    </div>
+    
     <!-- Firebase Configuration and App Logic -->
     <script>
-        // Firebase Configuration (Replace with your actual Firebase config)
+        // ============================
+        // CONFIGURATION SECTION
+        // ============================
+        
+        // 1. FIREBASE CONFIGURATION
         const firebaseConfig = {
             apiKey: "AIzaSyDcKkAf2SRmfiJizVA71fILOqRZTtUGAdY",
             authDomain: "schooladmin-51cdd.firebaseapp.com",
@@ -1303,9 +1242,11 @@
         // Initialize Firebase
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
-        const db = firebase.firestore();
-
-        // Application State
+        const database = firebase.database();
+        
+        // ============================
+        // APPLICATION STATE
+        // ============================
         let currentUser = null;
         let currentAdmin = null;
         let notices = [];
@@ -1314,7 +1255,9 @@
         let itemToDelete = null;
         let deleteType = null;
 
-        // DOM Elements
+        // ============================
+        // DOM ELEMENTS
+        // ============================
         const authContainer = document.getElementById('authContainer');
         const adminPanel = document.getElementById('adminPanel');
         const adminName = document.getElementById('adminName');
@@ -1322,14 +1265,7 @@
         const adminAvatar = document.getElementById('adminAvatar');
         
         // Auth Elements
-        const authTabs = document.querySelectorAll('.auth-tab');
-        const authContents = document.querySelectorAll('.auth-content');
         const loginBtn = document.getElementById('loginBtn');
-        const registerBtn = document.getElementById('registerBtn');
-        const sendOtpBtn = document.getElementById('sendOtpBtn');
-        const verifyOtpBtn = document.getElementById('verifyOtpBtn');
-        const resetPasswordBtn = document.getElementById('resetPasswordBtn');
-        const verifyRegOtpBtn = document.getElementById('verifyRegOtpBtn');
         
         // Navigation
         const navLinks = document.querySelectorAll('.nav-links a');
@@ -1370,11 +1306,19 @@
         const changePasswordBtn = document.getElementById('changePasswordBtn');
         const logoutBtn = document.getElementById('logoutBtn');
         
+        // Password Requirements Elements
+        const passwordRequirements = document.getElementById('passwordRequirements');
+        const newPasswordInput = document.getElementById('settingsNewPassword');
+        
         // Success Message
         const successMessage = document.getElementById('successMessage');
         const successText = document.getElementById('successText');
+        const errorMessage = document.getElementById('errorMessage');
+        const errorText = document.getElementById('errorText');
 
-        // Initialize Application
+        // ============================
+        // INITIALIZE APPLICATION
+        // ============================
         document.addEventListener('DOMContentLoaded', function() {
             // Set current date
             const now = new Date();
@@ -1395,57 +1339,12 @@
             loadSampleData();
         });
 
-        // Event Listeners Setup
+        // ============================
+        // EVENT LISTENERS SETUP
+        // ============================
         function setupEventListeners() {
-            // Auth Tab Switching
-            authTabs.forEach(tab => {
-                tab.addEventListener('click', () => {
-                    const tabId = tab.dataset.tab;
-                    
-                    // Update active tab
-                    authTabs.forEach(t => t.classList.remove('active'));
-                    tab.classList.add('active');
-                    
-                    // Show corresponding content
-                    authContents.forEach(content => {
-                        content.classList.remove('active');
-                        if (content.id === tabId + 'Tab') {
-                            content.classList.add('active');
-                        }
-                    });
-                });
-            });
-
-            // Forgot password link
-            document.querySelector('.forgot-password-link').addEventListener('click', (e) => {
-                e.preventDefault();
-                authTabs.forEach(t => t.classList.remove('active'));
-                document.querySelector('.auth-tab[data-tab="forgot"]').classList.add('active');
-                authContents.forEach(content => content.classList.remove('active'));
-                document.getElementById('forgotTab').classList.add('active');
-            });
-
             // Login
             loginBtn.addEventListener('click', handleLogin);
-            
-            // Register
-            registerBtn.addEventListener('click', handleRegister);
-            
-            // Send OTP for password reset
-            sendOtpBtn.addEventListener('click', handleSendOtp);
-            
-            // Verify OTP for password reset
-            verifyOtpBtn.addEventListener('click', handleVerifyOtp);
-            
-            // Reset Password
-            resetPasswordBtn.addEventListener('click', handleResetPassword);
-            
-            // Verify OTP for registration
-            verifyRegOtpBtn.addEventListener('click', handleVerifyRegOtp);
-            
-            // Resend OTP links
-            document.getElementById('regResendLink')?.addEventListener('click', handleResendRegOtp);
-            document.getElementById('forgotResendLink')?.addEventListener('click', handleResendForgotOtp);
 
             // Navigation
             navLinks.forEach(link => {
@@ -1512,25 +1411,111 @@
             updateProfileBtn.addEventListener('click', updateProfile);
             changePasswordBtn.addEventListener('click', changePassword);
             logoutBtn.addEventListener('click', handleLogout);
-
-            // OTP Input Handling
-            setupOtpInputs();
+            
+            // Password requirement checking
+            newPasswordInput.addEventListener('input', checkPasswordRequirements);
+            newPasswordInput.addEventListener('focus', () => {
+                passwordRequirements.style.display = 'block';
+            });
+            newPasswordInput.addEventListener('blur', () => {
+                setTimeout(() => {
+                    if (!newPasswordInput.matches(':focus')) {
+                        passwordRequirements.style.display = 'none';
+                    }
+                }, 200);
+            });
         }
 
-        // Firebase Authentication Functions
-        function checkAuthState() {
-            // For demo purposes, we'll simulate checking auth state
-            // In real implementation, use: auth.onAuthStateChanged(user => {...})
+        // ============================
+        // PASSWORD REQUIREMENT CHECKING
+        // ============================
+        function checkPasswordRequirements() {
+            const password = newPasswordInput.value;
             
-            // Check if user is stored in localStorage (for demo)
-            const storedUser = localStorage.getItem('schoolAdminUser');
-            if (storedUser) {
-                currentUser = JSON.parse(storedUser);
-                showAdminPanel();
+            if (!password) {
+                passwordRequirements.style.display = 'none';
+                return;
+            }
+            
+            // Show requirements box
+            passwordRequirements.style.display = 'block';
+            
+            // Check length
+            const lengthReq = document.getElementById('reqLength');
+            if (password.length >= 6) {
+                lengthReq.querySelector('i').className = 'fas fa-check-circle requirement-met';
+                lengthReq.style.color = 'var(--success)';
+            } else {
+                lengthReq.querySelector('i').className = 'fas fa-circle requirement-not-met';
+                lengthReq.style.color = 'var(--danger)';
+            }
+            
+            // Check lowercase
+            const lowercaseReq = document.getElementById('reqLowercase');
+            if (/[a-z]/.test(password)) {
+                lowercaseReq.querySelector('i').className = 'fas fa-check-circle requirement-met';
+                lowercaseReq.style.color = 'var(--success)';
+            } else {
+                lowercaseReq.querySelector('i').className = 'fas fa-circle requirement-not-met';
+                lowercaseReq.style.color = 'var(--danger)';
+            }
+            
+            // Check uppercase
+            const uppercaseReq = document.getElementById('reqUppercase');
+            if (/[A-Z]/.test(password)) {
+                uppercaseReq.querySelector('i').className = 'fas fa-check-circle requirement-met';
+                uppercaseReq.style.color = 'var(--success)';
+            } else {
+                uppercaseReq.querySelector('i').className = 'fas fa-circle requirement-not-met';
+                uppercaseReq.style.color = 'var(--danger)';
+            }
+            
+            // Check number
+            const numberReq = document.getElementById('reqNumber');
+            if (/[0-9]/.test(password)) {
+                numberReq.querySelector('i').className = 'fas fa-check-circle requirement-met';
+                numberReq.style.color = 'var(--success)';
+            } else {
+                numberReq.querySelector('i').className = 'fas fa-circle requirement-not-met';
+                numberReq.style.color = 'var(--danger)';
             }
         }
 
-        function handleLogin() {
+        // ============================
+        // FIREBASE AUTHENTICATION FUNCTIONS
+        // ============================
+        function checkAuthState() {
+            auth.onAuthStateChanged((user) => {
+                if (user) {
+                    currentUser = user;
+                    // Try to get admin data from database
+                    database.ref('admins/' + user.uid).once('value').then((snapshot) => {
+                        if (snapshot.exists()) {
+                            currentAdmin = snapshot.val();
+                            showAdminPanel();
+                        } else {
+                            // For demo purposes, create admin data if not exists
+                            const adminData = {
+                                name: user.displayName || 'Admin User',
+                                email: user.email,
+                                createdAt: new Date().toISOString(),
+                                lastLogin: new Date().toISOString(),
+                                role: 'admin'
+                            };
+                            database.ref('admins/' + user.uid).set(adminData);
+                            currentAdmin = adminData;
+                            showAdminPanel();
+                        }
+                    }).catch((error) => {
+                        console.error('Error getting admin data:', error);
+                        // Still show admin panel for demo
+                        showAdminPanel();
+                    });
+                }
+            });
+        }
+
+        async function handleLogin() {
             const email = document.getElementById('loginEmail').value;
             const password = document.getElementById('loginPassword').value;
             
@@ -1539,356 +1524,67 @@
                 return;
             }
             
-            // For demo - simulate Firebase auth
-            if (email === 'admin@school.com' && password === 'admin123') {
-                currentUser = {
-                    uid: 'admin001',
-                    email: email,
-                    displayName: 'Admin User',
-                    photoURL: null
-                };
+            // Show loading
+            const btn = loginBtn;
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Logging in...';
+            btn.disabled = true;
+            
+            try {
+                // REAL FIREBASE IMPLEMENTATION
+                const userCredential = await auth.signInWithEmailAndPassword(email, password);
+                currentUser = userCredential.user;
                 
-                // Store in localStorage for demo
-                localStorage.setItem('schoolAdminUser', JSON.stringify(currentUser));
+                // Update last login in database
+                database.ref('admins/' + currentUser.uid).update({
+                    lastLogin: new Date().toISOString()
+                }).catch(() => {
+                    // If admin record doesn't exist, create it
+                    database.ref('admins/' + currentUser.uid).set({
+                        name: currentUser.displayName || 'Admin User',
+                        email: currentUser.email,
+                        createdAt: new Date().toISOString(),
+                        lastLogin: new Date().toISOString(),
+                        role: 'admin'
+                    });
+                });
                 
                 showSuccess('Login successful!');
-                showAdminPanel();
-            } else {
-                showError('Invalid email or password');
+                
+            } catch (error) {
+                showError('Invalid email or password: ' + error.message);
+            } finally {
+                // Reset button
+                btn.innerHTML = originalText;
+                btn.disabled = false;
             }
-            
-            // Real Firebase implementation:
-            /*
-            auth.signInWithEmailAndPassword(email, password)
-                .then((userCredential) => {
-                    currentUser = userCredential.user;
-                    // Fetch admin data from Firestore
-                    return db.collection('admins').doc(currentUser.uid).get();
-                })
-                .then((doc) => {
-                    if (doc.exists) {
-                        currentAdmin = doc.data();
-                        showAdminPanel();
-                    } else {
-                        showError('Admin account not found');
-                        auth.signOut();
-                    }
-                })
-                .catch((error) => {
-                    showError(error.message);
-                });
-            */
-        }
-
-        function handleRegister() {
-            const name = document.getElementById('regName').value;
-            const email = document.getElementById('regEmail').value;
-            const password = document.getElementById('regPassword').value;
-            const confirmPassword = document.getElementById('regConfirmPassword').value;
-            
-            if (!name || !email || !password || !confirmPassword) {
-                showError('Please fill all fields');
-                return;
-            }
-            
-            if (password !== confirmPassword) {
-                showError('Passwords do not match');
-                return;
-            }
-            
-            if (password.length < 6) {
-                showError('Password must be at least 6 characters');
-                return;
-            }
-            
-            // For demo - simulate sending OTP
-            showSuccess('Account created! Please verify your email with OTP.');
-            
-            // Show OTP section
-            document.getElementById('regOtpContainer').style.display = 'flex';
-            document.getElementById('regResendOtp').style.display = 'block';
-            document.getElementById('verifyRegOtpBtn').style.display = 'block';
-            document.getElementById('registerBtn').style.display = 'none';
-            
-            // Start OTP timer
-            startOtpTimer('reg');
-            
-            // Real Firebase implementation:
-            /*
-            // Create user in Firebase Auth
-            auth.createUserWithEmailAndPassword(email, password)
-                .then((userCredential) => {
-                    currentUser = userCredential.user;
-                    
-                    // Send email verification
-                    return currentUser.sendEmailVerification();
-                })
-                .then(() => {
-                    // Store admin data in Firestore
-                    return db.collection('admins').doc(currentUser.uid).set({
-                        name: name,
-                        email: email,
-                        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-                        lastLogin: null,
-                        isActive: true
-                    });
-                })
-                .then(() => {
-                    showSuccess('Registration successful! Please verify your email.');
-                    // Switch to login tab
-                    document.querySelector('.auth-tab[data-tab="login"]').click();
-                })
-                .catch((error) => {
-                    showError(error.message);
-                });
-            */
-        }
-
-        function handleSendOtp() {
-            const email = document.getElementById('forgotEmail').value;
-            
-            if (!email) {
-                showError('Please enter your email address');
-                return;
-            }
-            
-            // For demo - simulate sending OTP
-            showSuccess('OTP sent to your email!');
-            
-            // Show OTP section
-            document.getElementById('forgotOtpContainer').style.display = 'flex';
-            document.getElementById('forgotResendOtp').style.display = 'block';
-            document.getElementById('verifyOtpBtn').style.display = 'block';
-            document.getElementById('sendOtpBtn').style.display = 'none';
-            
-            // Start OTP timer
-            startOtpTimer('forgot');
-            
-            // Real Firebase implementation:
-            /*
-            auth.sendPasswordResetEmail(email)
-                .then(() => {
-                    showSuccess('Password reset email sent!');
-                    // Show OTP verification UI
-                    document.getElementById('forgotOtpContainer').style.display = 'flex';
-                    document.getElementById('forgotResendOtp').style.display = 'block';
-                    document.getElementById('verifyOtpBtn').style.display = 'block';
-                    document.getElementById('sendOtpBtn').style.display = 'none';
-                    
-                    startOtpTimer('forgot');
-                })
-                .catch((error) => {
-                    showError(error.message);
-                });
-            */
-        }
-
-        function handleVerifyOtp() {
-            const otp = getOtpValue('forgot');
-            
-            if (!otp || otp.length !== 6) {
-                showError('Please enter a valid 6-digit OTP');
-                return;
-            }
-            
-            // For demo - accept any OTP
-            if (otp === '000000') {
-                showError('Invalid OTP. Please try again.');
-                return;
-            }
-            
-            showSuccess('OTP verified! You can now reset your password.');
-            
-            // Show password reset form
-            document.getElementById('resetPasswordForm').style.display = 'block';
-            document.getElementById('verifyOtpBtn').style.display = 'none';
-            document.getElementById('forgotOtpContainer').style.display = 'none';
-            document.getElementById('forgotResendOtp').style.display = 'none';
-        }
-
-        function handleResetPassword() {
-            const newPassword = document.getElementById('newPassword').value;
-            const confirmNewPassword = document.getElementById('confirmNewPassword').value;
-            
-            if (!newPassword || !confirmNewPassword) {
-                showError('Please fill all fields');
-                return;
-            }
-            
-            if (newPassword !== confirmNewPassword) {
-                showError('Passwords do not match');
-                return;
-            }
-            
-            if (newPassword.length < 6) {
-                showError('Password must be at least 6 characters');
-                return;
-            }
-            
-            // For demo - simulate password reset
-            showSuccess('Password reset successful! You can now login with your new password.');
-            
-            // Switch to login tab
-            document.querySelector('.auth-tab[data-tab="login"]').click();
-            
-            // Reset form
-            document.getElementById('resetPasswordForm').style.display = 'none';
-            document.getElementById('sendOtpBtn').style.display = 'block';
-            document.getElementById('forgotEmail').value = '';
-            
-            // Real Firebase implementation:
-            /*
-            const email = document.getElementById('forgotEmail').value;
-            
-            // First verify the OTP (you would need to implement OTP verification)
-            // Then update password
-            auth.confirmPasswordReset(code, newPassword)
-                .then(() => {
-                    showSuccess('Password reset successful!');
-                    // Switch to login tab
-                    document.querySelector('.auth-tab[data-tab="login"]').click();
-                    
-                    // Reset form
-                    document.getElementById('resetPasswordForm').style.display = 'none';
-                    document.getElementById('sendOtpBtn').style.display = 'block';
-                    document.getElementById('forgotEmail').value = '';
-                })
-                .catch((error) => {
-                    showError(error.message);
-                });
-            */
-        }
-
-        function handleVerifyRegOtp() {
-            const otp = getOtpValue('reg');
-            
-            if (!otp || otp.length !== 6) {
-                showError('Please enter a valid 6-digit OTP');
-                return;
-            }
-            
-            // For demo - accept any OTP except 000000
-            if (otp === '000000') {
-                showError('Invalid OTP. Please try again.');
-                return;
-            }
-            
-            showSuccess('Email verified successfully! You can now login.');
-            
-            // Switch to login tab
-            document.querySelector('.auth-tab[data-tab="login"]').click();
-            
-            // Reset form
-            document.getElementById('regOtpContainer').style.display = 'none';
-            document.getElementById('regResendOtp').style.display = 'none';
-            document.getElementById('verifyRegOtpBtn').style.display = 'none';
-            document.getElementById('registerBtn').style.display = 'block';
-            
-            clearRegistrationForm();
-        }
-
-        function handleResendRegOtp(e) {
-            e.preventDefault();
-            showSuccess('OTP resent to your email!');
-            startOtpTimer('reg');
-        }
-
-        function handleResendForgotOtp(e) {
-            e.preventDefault();
-            showSuccess('OTP resent to your email!');
-            startOtpTimer('forgot');
         }
 
         function handleLogout() {
-            // Clear local storage
-            localStorage.removeItem('schoolAdminUser');
-            
-            // Reset app state
-            currentUser = null;
-            currentAdmin = null;
-            
-            // Show auth screen
-            authContainer.style.display = 'flex';
-            adminPanel.style.display = 'none';
-            
-            // Reset forms
-            clearLoginForm();
-            
-            showSuccess('Logged out successfully!');
-        }
-
-        // OTP Functions
-        function setupOtpInputs() {
-            // For registration OTP
-            const regOtpInputs = document.querySelectorAll('#regOtpContainer .otp-input');
-            setupOtpInputBehavior(regOtpInputs);
-            
-            // For forgot password OTP
-            const forgotOtpInputs = document.querySelectorAll('#forgotOtpContainer .otp-input');
-            setupOtpInputBehavior(forgotOtpInputs);
-        }
-
-        function setupOtpInputBehavior(inputs) {
-            inputs.forEach((input, index) => {
-                input.addEventListener('input', (e) => {
-                    // Auto-focus next input
-                    if (e.target.value.length === 1 && index < inputs.length - 1) {
-                        inputs[index + 1].focus();
-                    }
-                    
-                    // Enable paste
-                    if (e.target.value.length > 1) {
-                        const pastedValue = e.target.value;
-                        for (let i = 0; i < Math.min(pastedValue.length, inputs.length); i++) {
-                            inputs[i].value = pastedValue[i];
-                            if (i < inputs.length - 1) {
-                                inputs[i + 1].focus();
-                            }
-                        }
-                        e.target.value = pastedValue[0];
-                    }
-                });
+            auth.signOut().then(() => {
+                // Clear local storage
+                localStorage.removeItem('schoolAdminUser');
                 
-                input.addEventListener('keydown', (e) => {
-                    // Handle backspace
-                    if (e.key === 'Backspace' && !e.target.value && index > 0) {
-                        inputs[index - 1].focus();
-                    }
-                });
+                // Reset app state
+                currentUser = null;
+                currentAdmin = null;
+                
+                // Show auth screen
+                authContainer.style.display = 'flex';
+                adminPanel.style.display = 'none';
+                
+                // Reset forms
+                clearLoginForm();
+                
+                showSuccess('Logged out successfully!');
+            }).catch((error) => {
+                showError('Logout failed: ' + error.message);
             });
         }
 
-        function getOtpValue(type) {
-            const containerId = type === 'reg' ? 'regOtpContainer' : 'forgotOtpContainer';
-            const inputs = document.querySelectorAll(`#${containerId} .otp-input`);
-            let otp = '';
-            inputs.forEach(input => {
-                otp += input.value;
-            });
-            return otp;
-        }
-
-        function startOtpTimer(type) {
-            const timerId = type === 'reg' ? 'regOtpTimer' : 'forgotOtpTimer';
-            const timerElement = document.getElementById(timerId);
-            let timeLeft = 120; // 2 minutes
-            
-            const timer = setInterval(() => {
-                const minutes = Math.floor(timeLeft / 60);
-                const seconds = timeLeft % 60;
-                timerElement.textContent = `OTP expires in: ${minutes}:${seconds.toString().padStart(2, '0')}`;
-                
-                timeLeft--;
-                
-                if (timeLeft < 0) {
-                    clearInterval(timer);
-                    timerElement.textContent = 'OTP expired';
-                    timerElement.style.color = 'var(--danger)';
-                }
-            }, 1000);
-        }
-
-        // Admin Panel Functions
+        // ============================
+        // ADMIN PANEL FUNCTIONS
+        // ============================
         function showAdminPanel() {
             // Update user info
             adminName.textContent = currentUser.displayName || 'Admin User';
@@ -1939,8 +1635,10 @@
             });
         }
 
-        // Notice Management Functions
-        function sendNotice() {
+        // ============================
+        // NOTICE MANAGEMENT FUNCTIONS (USING REALTIME DATABASE)
+        // ============================
+        async function sendNotice() {
             const title = document.getElementById('noticeTitle').value;
             const content = document.getElementById('noticeContent').value;
             const priority = document.getElementById('noticePriority').value;
@@ -1958,70 +1656,59 @@
                 return;
             }
             
-            // Create notice object
-            const notice = {
-                id: 'notice_' + Date.now(),
-                title: title,
-                content: content,
-                priority: priority,
-                category: category,
-                recipients: {
-                    teachers: sendToTeachers,
-                    students: sendToStudents
-                },
-                timestamp: new Date().toISOString(),
-                status: 'sent',
-                sentBy: currentUser.displayName || 'Admin'
-            };
+            // Show loading
+            const btn = sendNoticeBtn;
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...';
+            btn.disabled = true;
             
-            // Add to notices array
-            notices.unshift(notice);
-            
-            // For demo - simulate saving to Firebase
-            showSuccess('Notice sent successfully to Teachers & Students apps!');
-            
-            // Real Firebase implementation:
-            /*
-            db.collection('notices').add({
-                title: title,
-                content: content,
-                priority: priority,
-                category: category,
-                recipients: {
-                    teachers: sendToTeachers,
-                    students: sendToStudents
-                },
-                timestamp: firebase.firestore.FieldValue.serverTimestamp(),
-                status: 'sent',
-                sentBy: currentUser.uid,
-                sentByName: currentUser.displayName
-            })
-            .then(() => {
-                showSuccess('Notice sent successfully!');
-                clearNoticeForm();
+            try {
+                // REALTIME DATABASE IMPLEMENTATION
+                const noticeId = database.ref().child('notices').push().key;
+                const noticeData = {
+                    id: noticeId,
+                    title: title,
+                    content: content,
+                    priority: priority,
+                    category: category,
+                    recipients: {
+                        teachers: sendToTeachers,
+                        students: sendToStudents
+                    },
+                    timestamp: new Date().toISOString(),
+                    status: 'sent',
+                    sentBy: currentUser.uid,
+                    sentByName: currentUser.displayName || 'Admin'
+                };
+                
+                await database.ref('notices/' + noticeId).set(noticeData);
+                
+                showSuccess('Notice sent successfully to Teachers & Students apps!');
+                
+                // Add to notices array
+                notices.unshift(noticeData);
+                
+                // Update dashboard
                 loadDashboardData();
+                
+                // Clear form
+                clearNoticeForm();
+                
+                // If on manage notices tab, refresh
                 if (document.getElementById('manageNoticesSection').style.display === 'block') {
                     loadNoticesTable();
                 }
-            })
-            .catch((error) => {
+                
+                // Log activity
+                addActivityLog('Sent Notice', title);
+                
+            } catch (error) {
                 showError('Failed to send notice: ' + error.message);
-            });
-            */
-            
-            // Update dashboard
-            loadDashboardData();
-            
-            // Clear form
-            clearNoticeForm();
-            
-            // If on manage notices tab, refresh
-            if (document.getElementById('manageNoticesSection').style.display === 'block') {
-                loadNoticesTable();
+            } finally {
+                // Reset button
+                btn.innerHTML = originalText;
+                btn.disabled = false;
             }
-            
-            // Log activity
-            addActivityLog('Sent Notice', title);
         }
 
         function saveNoticeAsDraft() {
@@ -2033,166 +1720,203 @@
                 return;
             }
             
-            // For demo - simulate saving draft
             showSuccess('Notice saved as draft successfully!');
-            
-            // Real Firebase implementation would save to a 'drafts' collection
             
             // Log activity
             addActivityLog('Saved Draft', title);
         }
 
-        function loadNoticesTable() {
-            // Clear table
-            noticesTableBody.innerHTML = '';
+        async function loadNoticesTable() {
+            // Show loading
+            refreshNoticesBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Loading...';
+            refreshNoticesBtn.disabled = true;
             
-            // Check if we have notices
-            if (notices.length === 0) {
-                noticesTableBody.innerHTML = `
-                    <tr>
-                        <td colspan="6" style="text-align: center; padding: 40px; color: var(--gray);">
-                            <i class="fas fa-inbox" style="font-size: 48px; margin-bottom: 15px; display: block; opacity: 0.5;"></i>
-                            <h3>No notices found</h3>
-                            <p>Send your first notice using the "Send Notice" tab</p>
+            try {
+                // REALTIME DATABASE IMPLEMENTATION
+                const snapshot = await database.ref('notices').orderByChild('timestamp').once('value');
+                
+                notices = [];
+                if (snapshot.exists()) {
+                    snapshot.forEach((childSnapshot) => {
+                        const notice = childSnapshot.val();
+                        notices.unshift(notice); // Add to beginning to show newest first
+                    });
+                }
+                
+                // Clear table
+                noticesTableBody.innerHTML = '';
+                
+                // Check if we have notices
+                if (notices.length === 0) {
+                    noticesTableBody.innerHTML = `
+                        <tr>
+                            <td colspan="6" style="text-align: center; padding: 40px; color: var(--gray);">
+                                <i class="fas fa-inbox" style="font-size: 48px; margin-bottom: 15px; display: block; opacity: 0.5;"></i>
+                                <h3>No notices found</h3>
+                                <p>Send your first notice using the "Send Notice" tab</p>
+                            </td>
+                        </tr>
+                    `;
+                    return;
+                }
+                
+                // Add notices to table
+                notices.forEach(notice => {
+                    const row = document.createElement('tr');
+                    
+                    // Format date
+                    const date = new Date(notice.timestamp);
+                    const formattedDate = date.toLocaleDateString('en-US', { 
+                        month: 'short', 
+                        day: 'numeric',
+                        year: 'numeric'
+                    });
+                    
+                    // Priority badge
+                    let priorityBadge = '';
+                    if (notice.priority === 'high') {
+                        priorityBadge = '<span class="priority-badge priority-high">High</span>';
+                    } else if (notice.priority === 'medium') {
+                        priorityBadge = '<span class="priority-badge priority-medium">Medium</span>';
+                    } else {
+                        priorityBadge = '<span class="priority-badge priority-low">Low</span>';
+                    }
+                    
+                    // Recipients text
+                    let recipientsText = '';
+                    if (notice.recipients?.teachers && notice.recipients?.students) {
+                        recipientsText = 'All Teachers & Students';
+                    } else if (notice.recipients?.teachers) {
+                        recipientsText = 'Teachers Only';
+                    } else if (notice.recipients?.students) {
+                        recipientsText = 'Students Only';
+                    }
+                    
+                    row.innerHTML = `
+                        <td><strong>${notice.title}</strong></td>
+                        <td>${notice.category || 'General'}</td>
+                        <td>${priorityBadge}</td>
+                        <td>${formattedDate}</td>
+                        <td>${recipientsText}</td>
+                        <td>
+                            <div class="action-buttons">
+                                <button class="btn btn-secondary btn-sm view-notice-btn" data-id="${notice.id}">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                                <button class="btn btn-danger btn-sm delete-notice-btn" data-id="${notice.id}">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
                         </td>
-                    </tr>
-                `;
-                return;
+                    `;
+                    
+                    noticesTableBody.appendChild(row);
+                });
+                
+                // Add event listeners to delete buttons
+                document.querySelectorAll('.delete-notice-btn').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        const noticeId = this.dataset.id;
+                        showDeleteConfirmation('notice', noticeId, 'Are you sure you want to delete this notice?');
+                    });
+                });
+                
+                // Add event listeners to view buttons
+                document.querySelectorAll('.view-notice-btn').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        const noticeId = this.dataset.id;
+                        viewNotice(noticeId);
+                    });
+                });
+                
+            } catch (error) {
+                showError('Failed to load notices: ' + error.message);
+            } finally {
+                // Reset button
+                refreshNoticesBtn.innerHTML = '<i class="fas fa-sync-alt"></i> Refresh';
+                refreshNoticesBtn.disabled = false;
             }
-            
-            // Add notices to table
-            notices.forEach(notice => {
-                const row = document.createElement('tr');
-                
-                // Format date
-                const date = new Date(notice.timestamp);
-                const formattedDate = date.toLocaleDateString('en-US', { 
-                    month: 'short', 
-                    day: 'numeric',
-                    year: 'numeric'
-                });
-                
-                // Priority badge
-                let priorityBadge = '';
-                if (notice.priority === 'high') {
-                    priorityBadge = '<span class="priority-badge priority-high">High</span>';
-                } else if (notice.priority === 'medium') {
-                    priorityBadge = '<span class="priority-badge priority-medium">Medium</span>';
-                } else {
-                    priorityBadge = '<span class="priority-badge priority-low">Low</span>';
-                }
-                
-                // Recipients text
-                let recipientsText = '';
-                if (notice.recipients.teachers && notice.recipients.students) {
-                    recipientsText = 'All Teachers & Students';
-                } else if (notice.recipients.teachers) {
-                    recipientsText = 'Teachers Only';
-                } else if (notice.recipients.students) {
-                    recipientsText = 'Students Only';
-                }
-                
-                row.innerHTML = `
-                    <td><strong>${notice.title}</strong></td>
-                    <td>${notice.category || 'General'}</td>
-                    <td>${priorityBadge}</td>
-                    <td>${formattedDate}</td>
-                    <td>${recipientsText}</td>
-                    <td>
-                        <div class="action-buttons">
-                            <button class="btn btn-secondary btn-sm view-notice-btn" data-id="${notice.id}">
-                                <i class="fas fa-eye"></i>
-                            </button>
-                            <button class="btn btn-danger btn-sm delete-notice-btn" data-id="${notice.id}">
-                                <i class="fas fa-trash"></i>
-                            </button>
-                        </div>
-                    </td>
-                `;
-                
-                noticesTableBody.appendChild(row);
-            });
-            
-            // Add event listeners to delete buttons
-            document.querySelectorAll('.delete-notice-btn').forEach(btn => {
-                btn.addEventListener('click', function() {
-                    const noticeId = this.dataset.id;
-                    showDeleteConfirmation('notice', noticeId, 'Are you sure you want to delete this notice?');
-                });
-            });
-            
-            // Add event listeners to view buttons
-            document.querySelectorAll('.view-notice-btn').forEach(btn => {
-                btn.addEventListener('click', function() {
-                    const noticeId = this.dataset.id;
-                    viewNotice(noticeId);
-                });
-            });
         }
 
         function viewNotice(noticeId) {
             const notice = notices.find(n => n.id === noticeId);
             if (!notice) return;
             
-            // For demo - show an alert with notice details
-            alert(`Notice Details:\n\nTitle: ${notice.title}\n\nContent: ${notice.content}\n\nPriority: ${notice.priority}\n\nCategory: ${notice.category}\n\nSent to: ${notice.recipients.teachers ? 'Teachers' : ''}${notice.recipients.teachers && notice.recipients.students ? ' & ' : ''}${notice.recipients.students ? 'Students' : ''}\n\nDate: ${new Date(notice.timestamp).toLocaleString()}`);
-            
-            // In a real app, you might show a modal with more details
+            alert(`Notice Details:\n\nTitle: ${notice.title}\n\nContent: ${notice.content}\n\nPriority: ${notice.priority}\n\nCategory: ${notice.category}\n\nSent to: ${notice.recipients?.teachers ? 'Teachers' : ''}${notice.recipients?.teachers && notice.recipients?.students ? ' & ' : ''}${notice.recipients?.students ? 'Students' : ''}\n\nDate: ${new Date(notice.timestamp).toLocaleString()}`);
         }
 
-        // Teacher Management Functions
-        function loadTeachersTable() {
-            // Clear table
-            teachersTableBody.innerHTML = '';
-            
-            // Check if we have teachers
-            if (teachers.length === 0) {
-                teachersTableBody.innerHTML = `
-                    <tr>
-                        <td colspan="5" style="text-align: center; padding: 40px; color: var(--gray);">
-                            <i class="fas fa-users" style="font-size: 48px; margin-bottom: 15px; display: block; opacity: 0.5;"></i>
-                            <h3>No teachers added yet</h3>
-                            <p>Add your first teacher using the "Add Teacher" button</p>
+        // ============================
+        // TEACHER MANAGEMENT FUNCTIONS (USING REALTIME DATABASE)
+        // ============================
+        async function loadTeachersTable() {
+            try {
+                // REALTIME DATABASE IMPLEMENTATION
+                const snapshot = await database.ref('teachers').once('value');
+                
+                teachers = [];
+                if (snapshot.exists()) {
+                    snapshot.forEach((childSnapshot) => {
+                        const teacher = childSnapshot.val();
+                        teacher.id = childSnapshot.key;
+                        teachers.push(teacher);
+                    });
+                }
+                
+                // Clear table
+                teachersTableBody.innerHTML = '';
+                
+                // Check if we have teachers
+                if (teachers.length === 0) {
+                    teachersTableBody.innerHTML = `
+                        <tr>
+                            <td colspan="5" style="text-align: center; padding: 40px; color: var(--gray);">
+                                <i class="fas fa-users" style="font-size: 48px; margin-bottom: 15px; display: block; opacity: 0.5;"></i>
+                                <h3>No teachers added yet</h3>
+                                <p>Add your first teacher using the "Add Teacher" button</p>
+                            </td>
+                        </tr>
+                    `;
+                    return;
+                }
+                
+                // Add teachers to table
+                teachers.forEach(teacher => {
+                    const row = document.createElement('tr');
+                    
+                    row.innerHTML = `
+                        <td><strong>${teacher.name}</strong></td>
+                        <td>${teacher.subject}</td>
+                        <td>${teacher.phone}</td>
+                        <td>${teacher.email || 'Not provided'}</td>
+                        <td>
+                            <div class="action-buttons">
+                                <a href="tel:${teacher.phone}" class="call-btn" target="_blank">
+                                    <i class="fas fa-phone"></i> Call
+                                </a>
+                                <button class="btn btn-danger btn-sm delete-teacher-btn" data-id="${teacher.id}">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
                         </td>
-                    </tr>
-                `;
-                return;
-            }
-            
-            // Add teachers to table
-            teachers.forEach(teacher => {
-                const row = document.createElement('tr');
-                
-                row.innerHTML = `
-                    <td><strong>${teacher.name}</strong></td>
-                    <td>${teacher.subject}</td>
-                    <td>${teacher.phone}</td>
-                    <td>${teacher.email || 'Not provided'}</td>
-                    <td>
-                        <div class="action-buttons">
-                            <a href="tel:${teacher.phone}" class="call-btn" target="_blank">
-                                <i class="fas fa-phone"></i> Call
-                            </a>
-                            <button class="btn btn-danger btn-sm delete-teacher-btn" data-id="${teacher.id}">
-                                <i class="fas fa-trash"></i>
-                            </button>
-                        </div>
-                    </td>
-                `;
-                
-                teachersTableBody.appendChild(row);
-            });
-            
-            // Add event listeners to delete buttons
-            document.querySelectorAll('.delete-teacher-btn').forEach(btn => {
-                btn.addEventListener('click', function() {
-                    const teacherId = this.dataset.id;
-                    showDeleteConfirmation('teacher', teacherId, 'Are you sure you want to delete this teacher?');
+                    `;
+                    
+                    teachersTableBody.appendChild(row);
                 });
-            });
+                
+                // Add event listeners to delete buttons
+                document.querySelectorAll('.delete-teacher-btn').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        const teacherId = this.dataset.id;
+                        showDeleteConfirmation('teacher', teacherId, 'Are you sure you want to delete this teacher?');
+                    });
+                });
+                
+            } catch (error) {
+                showError('Failed to load teachers: ' + error.message);
+            }
         }
 
-        function saveTeacher() {
+        async function saveTeacher() {
             const name = document.getElementById('teacherName').value;
             const subject = document.getElementById('teacherSubject').value;
             const grade = document.getElementById('teacherGrade').value;
@@ -2204,67 +1928,58 @@
                 return;
             }
             
-            // Create teacher object
-            const teacher = {
-                id: 'teacher_' + Date.now(),
-                name: name,
-                subject: subject,
-                grade: grade,
-                phone: phone,
-                email: email,
-                addedDate: new Date().toISOString(),
-                addedBy: currentUser.displayName || 'Admin'
-            };
+            // Show loading
+            const btn = saveTeacherBtn;
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
+            btn.disabled = true;
             
-            // Add to teachers array
-            teachers.push(teacher);
-            
-            // For demo - simulate saving to Firebase
-            showSuccess('Teacher added successfully!');
-            
-            // Real Firebase implementation:
-            /*
-            db.collection('teachers').add({
-                name: name,
-                subject: subject,
-                grade: grade,
-                phone: phone,
-                email: email,
-                addedDate: firebase.firestore.FieldValue.serverTimestamp(),
-                addedBy: currentUser.uid,
-                addedByName: currentUser.displayName,
-                schoolId: currentAdmin.schoolId // Assuming admin belongs to a school
-            })
-            .then(() => {
+            try {
+                // REALTIME DATABASE IMPLEMENTATION
+                const teacherId = database.ref().child('teachers').push().key;
+                const teacherData = {
+                    id: teacherId,
+                    name: name,
+                    subject: subject,
+                    grade: grade,
+                    phone: phone,
+                    email: email,
+                    addedDate: new Date().toISOString(),
+                    addedBy: currentUser.uid,
+                    addedByName: currentUser.displayName || 'Admin'
+                };
+                
+                await database.ref('teachers/' + teacherId).set(teacherData);
+                
                 showSuccess('Teacher added successfully!');
-                clearTeacherForm();
+                
+                // Add to teachers array
+                teachers.push(teacherData);
+                
+                // Close modal
                 document.getElementById('addTeacherModal').style.display = 'none';
+                
+                // Update dashboard
                 loadDashboardData();
+                
+                // If on manage teachers tab, refresh
                 if (document.getElementById('manageTeachersSection').style.display === 'block') {
                     loadTeachersTable();
                 }
-            })
-            .catch((error) => {
+                
+                // Clear form
+                clearTeacherForm();
+                
+                // Log activity
+                addActivityLog('Added Teacher', `${name} - ${subject}`);
+                
+            } catch (error) {
                 showError('Failed to add teacher: ' + error.message);
-            });
-            */
-            
-            // Close modal
-            document.getElementById('addTeacherModal').style.display = 'none';
-            
-            // Update dashboard
-            loadDashboardData();
-            
-            // If on manage teachers tab, refresh
-            if (document.getElementById('manageTeachersSection').style.display === 'block') {
-                loadTeachersTable();
+            } finally {
+                // Reset button
+                btn.innerHTML = originalText;
+                btn.disabled = false;
             }
-            
-            // Clear form
-            clearTeacherForm();
-            
-            // Log activity
-            addActivityLog('Added Teacher', `${name} - ${subject}`);
         }
 
         function clearTeacherForm() {
@@ -2275,7 +1990,9 @@
             document.getElementById('teacherEmail').value = '';
         }
 
-        // Delete Functions
+        // ============================
+        // DELETE FUNCTIONS (USING REALTIME DATABASE)
+        // ============================
         function showDeleteConfirmation(type, id, message) {
             itemToDelete = id;
             deleteType = type;
@@ -2284,81 +2001,73 @@
             document.getElementById('deleteModal').style.display = 'flex';
         }
 
-        function confirmDelete() {
+        async function confirmDelete() {
             if (!itemToDelete || !deleteType) return;
             
-            if (deleteType === 'notice') {
-                // Delete notice
-                const index = notices.findIndex(n => n.id === itemToDelete);
-                if (index !== -1) {
-                    const noticeTitle = notices[index].title;
-                    notices.splice(index, 1);
-                    
-                    showSuccess(`Notice "${noticeTitle}" deleted successfully!`);
-                    addActivityLog('Deleted Notice', noticeTitle);
-                }
-                
-                // Update UI
-                loadDashboardData();
-                if (document.getElementById('manageNoticesSection').style.display === 'block') {
-                    loadNoticesTable();
-                }
-                
-            } else if (deleteType === 'teacher') {
-                // Delete teacher
-                const index = teachers.findIndex(t => t.id === itemToDelete);
-                if (index !== -1) {
-                    const teacherName = teachers[index].name;
-                    teachers.splice(index, 1);
-                    
-                    showSuccess(`Teacher "${teacherName}" deleted successfully!`);
-                    addActivityLog('Deleted Teacher', teacherName);
-                }
-                
-                // Update UI
-                loadDashboardData();
-                if (document.getElementById('manageTeachersSection').style.display === 'block') {
-                    loadTeachersTable();
-                }
-            }
+            // Show loading
+            confirmDeleteBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Deleting...';
+            confirmDeleteBtn.disabled = true;
             
-            // Close modal
-            document.getElementById('deleteModal').style.display = 'none';
-            itemToDelete = null;
-            deleteType = null;
-            
-            // Real Firebase implementation:
-            /*
-            if (deleteType === 'notice') {
-                db.collection('notices').doc(itemToDelete).delete()
-                    .then(() => {
-                        showSuccess('Notice deleted successfully!');
-                        loadDashboardData();
-                        if (document.getElementById('manageNoticesSection').style.display === 'block') {
-                            loadNoticesTable();
-                        }
-                    })
-                    .catch((error) => {
-                        showError('Failed to delete notice: ' + error.message);
-                    });
-            } else if (deleteType === 'teacher') {
-                db.collection('teachers').doc(itemToDelete).delete()
-                    .then(() => {
-                        showSuccess('Teacher deleted successfully!');
-                        loadDashboardData();
-                        if (document.getElementById('manageTeachersSection').style.display === 'block') {
-                            loadTeachersTable();
-                        }
-                    })
-                    .catch((error) => {
-                        showError('Failed to delete teacher: ' + error.message);
-                    });
+            try {
+                if (deleteType === 'notice') {
+                    // REALTIME DATABASE IMPLEMENTATION
+                    await database.ref('notices/' + itemToDelete).remove();
+                    
+                    // Remove from local state
+                    const index = notices.findIndex(n => n.id === itemToDelete);
+                    if (index !== -1) {
+                        const noticeTitle = notices[index].title;
+                        notices.splice(index, 1);
+                        
+                        showSuccess(`Notice "${noticeTitle}" deleted successfully!`);
+                        addActivityLog('Deleted Notice', noticeTitle);
+                    }
+                    
+                    // Update UI
+                    loadDashboardData();
+                    if (document.getElementById('manageNoticesSection').style.display === 'block') {
+                        loadNoticesTable();
+                    }
+                    
+                } else if (deleteType === 'teacher') {
+                    // REALTIME DATABASE IMPLEMENTATION
+                    await database.ref('teachers/' + itemToDelete).remove();
+                    
+                    // Remove from local state
+                    const index = teachers.findIndex(t => t.id === itemToDelete);
+                    if (index !== -1) {
+                        const teacherName = teachers[index].name;
+                        teachers.splice(index, 1);
+                        
+                        showSuccess(`Teacher "${teacherName}" deleted successfully!`);
+                        addActivityLog('Deleted Teacher', teacherName);
+                    }
+                    
+                    // Update UI
+                    loadDashboardData();
+                    if (document.getElementById('manageTeachersSection').style.display === 'block') {
+                        loadTeachersTable();
+                    }
+                }
+                
+            } catch (error) {
+                showError('Failed to delete: ' + error.message);
+            } finally {
+                // Close modal
+                document.getElementById('deleteModal').style.display = 'none';
+                itemToDelete = null;
+                deleteType = null;
+                
+                // Reset button
+                confirmDeleteBtn.innerHTML = '<i class="fas fa-trash"></i> Delete';
+                confirmDeleteBtn.disabled = false;
             }
-            */
         }
 
-        // Settings Functions
-        function updateProfile() {
+        // ============================
+        // SETTINGS FUNCTIONS (USING REALTIME DATABASE)
+        // ============================
+        async function updateProfile() {
             const name = document.getElementById('settingsName').value;
             
             if (!name) {
@@ -2366,105 +2075,135 @@
                 return;
             }
             
-            // Update current user
-            currentUser.displayName = name;
-            adminName.textContent = name;
-            adminAvatar.textContent = name.charAt(0).toUpperCase();
+            // Show loading
+            const btn = updateProfileBtn;
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Updating...';
+            btn.disabled = true;
             
-            // Update localStorage for demo
-            localStorage.setItem('schoolAdminUser', JSON.stringify(currentUser));
-            
-            showSuccess('Profile updated successfully!');
-            addActivityLog('Updated Profile', 'Changed display name');
-            
-            // Real Firebase implementation:
-            /*
-            // Update in Firestore
-            db.collection('admins').doc(currentUser.uid).update({
-                name: name,
-                updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-            })
-            .then(() => {
+            try {
+                // Update in Realtime Database
+                await database.ref('admins/' + currentUser.uid).update({
+                    name: name,
+                    updatedAt: new Date().toISOString()
+                });
+                
                 // Update in Firebase Auth
-                return currentUser.updateProfile({
+                await currentUser.updateProfile({
                     displayName: name
                 });
-            })
-            .then(() => {
-                showSuccess('Profile updated successfully!');
-                // Update UI
+                
+                // Update local state
+                currentUser.displayName = name;
                 adminName.textContent = name;
                 adminAvatar.textContent = name.charAt(0).toUpperCase();
-            })
-            .catch((error) => {
+                
+                showSuccess('Profile updated successfully!');
+                addActivityLog('Updated Profile', 'Changed display name');
+                
+            } catch (error) {
                 showError('Failed to update profile: ' + error.message);
-            });
-            */
+            } finally {
+                // Reset button
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            }
         }
 
-        function changePassword() {
+        async function changePassword() {
+            const currentPassword = document.getElementById('currentPassword').value;
             const newPassword = document.getElementById('settingsNewPassword').value;
             const confirmPassword = document.getElementById('settingsConfirmPassword').value;
             
-            if (!newPassword || !confirmPassword) {
-                showError('Please fill both password fields');
+            if (!currentPassword || !newPassword || !confirmPassword) {
+                showError('Please fill all fields');
                 return;
             }
             
             if (newPassword !== confirmPassword) {
-                showError('Passwords do not match');
+                showError('New passwords do not match');
                 return;
             }
+            
+            // Check password requirements
+            let requirements = [];
             
             if (newPassword.length < 6) {
-                showError('Password must be at least 6 characters');
+                requirements.push('at least 6 characters');
+            }
+            if (!/[a-z]/.test(newPassword)) {
+                requirements.push('one lowercase letter');
+            }
+            if (!/[A-Z]/.test(newPassword)) {
+                requirements.push('one uppercase letter');
+            }
+            if (!/[0-9]/.test(newPassword)) {
+                requirements.push('one number');
+            }
+            
+            if (requirements.length > 0) {
+                showError('Password must contain: ' + requirements.join(', '));
                 return;
             }
             
-            // For demo - simulate password change
-            // Note: In the demo version, we don't require current password
-            showSuccess('Password changed successfully!');
+            // Show loading
+            const btn = changePasswordBtn;
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Changing...';
+            btn.disabled = true;
             
-            // Update the stored user password in localStorage for demo
-            if (currentUser) {
-                // In a real app, you would update Firebase Auth here
-                // For demo, we'll just update localStorage
-                currentUser.password = newPassword; // Note: This is just for demo
-                localStorage.setItem('schoolAdminUser', JSON.stringify(currentUser));
+            try {
+                // Re-authenticate user
+                const credential = firebase.auth.EmailAuthProvider.credential(
+                    currentUser.email, 
+                    currentPassword
+                );
+                
+                await currentUser.reauthenticateWithCredential(credential);
+                
+                // Change password
+                await currentUser.updatePassword(newPassword);
+                
+                showSuccess('Password changed successfully!');
+                
+                // Clear form
+                document.getElementById('currentPassword').value = '';
+                document.getElementById('settingsNewPassword').value = '';
+                document.getElementById('settingsConfirmPassword').value = '';
+                
+                // Hide password requirements
+                passwordRequirements.style.display = 'none';
+                
+                // Log activity
+                addActivityLog('Changed Password', 'Account security update');
+                
+            } catch (error) {
+                // Handle specific Firebase errors
+                let errorMessage = 'Failed to change password. ';
+                
+                if (error.code === 'auth/wrong-password') {
+                    errorMessage += 'Current password is incorrect.';
+                } else if (error.code === 'auth/weak-password') {
+                    errorMessage += 'New password is too weak.';
+                } else if (error.code === 'auth/requires-recent-login') {
+                    errorMessage += 'Please log in again and try.';
+                } else {
+                    errorMessage += error.message;
+                }
+                
+                showError(errorMessage);
+            } finally {
+                // Reset button
+                btn.innerHTML = originalText;
+                btn.disabled = false;
             }
-            
-            // Clear form
-            document.getElementById('settingsNewPassword').value = '';
-            document.getElementById('settingsConfirmPassword').value = '';
-            
-            // Log activity
-            addActivityLog('Changed Password', 'Account security update');
-            
-            // Real Firebase implementation (without current password requirement):
-            /*
-            // Note: This requires the user to be recently signed in
-            // In a real app, you might want to implement additional security measures
-            
-            currentUser.updatePassword(newPassword)
-                .then(() => {
-                    showSuccess('Password changed successfully!');
-                    // Clear form
-                    document.getElementById('settingsNewPassword').value = '';
-                    document.getElementById('settingsConfirmPassword').value = '';
-                })
-                .catch((error) => {
-                    if (error.code === 'auth/requires-recent-login') {
-                        showError('For security, please log out and log in again before changing password.');
-                    } else {
-                        showError('Failed to change password: ' + error.message);
-                    }
-                });
-            */
         }
 
-        // Utility Functions
+        // ============================
+        // UTILITY FUNCTIONS
+        // ============================
         function loadSampleData() {
-            // Sample notices
+            // Sample notices (for demo when Firebase is not connected)
             notices = [
                 {
                     id: 'notice_1',
@@ -2501,7 +2240,7 @@
                 }
             ];
             
-            // Sample teachers
+            // Sample teachers (for demo when Firebase is not connected)
             teachers = [
                 {
                     id: 'teacher_1',
@@ -2536,6 +2275,11 @@
             ];
         }
 
+        function validateEmail(email) {
+            const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            return re.test(email);
+        }
+
         function clearNoticeForm() {
             document.getElementById('noticeTitle').value = '';
             document.getElementById('noticeContent').value = '';
@@ -2548,13 +2292,6 @@
         function clearLoginForm() {
             document.getElementById('loginEmail').value = '';
             document.getElementById('loginPassword').value = '';
-        }
-
-        function clearRegistrationForm() {
-            document.getElementById('regName').value = '';
-            document.getElementById('regEmail').value = '';
-            document.getElementById('regPassword').value = '';
-            document.getElementById('regConfirmPassword').value = '';
         }
 
         function addActivityLog(activity, details) {
@@ -2578,6 +2315,7 @@
         function showSuccess(message) {
             successText.textContent = message;
             successMessage.style.display = 'block';
+            errorMessage.style.display = 'none';
             
             // Auto-hide after 5 seconds
             setTimeout(() => {
@@ -2586,10 +2324,14 @@
         }
 
         function showError(message) {
-            // For demo - use alert
-            alert('Error: ' + message);
+            errorText.textContent = message;
+            errorMessage.style.display = 'block';
+            successMessage.style.display = 'none';
             
-            // In a real app, you would show a styled error message
+            // Auto-hide after 5 seconds
+            setTimeout(() => {
+                errorMessage.style.display = 'none';
+            }, 5000);
         }
     </script>
 </body>
