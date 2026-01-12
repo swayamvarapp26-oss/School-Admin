@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+ <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -869,6 +869,18 @@
             border-bottom-color: var(--secondary);
         }
 
+        /* Error Message in Forgot Password */
+        .email-not-registered {
+            background-color: rgba(231, 76, 60, 0.1);
+            border: 1px solid rgba(231, 76, 60, 0.3);
+            color: #e74c3c;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            margin-top: 20px;
+            display: none;
+        }
+
         /* Responsive */
         @media (max-width: 992px) {
             .container {
@@ -942,7 +954,6 @@
             <!-- Auth Tabs -->
             <div class="auth-tabs">
                 <button class="auth-tab active" data-tab="login">Login</button>
-                <button class="auth-tab" data-tab="register">Register</button>
                 <button class="auth-tab" data-tab="forgot">Forgot Password</button>
             </div>
             
@@ -967,54 +978,17 @@
                 </div>
             </div>
             
-            <!-- Registration Form -->
-            <div id="registerTab" class="auth-tab-content" style="display: none;">
-                <div class="form-group">
-                    <label>Full Name *</label>
-                    <input type="text" id="registerName" class="form-control" placeholder="Enter your full name">
-                </div>
-                
-                <div class="form-group">
-                    <label>Email Address *</label>
-                    <input type="email" id="registerEmail" class="form-control" placeholder="your.email@school.com">
-                </div>
-                
-                <div class="form-group">
-                    <label>Password *</label>
-                    <input type="password" id="registerPassword" class="form-control" placeholder="Create a strong password">
-                </div>
-                
-                <div class="form-group">
-                    <label>Confirm Password *</label>
-                    <input type="password" id="registerConfirmPassword" class="form-control" placeholder="Confirm your password">
-                </div>
-                
-                <button class="btn btn-success btn-block" id="sendOtpBtn">
-                    <i class="fas fa-paper-plane"></i> Send OTP
-                </button>
-                
-                <div class="form-group" id="otpSection" style="display: none;">
-                    <label>Enter OTP *</label>
-                    <div class="otp-container">
-                        <input type="text" class="otp-input" maxlength="1" data-index="0">
-                        <input type="text" class="otp-input" maxlength="1" data-index="1">
-                        <input type="text" class="otp-input" maxlength="1" data-index="2">
-                        <input type="text" class="otp-input" maxlength="1" data-index="3">
-                        <input type="text" class="otp-input" maxlength="1" data-index="4">
-                        <input type="text" class="otp-input" maxlength="1" data-index="5">
-                    </div>
-                </div>
-                
-                <button class="btn btn-primary btn-block" id="registerBtn" style="display: none; margin-top: 20px;">
-                    <i class="fas fa-user-plus"></i> Register Account
-                </button>
-            </div>
-            
             <!-- Forgot Password Form -->
             <div id="forgotTab" class="auth-tab-content" style="display: none;">
                 <div class="form-group">
                     <label>Email Address *</label>
-                    <input type="email" id="forgotEmail" class="form-control" placeholder="your.email@school.com">
+                    <input type="email" id="forgotEmail" class="form-control" placeholder="admin@school.com">
+                </div>
+                
+                <!-- Email not registered error message -->
+                <div class="email-not-registered" id="emailNotRegistered">
+                    <i class="fas fa-exclamation-circle"></i>
+                    <p>Sorry, this email is not registered in the list of admins.</p>
                 </div>
                 
                 <button class="btn btn-warning btn-block" id="sendResetOtpBtn">
@@ -1688,10 +1662,10 @@
         let itemToDelete = null;
         let deleteType = null;
         let teacherFilter = 'all';
-        let pendingRegistration = null;
         let pendingPasswordReset = null;
         let currentOtp = null;
         let otpType = null;
+        let isAdminEmail = false; // Track if email is in admin list
 
         // ============================
         // DOM ELEMENTS
@@ -1706,11 +1680,10 @@
         const authTabs = document.querySelectorAll('.auth-tab');
         const authTabContents = document.querySelectorAll('.auth-tab-content');
         const loginBtn = document.getElementById('loginBtn');
-        const sendOtpBtn = document.getElementById('sendOtpBtn');
-        const registerBtn = document.getElementById('registerBtn');
         const sendResetOtpBtn = document.getElementById('sendResetOtpBtn');
         const resetPasswordBtn = document.getElementById('resetPasswordBtn');
         const otpInputs = document.querySelectorAll('.otp-input');
+        const emailNotRegistered = document.getElementById('emailNotRegistered');
         
         // Navigation
         const navLinks = document.querySelectorAll('.nav-links a');
@@ -1826,6 +1799,17 @@
                             content.style.display = 'block';
                         }
                     });
+                    
+                    // Clear OTP fields when switching tabs
+                    clearOtpInputs();
+                    document.getElementById('resetOtpSection').style.display = 'none';
+                    document.getElementById('newPasswordSection').style.display = 'none';
+                    document.getElementById('resetPasswordBtn').style.display = 'none';
+                    document.getElementById('sendResetOtpBtn').style.display = 'block';
+                    emailNotRegistered.style.display = 'none';
+                    
+                    // Reset isAdminEmail flag
+                    isAdminEmail = false;
                 });
             });
             
@@ -1834,6 +1818,12 @@
                 input.addEventListener('input', function() {
                     const value = this.value;
                     const index = parseInt(this.dataset.index);
+                    
+                    // Only allow numbers
+                    if (!/^\d*$/.test(value)) {
+                        this.value = value.replace(/\D/g, '');
+                        return;
+                    }
                     
                     // Move to next input if current is filled
                     if (value.length === 1 && index < 5) {
@@ -1864,8 +1854,6 @@
             
             // Auth Buttons
             loginBtn.addEventListener('click', handleLogin);
-            sendOtpBtn.addEventListener('click', sendRegistrationOtp);
-            registerBtn.addEventListener('click', handleRegister);
             sendResetOtpBtn.addEventListener('click', sendPasswordResetOtp);
             resetPasswordBtn.addEventListener('click', handlePasswordReset);
             
@@ -2009,7 +1997,7 @@
                 const templateParams = {
                     to_email: email,
                     otp_code: otp,
-                    type: type === 'registration' ? 'Registration' : 'Password Reset',
+                    type: type === 'password_reset' ? 'Password Reset' : 'OTP Verification',
                     date: new Date().toLocaleDateString(),
                     time: new Date().toLocaleTimeString()
                 };
@@ -2031,85 +2019,9 @@
             return Math.floor(100000 + Math.random() * 900000).toString();
         }
 
-        async function sendRegistrationOtp() {
-            const name = document.getElementById('registerName').value;
-            const email = document.getElementById('registerEmail').value;
-            const password = document.getElementById('registerPassword').value;
-            const confirmPassword = document.getElementById('registerConfirmPassword').value;
-            
-            if (!name || !email || !password || !confirmPassword) {
-                showError('Please fill all fields');
-                return;
-            }
-            
-            if (password !== confirmPassword) {
-                showError('Passwords do not match');
-                return;
-            }
-            
-            // Check password requirements
-            let requirements = [];
-            if (password.length < 6) requirements.push('at least 6 characters');
-            if (!/[a-z]/.test(password)) requirements.push('one lowercase letter');
-            if (!/[A-Z]/.test(password)) requirements.push('one uppercase letter');
-            if (!/[0-9]/.test(password)) requirements.push('one number');
-            
-            if (requirements.length > 0) {
-                showError('Password must contain: ' + requirements.join(', '));
-                return;
-            }
-            
-            // Check if email already exists
-            try {
-                const methods = await auth.fetchSignInMethodsForEmail(email);
-                if (methods.length > 0) {
-                    showError('Email already registered. Please login instead.');
-                    return;
-                }
-            } catch (error) {
-                // Continue if email doesn't exist
-            }
-            
-            // Show loading
-            const btn = sendOtpBtn;
-            const originalText = btn.innerHTML;
-            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending OTP...';
-            btn.disabled = true;
-            
-            try {
-                // Generate OTP
-                currentOtp = generateOtp();
-                otpType = 'registration';
-                
-                // Save pending registration
-                pendingRegistration = { name, email, password };
-                
-                // Send OTP via EmailJS
-                const emailSent = await sendOtpEmail(email, currentOtp, 'registration');
-                
-                if (emailSent) {
-                    showSuccess('OTP sent to your email! Please check your inbox.');
-                    
-                    // Show OTP section
-                    document.getElementById('otpSection').style.display = 'block';
-                    document.getElementById('registerBtn').style.display = 'block';
-                    sendOtpBtn.style.display = 'none';
-                    
-                    // Focus first OTP input
-                    document.querySelector('.otp-input').focus();
-                } else {
-                    showError('Failed to send OTP. Please try again.');
-                }
-                
-            } catch (error) {
-                showError('Error: ' + error.message);
-            } finally {
-                // Reset button
-                btn.innerHTML = originalText;
-                btn.disabled = false;
-            }
-        }
-
+        // ============================
+        // UPDATED PASSWORD RESET FLOW
+        // ============================
         async function sendPasswordResetOtp() {
             const email = document.getElementById('forgotEmail').value;
             
@@ -2118,25 +2030,50 @@
                 return;
             }
             
-            // Check if email exists
-            try {
-                const methods = await auth.fetchSignInMethodsForEmail(email);
-                if (methods.length === 0) {
-                    showError('Email not registered. Please check your email.');
-                    return;
-                }
-            } catch (error) {
-                showError('Error checking email: ' + error.message);
-                return;
-            }
-            
             // Show loading
             const btn = sendResetOtpBtn;
             const originalText = btn.innerHTML;
-            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending OTP...';
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Checking...';
             btn.disabled = true;
             
             try {
+                // FIRST: Check if email exists in admins database
+                const adminsSnapshot = await database.ref('admins').once('value');
+                let isAdmin = false;
+                
+                if (adminsSnapshot.exists()) {
+                    adminsSnapshot.forEach((childSnapshot) => {
+                        const admin = childSnapshot.val();
+                        if (admin.email && admin.email.toLowerCase() === email.toLowerCase()) {
+                            isAdmin = true;
+                        }
+                    });
+                }
+                
+                if (!isAdmin) {
+                    // Email is NOT in admin list
+                    emailNotRegistered.style.display = 'block';
+                    emailNotRegistered.innerHTML = `
+                        <i class="fas fa-exclamation-circle"></i>
+                        <p>Sorry, your email is not registered in the list of admins.</p>
+                    `;
+                    
+                    // Hide OTP and password sections
+                    document.getElementById('resetOtpSection').style.display = 'none';
+                    document.getElementById('newPasswordSection').style.display = 'none';
+                    document.getElementById('resetPasswordBtn').style.display = 'none';
+                    sendResetOtpBtn.style.display = 'block';
+                    
+                    isAdminEmail = false;
+                    
+                    showError('Email not found in admin records.');
+                    return;
+                }
+                
+                // Email IS in admin list - proceed with OTP
+                isAdminEmail = true;
+                emailNotRegistered.style.display = 'none';
+                
                 // Generate OTP
                 currentOtp = generateOtp();
                 otpType = 'password_reset';
@@ -2148,7 +2085,7 @@
                 const emailSent = await sendOtpEmail(email, currentOtp, 'password_reset');
                 
                 if (emailSent) {
-                    showSuccess('Password reset OTP sent to your email!');
+                    showSuccess('Password reset OTP sent to your email! Please check your inbox.');
                     
                     // Show OTP and new password sections
                     document.getElementById('resetOtpSection').style.display = 'block';
@@ -2163,7 +2100,7 @@
                 }
                 
             } catch (error) {
-                showError('Error: ' + error.message);
+                showError('Error sending OTP: ' + error.message);
             } finally {
                 // Reset button
                 btn.innerHTML = originalText;
@@ -2185,88 +2122,13 @@
             });
         }
 
-        async function handleRegister() {
-            const enteredOtp = getOtpFromInputs();
-            
-            if (enteredOtp.length !== 6) {
-                showError('Please enter the complete 6-digit OTP');
-                return;
-            }
-            
-            if (enteredOtp !== currentOtp) {
-                showError('Invalid OTP. Please try again.');
-                return;
-            }
-            
-            if (!pendingRegistration) {
-                showError('Registration data not found. Please start over.');
-                return;
-            }
-            
-            // Show loading
-            const btn = registerBtn;
-            const originalText = btn.innerHTML;
-            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Registering...';
-            btn.disabled = true;
-            
-            try {
-                // Create user in Firebase
-                const userCredential = await auth.createUserWithEmailAndPassword(
-                    pendingRegistration.email,
-                    pendingRegistration.password
-                );
-                
-                // Update user profile
-                await userCredential.user.updateProfile({
-                    displayName: pendingRegistration.name
-                });
-                
-                // Create admin record in database
-                const adminData = {
-                    name: pendingRegistration.name,
-                    email: pendingRegistration.email,
-                    role: 'admin',
-                    status: 'active',
-                    profileImage: 'https://res.cloudinary.com/dmhyflswb/image/upload/v1766410851/teacher_app/profiles/upoa2bskjucas6ogpwuh.png',
-                    createdAt: new Date().toISOString(),
-                    lastLogin: new Date().toISOString()
-                };
-                
-                await database.ref('admins/' + userCredential.user.uid).set(adminData);
-                
-                showSuccess('Registration successful! You can now login.');
-                
-                // Switch to login tab
-                authTabs.forEach(t => t.classList.remove('active'));
-                authTabs[0].classList.add('active');
-                authTabContents.forEach(content => content.style.display = 'none');
-                document.getElementById('loginTab').style.display = 'block';
-                
-                // Clear registration form
-                document.getElementById('registerName').value = '';
-                document.getElementById('registerEmail').value = '';
-                document.getElementById('registerPassword').value = '';
-                document.getElementById('registerConfirmPassword').value = '';
-                document.getElementById('otpSection').style.display = 'none';
-                document.getElementById('registerBtn').style.display = 'none';
-                document.getElementById('sendOtpBtn').style.display = 'block';
-                clearOtpInputs();
-                
-                // Reset state
-                pendingRegistration = null;
-                currentOtp = null;
-                otpType = null;
-                
-            } catch (error) {
-                showError('Registration failed: ' + error.message);
-            } finally {
-                // Reset button
-                btn.innerHTML = originalText;
-                btn.disabled = false;
-            }
-        }
-
         async function handlePasswordReset() {
+            // First check if email is in admin list
+            if (!isAdminEmail) {
+                showError('Email is not registered in admin list.');
+                return;
+            }
+            
             const enteredOtp = getOtpFromInputs();
             const newPassword = document.getElementById('newPassword').value;
             
@@ -2304,17 +2166,8 @@
             btn.disabled = true;
             
             try {
-                // Get user by email
-                const methods = await auth.fetchSignInMethodsForEmail(pendingPasswordReset.email);
-                if (methods.length === 0) {
-                    throw new Error('User not found');
-                }
-                
-                // Send password reset email (Firebase will handle this)
+                // Send password reset email using Firebase
                 await auth.sendPasswordResetEmail(pendingPasswordReset.email);
-                
-                // For immediate password change, we would need to sign in first
-                // But for security, we'll just send reset email
                 
                 showSuccess('Password reset email sent! Check your inbox for reset instructions.');
                 
@@ -2331,12 +2184,14 @@
                 document.getElementById('newPasswordSection').style.display = 'none';
                 document.getElementById('resetPasswordBtn').style.display = 'none';
                 document.getElementById('sendResetOtpBtn').style.display = 'block';
+                emailNotRegistered.style.display = 'none';
                 clearOtpInputs();
                 
                 // Reset state
                 pendingPasswordReset = null;
                 currentOtp = null;
                 otpType = null;
+                isAdminEmail = false;
                 
             } catch (error) {
                 showError('Password reset failed: ' + error.message);
@@ -3921,10 +3776,7 @@
             }
             
             // Handle based on otpType
-            if (otpType === 'registration' && pendingRegistration) {
-                // Proceed with registration
-                handleRegister();
-            } else if (otpType === 'password_reset' && pendingPasswordReset) {
+            if (otpType === 'password_reset' && pendingPasswordReset) {
                 // Proceed with password reset
                 handlePasswordReset();
             }
@@ -3935,7 +3787,7 @@
         }
 
         async function resendOtp() {
-            if (!pendingRegistration && !pendingPasswordReset) {
+            if (!pendingPasswordReset) {
                 showError('No pending operation to resend OTP');
                 return;
             }
@@ -3951,10 +3803,7 @@
                 currentOtp = generateOtp();
                 
                 let email, type;
-                if (pendingRegistration) {
-                    email = pendingRegistration.email;
-                    type = 'registration';
-                } else {
+                if (pendingPasswordReset) {
                     email = pendingPasswordReset.email;
                     type = 'password_reset';
                 }
