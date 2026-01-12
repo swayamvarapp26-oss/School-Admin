@@ -4,153 +4,89 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SCHOOL ADMIN - Management Portal</title>
-    
-    <!-- Firebase SDK v9 (Modular) -->
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
-        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, sendPasswordResetEmail, updatePassword, updateProfile, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js";
-        import { getFirestore, collection, addDoc, getDocs, updateDoc, deleteDoc, doc, query, where, orderBy, serverTimestamp, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
-        import { getDatabase, ref, get, set, remove, child, push, onValue } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-database.js";
-        
-        const firebaseConfig = {
-            apiKey: "AIzaSyDcKkAf2SRmfiJizVA71fILOqRZTtUGAdY",
-            authDomain: "schooladmin-51cdd.firebaseapp.com",
-            databaseURL: "https://schooladmin-51cdd-default-rtdb.firebaseio.com",
-            projectId: "schooladmin-51cdd",
-            storageBucket: "schooladmin-51cdd.firebasestorage.app",
-            messagingSenderId: "185301938780",
-            appId: "1:185301938780:web:bdeaabff3c7d2bff2bac99",
-            measurementId: "G-V8C5DE930K"
-        };
-
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const db = getFirestore(app);
-        const rtdb = getDatabase(app);
-        
-        window.firebase = { 
-            auth, db, rtdb,
-            createUserWithEmailAndPassword, 
-            signInWithEmailAndPassword, 
-            sendPasswordResetEmail, 
-            updatePassword, 
-            updateProfile,
-            signOut,
-            onAuthStateChanged,
-            collection, addDoc, getDocs, updateDoc, deleteDoc, doc,
-            setDoc, getDoc,
-            query, where, orderBy, serverTimestamp,
-            ref, get, set, remove, child, push, onValue
-        };
-        
-        console.log("Firebase initialized successfully!");
-    </script>
-    
-    <!-- EmailJS SDK -->
-    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
-    
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <!-- EmailJS -->
+    <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
-    
     <style>
-        /* ALL YOUR EXISTING CSS REMAINS THE SAME */
-        /* I'll include only the new/modified styles */
-
-        /* New Status Badges */
-        .status-badge {
-            padding: 6px 15px;
-            border-radius: 20px;
-            font-size: 14px;
-            font-weight: 600;
-            display: inline-block;
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
         }
 
-        .status-approved { background-color: rgba(46, 204, 113, 0.1); color: #27ae60; }
-        .status-pending { background-color: rgba(243, 156, 18, 0.1); color: #f39c12; }
-        .status-rejected { background-color: rgba(231, 76, 60, 0.1); color: #e74c3c; }
-
-        /* Profile Image Styles */
-        .profile-image {
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            object-fit: cover;
-            border: 3px solid var(--secondary);
+        :root {
+            --primary: #2c3e50;
+            --primary-dark: #1a252f;
+            --secondary: #3498db;
+            --secondary-dark: #2980b9;
+            --success: #27ae60;
+            --warning: #f39c12;
+            --danger: #e74c3c;
+            --light: #ecf0f1;
+            --dark: #2c3e50;
+            --gray: #7f8c8d;
+            --light-gray: #bdc3c7;
+            --border-radius: 12px;
+            --box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s ease;
         }
 
-        .profile-image-small {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            object-fit: cover;
-            border: 2px solid var(--secondary);
+        body {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            color: var(--dark);
+            overflow-x: hidden;
         }
 
-        /* Action Buttons */
-        .action-buttons {
+        /* Header */
+        .header {
+            background: linear-gradient(90deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: white;
+            padding: 20px 40px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
             display: flex;
-            gap: 8px;
-            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
         }
 
-        .btn-xs {
-            padding: 5px 10px;
-            font-size: 12px;
-        }
-
-        /* Filter Controls */
-        .filter-controls {
+        .logo {
             display: flex;
+            align-items: center;
             gap: 15px;
-            margin-bottom: 20px;
-            align-items: center;
-            flex-wrap: wrap;
         }
 
-        .filter-group {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        /* Loading Spinner */
-        .loading {
-            text-align: center;
-            padding: 40px;
-            color: var(--gray);
-        }
-
-        .loading i {
-            font-size: 48px;
-            margin-bottom: 15px;
+        .logo i {
+            font-size: 32px;
             color: var(--secondary);
         }
 
-        /* Stats Cards */
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 20px;
-            margin-bottom: 30px;
+        .logo h1 {
+            font-size: 28px;
+            font-weight: 700;
         }
 
-        .stat-card {
-            background: white;
-            border-radius: var(--border-radius);
-            padding: 20px;
-            box-shadow: var(--box-shadow);
-            text-align: center;
-            transition: var(--transition);
+        .logo span {
+            color: var(--secondary);
         }
 
-        .stat-card:hover {
-            transform: translateY(-5px);
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
         }
 
-        .stat-icon {
+        .user-avatar {
             width: 50px;
             height: 50px;
             border-radius: 50%;
@@ -158,25 +94,517 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            margin: 0 auto 15px;
+            font-size: 22px;
+            font-weight: 700;
             color: white;
-            font-size: 20px;
         }
 
-        .stat-value {
-            font-size: 32px;
-            font-weight: 700;
-            color: var(--dark);
+        .user-details h3 {
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .user-details p {
+            font-size: 14px;
+            color: var(--light-gray);
+        }
+
+        .logout-btn {
+            background-color: rgba(255, 255, 255, 0.1);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 500;
+        }
+
+        .logout-btn:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+
+        /* Main Container */
+        .container {
+            display: flex;
+            min-height: calc(100vh - 100px);
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 280px;
+            background-color: white;
+            box-shadow: 5px 0 15px rgba(0, 0, 0, 0.05);
+            padding: 30px 0;
+            transition: var(--transition);
+        }
+
+        .nav-links {
+            list-style: none;
+        }
+
+        .nav-links li {
             margin-bottom: 5px;
         }
 
-        .stat-label {
+        .nav-links a {
+            display: flex;
+            align-items: center;
+            padding: 18px 30px;
+            color: var(--dark);
+            text-decoration: none;
+            transition: var(--transition);
+            border-left: 5px solid transparent;
+            font-weight: 500;
+        }
+
+        .nav-links a:hover, .nav-links a.active {
+            background-color: rgba(52, 152, 219, 0.1);
+            color: var(--secondary);
+            border-left: 5px solid var(--secondary);
+        }
+
+        .nav-links i {
+            font-size: 20px;
+            margin-right: 15px;
+            width: 25px;
+        }
+
+        .nav-count {
+            background-color: var(--secondary);
+            color: white;
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            margin-left: auto;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            padding: 30px;
+            overflow-y: auto;
+        }
+
+        /* Dashboard Cards */
+        .dashboard-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+
+        .dashboard-card {
+            background-color: white;
+            border-radius: var(--border-radius);
+            padding: 30px;
+            box-shadow: var(--box-shadow);
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .dashboard-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
+        }
+
+        .dashboard-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 5px;
+        }
+
+        .card-notices::before { background: linear-gradient(90deg, #3498db, #2ecc71); }
+        .card-teachers::before { background: linear-gradient(90deg, #9b59b6, #e74c3c); }
+        .card-students::before { background: linear-gradient(90deg, #f39c12, #d35400); }
+        .card-urgent::before { background: linear-gradient(90deg, #e74c3c, #c0392b); }
+
+        .card-icon {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 20px;
+            font-size: 30px;
+            color: white;
+        }
+
+        .card-notices .card-icon { background: linear-gradient(135deg, #3498db, #2ecc71); }
+        .card-teachers .card-icon { background: linear-gradient(135deg, #9b59b6, #e74c3c); }
+        .card-students .card-icon { background: linear-gradient(135deg, #f39c12, #d35400); }
+        .card-urgent .card-icon { background: linear-gradient(135deg, #e74c3c, #c0392b); }
+
+        .dashboard-card h3 {
+            font-size: 16px;
+            color: var(--gray);
+            margin-bottom: 10px;
+            font-weight: 500;
+        }
+
+        .dashboard-card .number {
+            font-size: 36px;
+            font-weight: 700;
+            color: var(--dark);
+            margin-bottom: 10px;
+        }
+
+        .dashboard-card .trend {
+            display: flex;
+            align-items: center;
             font-size: 14px;
             color: var(--gray);
         }
 
-        /* Teacher Details Modal */
-        .teacher-details-modal {
+        .trend.up { color: var(--success); }
+        .trend.down { color: var(--danger); }
+
+        /* Content Sections */
+        .content-section {
+            background-color: white;
+            border-radius: var(--border-radius);
+            padding: 30px;
+            box-shadow: var(--box-shadow);
+            margin-bottom: 30px;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid var(--light);
+        }
+
+        .section-header h2 {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--dark);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .section-header h2 i {
+            color: var(--secondary);
+        }
+
+        /* Forms */
+        .form-container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: var(--dark);
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 15px;
+            border: 1px solid var(--light-gray);
+            border-radius: 8px;
+            font-size: 16px;
+            transition: var(--transition);
+        }
+
+        .form-control:focus {
+            border-color: var(--secondary);
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+            outline: none;
+        }
+
+        .textarea {
+            min-height: 150px;
+            resize: vertical;
+        }
+
+        .form-row {
+            display: flex;
+            gap: 20px;
+        }
+
+        .form-row .form-group {
+            flex: 1;
+        }
+
+        .form-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 15px;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid var(--light);
+        }
+
+        /* Buttons */
+        .btn {
+            padding: 14px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--secondary) 0%, var(--secondary-dark) 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: linear-gradient(135deg, var(--secondary-dark) 0%, var(--secondary) 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(52, 152, 219, 0.3);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #27ae60 0%, #219653 100%);
+            color: white;
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+            color: white;
+        }
+
+        .btn-secondary {
+            background-color: var(--light);
+            color: var(--dark);
+        }
+
+        .btn-secondary:hover {
+            background-color: var(--light-gray);
+        }
+
+        .btn-sm {
+            padding: 8px 16px;
+            font-size: 14px;
+        }
+
+        .btn-block {
+            width: 100%;
+        }
+
+        /* Tables */
+        .table-container {
+            overflow-x: auto;
+            border-radius: 8px;
+            border: 1px solid var(--light);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 800px;
+        }
+
+        thead {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        th {
+            padding: 18px 15px;
+            text-align: left;
+            font-weight: 600;
+            font-size: 16px;
+        }
+
+        tbody tr {
+            border-bottom: 1px solid var(--light);
+            transition: var(--transition);
+        }
+
+        tbody tr:hover {
+            background-color: rgba(52, 152, 219, 0.05);
+        }
+
+        td {
+            padding: 18px 15px;
+            color: var(--dark);
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        /* Priority Badges */
+        .priority-badge {
+            padding: 6px 15px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 600;
+            display: inline-block;
+        }
+
+        .priority-high { background-color: rgba(231, 76, 60, 0.1); color: #e74c3c; }
+        .priority-medium { background-color: rgba(243, 156, 18, 0.1); color: #f39c12; }
+        .priority-low { background-color: rgba(52, 152, 219, 0.1); color: #3498db; }
+
+        /* Call Button */
+        .call-btn {
+            background-color: rgba(46, 204, 113, 0.1);
+            color: #27ae60;
+            border: 1px solid rgba(46, 204, 113, 0.3);
+            padding: 8px 16px;
+            border-radius: 6px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+            transition: var(--transition);
+        }
+
+        .call-btn:hover {
+            background-color: rgba(46, 204, 113, 0.2);
+            color: #219653;
+        }
+
+        /* Auth Screens */
+        .auth-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+        }
+
+        .auth-box {
+            background-color: white;
+            border-radius: 20px;
+            padding: 50px;
+            width: 100%;
+            max-width: 500px;
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.2);
+            animation: fadeInUp 0.8s ease;
+        }
+
+        .auth-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .auth-logo {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .auth-logo i {
+            font-size: 42px;
+            color: var(--secondary);
+        }
+
+        .auth-logo h1 {
+            font-size: 32px;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .auth-tabs {
+            display: flex;
+            margin-bottom: 30px;
+            border-bottom: 2px solid var(--light);
+        }
+
+        .auth-tab {
+            flex: 1;
+            text-align: center;
+            padding: 15px;
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--gray);
+            cursor: pointer;
+            transition: var(--transition);
+            border-bottom: 3px solid transparent;
+        }
+
+        .auth-tab.active {
+            color: var(--secondary);
+            border-bottom: 3px solid var(--secondary);
+        }
+
+        .auth-content {
+            display: none;
+        }
+
+        .auth-content.active {
+            display: block;
+        }
+
+        /* Updated OTP Container - Minimal Size */
+        .otp-container {
+            display: flex;
+            gap: 5px;
+            margin-bottom: 20px;
+            justify-content: center;
+        }
+
+        .otp-input {
+            width: 40px;
+            height: 45px;
+            text-align: center;
+            font-size: 18px;
+            font-weight: 600;
+            border: 2px solid var(--light-gray);
+            border-radius: 6px;
+            transition: var(--transition);
+        }
+
+        .otp-input:focus {
+            border-color: var(--secondary);
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+        }
+
+        .resend-otp {
+            text-align: center;
+            margin-top: 15px;
+            color: var(--gray);
+            font-size: 14px;
+        }
+
+        .resend-otp a {
+            color: var(--secondary);
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .auth-footer {
+            text-align: center;
+            margin-top: 30px;
+            color: var(--gray);
+            font-size: 14px;
+        }
+
+        /* Modals */
+        .modal {
             display: none;
             position: fixed;
             top: 0;
@@ -190,212 +618,292 @@
             animation: fadeIn 0.3s ease;
         }
 
-        .teacher-details-content {
+        .modal-content {
             background-color: white;
             border-radius: var(--border-radius);
             padding: 40px;
             width: 90%;
-            max-width: 700px;
-            max-height: 85vh;
-            overflow-y: auto;
+            max-width: 500px;
             box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
             animation: slideInUp 0.4s ease;
         }
 
-        .teacher-header {
+        .modal-header {
             display: flex;
+            justify-content: space-between;
             align-items: center;
-            gap: 20px;
-            margin-bottom: 30px;
-            padding-bottom: 20px;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
             border-bottom: 1px solid var(--light);
         }
 
-        .teacher-avatar {
-            width: 100px;
-            height: 100px;
-            border-radius: 50%;
-            object-fit: cover;
-            border: 5px solid var(--secondary);
+        .modal-header h3 {
+            font-size: 22px;
+            font-weight: 700;
+            color: var(--dark);
+            display: flex;
+            align-items: center;
+            gap: 10px;
         }
 
-        .teacher-info h3 {
+        .close-modal {
+            background: none;
+            border: none;
             font-size: 24px;
-            margin-bottom: 5px;
-            color: var(--dark);
-        }
-
-        .teacher-info p {
-            color: var(--gray);
-            margin-bottom: 5px;
-        }
-
-        .teacher-details-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 20px;
-            margin-bottom: 30px;
-        }
-
-        .detail-item {
-            background: rgba(52, 152, 219, 0.05);
-            padding: 15px;
-            border-radius: 8px;
-            border-left: 4px solid var(--secondary);
-        }
-
-        .detail-item label {
-            display: block;
-            font-size: 12px;
-            color: var(--gray);
-            margin-bottom: 5px;
-            text-transform: uppercase;
-            font-weight: 600;
-        }
-
-        .detail-item p {
-            font-size: 16px;
-            color: var(--dark);
-            font-weight: 500;
-        }
-
-        /* Quick Actions */
-        .quick-actions {
-            display: flex;
-            gap: 10px;
-            margin-top: 30px;
-            flex-wrap: wrap;
-        }
-
-        /* Review Actions */
-        .review-actions {
-            display: flex;
-            gap: 10px;
-            margin-top: 20px;
-            padding-top: 20px;
-            border-top: 1px solid var(--light);
-        }
-
-        /* Search Box */
-        .search-box {
-            position: relative;
-            flex: 1;
-            max-width: 300px;
-        }
-
-        .search-box input {
-            width: 100%;
-            padding: 12px 40px 12px 15px;
-            border: 1px solid var(--light-gray);
-            border-radius: 8px;
-            font-size: 14px;
-        }
-
-        .search-box i {
-            position: absolute;
-            right: 15px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: var(--gray);
-        }
-
-        /* Tabs */
-        .data-tabs {
-            display: flex;
-            margin-bottom: 20px;
-            border-bottom: 2px solid var(--light);
-        }
-
-        .data-tab {
-            padding: 15px 25px;
-            font-size: 16px;
-            font-weight: 600;
             color: var(--gray);
             cursor: pointer;
             transition: var(--transition);
-            border-bottom: 3px solid transparent;
         }
 
-        .data-tab.active {
-            color: var(--secondary);
-            border-bottom: 3px solid var(--secondary);
+        .close-modal:hover {
+            color: var(--danger);
         }
 
-        .tab-content {
-            display: none;
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
         }
 
-        .tab-content.active {
-            display: block;
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
-        /* Notification Bell */
-        .notification-bell {
-            position: relative;
-            cursor: pointer;
-            font-size: 20px;
-            color: white;
+        @keyframes slideInUp {
+            from {
+                opacity: 0;
+                transform: translateY(50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
-        .notification-count {
-            position: absolute;
-            top: -8px;
-            right: -8px;
-            background-color: var(--danger);
-            color: white;
-            font-size: 12px;
-            font-weight: 600;
-            width: 20px;
-            height: 20px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(52, 152, 219, 0.5); }
+            70% { box-shadow: 0 0 0 10px rgba(52, 152, 219, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(52, 152, 219, 0); }
         }
 
-        /* Dashboard Stats */
-        .dashboard-stats {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 15px;
-            margin-bottom: 30px;
+        .pulse {
+            animation: pulse 2s infinite;
         }
 
-        .stat-item {
-            background: white;
-            padding: 15px;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            text-align: center;
+        /* Responsive */
+        @media (max-width: 992px) {
+            .container {
+                flex-direction: column;
+            }
+            
+            .sidebar {
+                width: 100%;
+                padding: 20px 0;
+            }
+            
+            .nav-links {
+                display: flex;
+                overflow-x: auto;
+            }
+            
+            .nav-links li {
+                flex-shrink: 0;
+            }
+            
+            .nav-links a {
+                border-left: none;
+                border-bottom: 3px solid transparent;
+                padding: 15px 20px;
+            }
+            
+            .nav-links a:hover, .nav-links a.active {
+                border-left: none;
+                border-bottom: 3px solid var(--secondary);
+            }
+            
+            .form-row {
+                flex-direction: column;
+                gap: 0;
+            }
         }
 
-        .stat-item .value {
-            font-size: 24px;
-            font-weight: 700;
-            color: var(--dark);
-            margin-bottom: 5px;
-        }
-
-        .stat-item .label {
-            font-size: 12px;
-            color: var(--gray);
-            text-transform: uppercase;
+        @media (max-width: 768px) {
+            .header {
+                flex-direction: column;
+                gap: 20px;
+                padding: 20px;
+            }
+            
+            .dashboard-cards {
+                grid-template-columns: 1fr;
+            }
+            
+            .auth-box {
+                padding: 30px;
+            }
+            
+            .modal-content {
+                padding: 30px 20px;
+            }
+            
+            .otp-input {
+                width: 35px;
+                height: 40px;
+                font-size: 16px;
+            }
         }
     </style>
 </head>
 <body>
-    <!-- Auth Screens (Same as before) -->
+    <!-- Auth Screens -->
     <div class="auth-container" id="authContainer">
-        <!-- Your existing auth HTML -->
-    </div>
-    
-    <!-- Email Settings Modal (Same as before) -->
-    <div class="email-settings-modal" id="emailSettingsModal">
-        <!-- Your existing email settings HTML -->
+        <div class="auth-box">
+            <div class="auth-header">
+                <div class="auth-logo">
+                    <i class="fas fa-user-shield"></i>
+                    <h1>SCHOOL <span>ADMIN</span></h1>
+                </div>
+                <p>School Administration Management Portal</p>
+            </div>
+            
+            <div class="auth-tabs">
+                <div class="auth-tab active" data-tab="login">Login</div>
+                <div class="auth-tab" data-tab="register">Create Account</div>
+                <div class="auth-tab" data-tab="forgot">Reset Password</div>
+            </div>
+            
+            <!-- Login Tab -->
+            <div class="auth-content active" id="loginTab">
+                <div class="form-group">
+                    <label>Email Address</label>
+                    <input type="email" id="loginEmail" class="form-control" placeholder="admin@school.com" value="admin@school.com">
+                </div>
+                
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" id="loginPassword" class="form-control" placeholder="Enter password" value="admin123">
+                </div>
+                
+                <div class="form-group" style="text-align: right;">
+                    <a href="#" class="forgot-password-link" style="color: var(--secondary); text-decoration: none; font-size: 14px;">
+                        Forgot Password?
+                    </a>
+                </div>
+                
+                <button class="btn btn-primary btn-block" id="loginBtn">
+                    <i class="fas fa-sign-in-alt"></i> Login to Admin Panel
+                </button>
+                
+                <div class="auth-footer">
+                    <p>Default Admin Credentials: admin@school.com / admin123</p>
+                </div>
+            </div>
+            
+            <!-- Register Tab -->
+            <div class="auth-content" id="registerTab">
+                <div class="form-group">
+                    <label>Full Name</label>
+                    <input type="text" id="regName" class="form-control" placeholder="Enter your full name">
+                </div>
+                
+                <div class="form-group">
+                    <label>Email Address</label>
+                    <input type="email" id="regEmail" class="form-control" placeholder="Enter your school email">
+                </div>
+                
+                <div class="form-group">
+                    <label>Create Password</label>
+                    <input type="password" id="regPassword" class="form-control" placeholder="Create a strong password">
+                </div>
+                
+                <div class="form-group">
+                    <label>Confirm Password</label>
+                    <input type="password" id="regConfirmPassword" class="form-control" placeholder="Confirm your password">
+                </div>
+                
+                <button class="btn btn-success btn-block" id="registerBtn">
+                    <i class="fas fa-user-plus"></i> Create Admin Account
+                </button>
+                
+                <!-- Updated minimal OTP box -->
+                <div class="otp-container" id="regOtpContainer" style="display: none;">
+                    <input type="text" class="otp-input" maxlength="1" data-index="0">
+                    <input type="text" class="otp-input" maxlength="1" data-index="1">
+                    <input type="text" class="otp-input" maxlength="1" data-index="2">
+                    <input type="text" class="otp-input" maxlength="1" data-index="3">
+                    <input type="text" class="otp-input" maxlength="1" data-index="4">
+                    <input type="text" class="otp-input" maxlength="1" data-index="5">
+                </div>
+                
+                <div class="resend-otp" id="regResendOtp" style="display: none;">
+                    <p>Didn't receive OTP? <a href="#" id="regResendLink">Resend OTP</a></p>
+                    <p id="regOtpTimer" style="color: var(--danger); font-weight: 600;"></p>
+                </div>
+                
+                <button class="btn btn-primary btn-block" id="verifyRegOtpBtn" style="display: none;">
+                    <i class="fas fa-check-circle"></i> Verify OTP & Complete Registration
+                </button>
+            </div>
+            
+            <!-- Forgot Password Tab -->
+            <div class="auth-content" id="forgotTab">
+                <div class="form-group">
+                    <label>Email Address</label>
+                    <input type="email" id="forgotEmail" class="form-control" placeholder="Enter your registered email">
+                </div>
+                
+                <button class="btn btn-primary btn-block" id="sendOtpBtn">
+                    <i class="fas fa-paper-plane"></i> Send OTP to Email
+                </button>
+                
+                <!-- Updated minimal OTP box -->
+                <div class="otp-container" id="forgotOtpContainer" style="display: none; margin-top: 20px;">
+                    <input type="text" class="otp-input" maxlength="1" data-index="0">
+                    <input type="text" class="otp-input" maxlength="1" data-index="1">
+                    <input type="text" class="otp-input" maxlength="1" data-index="2">
+                    <input type="text" class="otp-input" maxlength="1" data-index="3">
+                    <input type="text" class="otp-input" maxlength="1" data-index="4">
+                    <input type="text" class="otp-input" maxlength="1" data-index="5">
+                </div>
+                
+                <div class="resend-otp" id="forgotResendOtp" style="display: none;">
+                    <p>Didn't receive OTP? <a href="#" id="forgotResendLink">Resend OTP</a></p>
+                    <p id="forgotOtpTimer" style="color: var(--danger); font-weight: 600;"></p>
+                </div>
+                
+                <button class="btn btn-success btn-block" id="verifyOtpBtn" style="display: none;">
+                    <i class="fas fa-check-circle"></i> Verify OTP
+                </button>
+                
+                <div id="resetPasswordForm" style="display: none;">
+                    <div class="form-group">
+                        <label>New Password</label>
+                        <input type="password" id="newPassword" class="form-control" placeholder="Enter new password">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Confirm New Password</label>
+                        <input type="password" id="confirmNewPassword" class="form-control" placeholder="Confirm new password">
+                    </div>
+                    
+                    <button class="btn btn-primary btn-block" id="resetPasswordBtn">
+                        <i class="fas fa-key"></i> Change Password
+                    </button>
+                </div>
+            </div>
+        </div>
     </div>
     
     <!-- Main Admin Panel -->
     <div id="adminPanel" style="display: none;">
+        <!-- Header -->
         <header class="header">
             <div class="logo">
                 <i class="fas fa-user-shield"></i>
@@ -403,10 +911,6 @@
             </div>
             
             <div class="user-info">
-                <div class="notification-bell" id="notificationBell" title="Notifications">
-                    <i class="fas fa-bell"></i>
-                    <span class="notification-count" id="notificationCount" style="display: none;">0</span>
-                </div>
                 <div class="user-avatar" id="adminAvatar">A</div>
                 <div class="user-details">
                     <h3 id="adminName">Admin User</h3>
@@ -418,7 +922,9 @@
             </div>
         </header>
         
+        <!-- Main Container -->
         <div class="container">
+            <!-- Sidebar -->
             <aside class="sidebar">
                 <ul class="nav-links">
                     <li>
@@ -448,20 +954,6 @@
                         </a>
                     </li>
                     <li>
-                        <a href="#" data-section="teacherRequests">
-                            <i class="fas fa-user-clock"></i>
-                            <span>Teacher Requests</span>
-                            <span class="nav-count" id="pendingRequestsCount">0</span>
-                        </a>
-                    </li>
-                    <li>
-                        <a href="#" data-section="students">
-                            <i class="fas fa-user-graduate"></i>
-                            <span>Students</span>
-                            <span class="nav-count" id="studentCount">0</span>
-                        </a>
-                    </li>
-                    <li>
                         <a href="#" data-section="settings">
                             <i class="fas fa-cog"></i>
                             <span>Settings</span>
@@ -470,6 +962,7 @@
                 </ul>
             </aside>
             
+            <!-- Main Content -->
             <main class="main-content">
                 <!-- Dashboard Section -->
                 <div class="content-section active" id="dashboardSection">
@@ -478,27 +971,56 @@
                         <p id="currentDate">Loading date...</p>
                     </div>
                     
-                    <!-- Quick Stats -->
-                    <div class="dashboard-stats">
-                        <div class="stat-item">
-                            <div class="value" id="totalApprovedTeachers">0</div>
-                            <div class="label">Approved Teachers</div>
+                    <div class="dashboard-cards">
+                        <div class="dashboard-card card-notices">
+                            <div class="card-icon">
+                                <i class="fas fa-bullhorn"></i>
+                            </div>
+                            <h3>Total Notices</h3>
+                            <div class="number" id="totalNoticesCount">0</div>
+                            <div class="trend up">
+                                <i class="fas fa-arrow-up"></i>
+                                <span>5 sent this week</span>
+                            </div>
                         </div>
-                        <div class="stat-item">
-                            <div class="value" id="totalPendingRequests">0</div>
-                            <div class="label">Pending Requests</div>
+                        
+                        <div class="dashboard-card card-teachers">
+                            <div class="card-icon">
+                                <i class="fas fa-chalkboard-teacher"></i>
+                            </div>
+                            <h3>Teachers</h3>
+                            <div class="number" id="totalTeachersCount">0</div>
+                            <div class="trend up">
+                                <i class="fas fa-arrow-up"></i>
+                                <span>2 new this month</span>
+                            </div>
                         </div>
-                        <div class="stat-item">
-                            <div class="value" id="totalNotices">0</div>
-                            <div class="label">Total Notices</div>
+                        
+                        <div class="dashboard-card card-students">
+                            <div class="card-icon">
+                                <i class="fas fa-user-graduate"></i>
+                            </div>
+                            <h3>Students (App Users)</h3>
+                            <div class="number" id="totalStudentsCount">0</div>
+                            <div class="trend up">
+                                <i class="fas fa-arrow-up"></i>
+                                <span>45 active today</span>
+                            </div>
                         </div>
-                        <div class="stat-item">
-                            <div class="value" id="totalStudents">0</div>
-                            <div class="label">Students</div>
+                        
+                        <div class="dashboard-card card-urgent">
+                            <div class="card-icon">
+                                <i class="fas fa-exclamation-triangle"></i>
+                            </div>
+                            <h3>Urgent Notices</h3>
+                            <div class="number" id="urgentNoticesCount">0</div>
+                            <div class="trend down">
+                                <i class="fas fa-arrow-down"></i>
+                                <span>1 resolved</span>
+                            </div>
                         </div>
                     </div>
                     
-                    <!-- Activity Log -->
                     <div class="section-header">
                         <h2><i class="fas fa-history"></i> Recent Activity</h2>
                     </div>
@@ -520,57 +1042,107 @@
                     </div>
                 </div>
                 
-                <!-- Teacher Requests Section -->
-                <div class="content-section" id="teacherRequestsSection" style="display: none;">
+                <!-- Send Notice Section -->
+                <div class="content-section" id="sendNoticeSection" style="display: none;">
                     <div class="section-header">
-                        <h2><i class="fas fa-user-clock"></i> Teacher Approval Requests</h2>
-                        <div class="filter-controls">
-                            <div class="filter-group">
-                                <label>Status:</label>
-                                <select id="requestStatusFilter" class="form-control" style="width: 150px;">
-                                    <option value="all">All</option>
-                                    <option value="pending">Pending</option>
-                                    <option value="approved">Approved</option>
-                                    <option value="rejected">Rejected</option>
+                        <h2><i class="fas fa-bullhorn"></i> Send New Notice</h2>
+                        <p>Notices will be sent to Teachers & Students apps</p>
+                    </div>
+                    
+                    <div class="form-container">
+                        <div class="form-group">
+                            <label for="noticeTitle">Notice Title *</label>
+                            <input type="text" id="noticeTitle" class="form-control" placeholder="Enter notice title">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="noticeContent">Notice Content *</label>
+                            <textarea id="noticeContent" class="form-control textarea" placeholder="Enter notice content..."></textarea>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="noticePriority">Priority Level</label>
+                                <select id="noticePriority" class="form-control">
+                                    <option value="low">Low Priority</option>
+                                    <option value="medium">Medium Priority</option>
+                                    <option value="high">High Priority</option>
                                 </select>
                             </div>
-                            <div class="search-box">
-                                <input type="text" id="searchRequests" placeholder="Search teachers...">
-                                <i class="fas fa-search"></i>
+                            
+                            <div class="form-group">
+                                <label for="noticeCategory">Category</label>
+                                <select id="noticeCategory" class="form-control">
+                                    <option value="general">General Announcement</option>
+                                    <option value="academic">Academic</option>
+                                    <option value="exam">Exam Related</option>
+                                    <option value="event">School Event</option>
+                                    <option value="holiday">Holiday</option>
+                                    <option value="urgent">Urgent</option>
+                                </select>
                             </div>
                         </div>
+                        
+                        <div class="form-group">
+                            <label>Send To *</label>
+                            <div style="display: flex; gap: 30px; margin-top: 10px;">
+                                <div style="display: flex; align-items: center; gap: 8px;">
+                                    <input type="checkbox" id="sendToTeachers" checked>
+                                    <label for="sendToTeachers">All Teachers</label>
+                                </div>
+                                <div style="display: flex; align-items: center; gap: 8px;">
+                                    <input type="checkbox" id="sendToStudents" checked>
+                                    <label for="sendToStudents">All Students</label>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="form-actions">
+                            <button type="button" class="btn btn-secondary" id="saveDraftBtn">
+                                <i class="fas fa-save"></i> Save as Draft
+                            </button>
+                            <button type="button" class="btn btn-primary pulse" id="sendNoticeBtn">
+                                <i class="fas fa-paper-plane"></i> Send Notice
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Manage Notices Section -->
+                <div class="content-section" id="manageNoticesSection" style="display: none;">
+                    <div class="section-header">
+                        <h2><i class="fas fa-clipboard-list"></i> Manage Notices</h2>
+                        <button class="btn btn-primary" id="refreshNoticesBtn">
+                            <i class="fas fa-sync-alt"></i> Refresh
+                        </button>
                     </div>
                     
                     <div class="table-container">
                         <table>
                             <thead>
                                 <tr>
-                                    <th>Teacher</th>
-                                    <th>Email</th>
-                                    <th>Subject</th>
-                                    <th>Grade</th>
-                                    <th>Applied On</th>
-                                    <th>Status</th>
+                                    <th>Title</th>
+                                    <th>Category</th>
+                                    <th>Priority</th>
+                                    <th>Date</th>
+                                    <th>Sent To</th>
                                     <th>Actions</th>
                                 </tr>
                             </thead>
-                            <tbody id="requestsTableBody">
-                                <!-- Requests will be populated here -->
+                            <tbody id="noticesTableBody">
+                                <!-- Notices will be populated here -->
                             </tbody>
                         </table>
                     </div>
                 </div>
                 
-                <!-- Students Section -->
-                <div class="content-section" id="studentsSection" style="display: none;">
+                <!-- Manage Teachers Section -->
+                <div class="content-section" id="manageTeachersSection" style="display: none;">
                     <div class="section-header">
-                        <h2><i class="fas fa-user-graduate"></i> Student Management</h2>
-                        <div class="filter-controls">
-                            <div class="search-box">
-                                <input type="text" id="searchStudents" placeholder="Search students...">
-                                <i class="fas fa-search"></i>
-                            </div>
-                        </div>
+                        <h2><i class="fas fa-chalkboard-teacher"></i> Manage Teachers</h2>
+                        <button class="btn btn-success" id="addTeacherBtn">
+                            <i class="fas fa-plus"></i> Add Teacher
+                        </button>
                     </div>
                     
                     <div class="table-container">
@@ -578,15 +1150,14 @@
                             <thead>
                                 <tr>
                                     <th>Name</th>
-                                    <th>Grade</th>
+                                    <th>Subject</th>
+                                    <th>Phone Number</th>
                                     <th>Email</th>
-                                    <th>Parent Contact</th>
-                                    <th>Status</th>
                                     <th>Actions</th>
                                 </tr>
                             </thead>
-                            <tbody id="studentsTableBody">
-                                <!-- Students will be populated here -->
+                            <tbody id="teachersTableBody">
+                                <!-- Teachers will be populated here -->
                             </tbody>
                         </table>
                     </div>
@@ -599,7 +1170,6 @@
                     </div>
                     
                     <div class="form-container">
-                        <!-- Account Settings -->
                         <div class="form-group">
                             <h3 style="margin-bottom: 20px; color: var(--primary);">
                                 <i class="fas fa-user-circle"></i> Account Settings
@@ -613,7 +1183,7 @@
                         
                         <div class="form-group">
                             <label>Email Address</label>
-                            <input type="email" id="settingsEmail" class="form-control" value="admin@school.com" readonly>
+                            <input type="email" id="settingsEmail" class="form-control" value="admin@school.com" disabled>
                         </div>
                         
                         <div class="form-actions">
@@ -622,11 +1192,43 @@
                             </button>
                         </div>
                         
-                        <!-- Change Password -->
+                        <!-- Email Settings Section -->
+                        <div class="form-group" style="margin-top: 40px;">
+                            <h3 style="margin-bottom: 20px; color: var(--primary);">
+                                <i class="fas fa-envelope"></i> Email Settings
+                            </h3>
+                            <p style="color: var(--gray); margin-bottom: 20px;">
+                                Configure email settings for OTP delivery. Registration and password reset will send OTPs via EmailJS.
+                            </p>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Your Email Address</label>
+                            <input type="email" id="emailSettingsAddress" class="form-control" placeholder="Enter your email address to receive OTPs">
+                            <small style="color: var(--gray); margin-top: 5px; display: block;">
+                                This email will be used to send OTPs for registration and password reset.
+                            </small>
+                        </div>
+                        
+                        <div class="form-actions">
+                            <button type="button" class="btn btn-primary" id="saveEmailSettingsBtn">
+                                <i class="fas fa-save"></i> Save Email Settings
+                            </button>
+                            <button type="button" class="btn btn-secondary" id="testEmailBtn">
+                                <i class="fas fa-paper-plane"></i> Test Email
+                            </button>
+                        </div>
+                        
+                        <!-- Change Password Section -->
                         <div class="form-group" style="margin-top: 40px;">
                             <h3 style="margin-bottom: 20px; color: var(--primary);">
                                 <i class="fas fa-key"></i> Change Password
                             </h3>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Current Password</label>
+                            <input type="password" id="currentPassword" class="form-control" placeholder="Enter current password">
                         </div>
                         
                         <div class="form-group">
@@ -644,144 +1246,200 @@
                                 <i class="fas fa-key"></i> Change Password
                             </button>
                         </div>
-                        
-                        <!-- Email Settings -->
-                        <div class="form-group" style="margin-top: 40px;">
-                            <h3 style="margin-bottom: 20px; color: var(--primary);">
-                                <i class="fas fa-envelope"></i> Email System Settings
-                            </h3>
-                            <p style="color: var(--gray); margin-bottom: 15px;">
-                                Configure EmailJS to send OTPs for registration and password reset
-                            </p>
-                            <button type="button" class="btn btn-secondary" id="configureEmailBtn">
-                                <i class="fas fa-cog"></i> Configure Email Settings
-                            </button>
-                        </div>
                     </div>
                 </div>
             </main>
         </div>
     </div>
     
-    <!-- Teacher Details Modal -->
-    <div class="teacher-details-modal" id="teacherDetailsModal">
-        <div class="teacher-details-content">
-            <div class="teacher-header">
-                <img id="teacherDetailImage" src="" alt="Teacher" class="teacher-avatar" onerror="this.src='https://via.placeholder.com/100'">
-                <div class="teacher-info">
-                    <h3 id="teacherDetailName">Teacher Name</h3>
-                    <p id="teacherDetailSubject">Subject</p>
-                    <p id="teacherDetailGrade">Grade</p>
-                    <p id="teacherDetailEmail">Email</p>
-                    <p id="teacherDetailPhone">Phone</p>
+    <!-- Add Teacher Modal -->
+    <div class="modal" id="addTeacherModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="fas fa-user-plus"></i> Add New Teacher</h3>
+                <button class="close-modal" id="closeTeacherModal">&times;</button>
+            </div>
+            
+            <div class="form-group">
+                <label>Full Name *</label>
+                <input type="text" id="teacherName" class="form-control" placeholder="Enter teacher's full name">
+            </div>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Subject *</label>
+                    <input type="text" id="teacherSubject" class="form-control" placeholder="e.g., Mathematics">
+                </div>
+                
+                <div class="form-group">
+                    <label>Grade/Class</label>
+                    <input type="text" id="teacherGrade" class="form-control" placeholder="e.g., Grade 10">
                 </div>
             </div>
             
-            <div class="teacher-details-grid">
-                <div class="detail-item">
-                    <label>UID</label>
-                    <p id="teacherDetailUid">Loading...</p>
-                </div>
-                <div class="detail-item">
-                    <label>Status</label>
-                    <p><span id="teacherDetailStatus" class="status-badge">Loading...</span></p>
-                </div>
-                <div class="detail-item">
-                    <label>Applied On</label>
-                    <p id="teacherDetailCreatedAt">Loading...</p>
-                </div>
-                <div class="detail-item">
-                    <label>Reviewed On</label>
-                    <p id="teacherDetailReviewedAt">Not reviewed</p>
-                </div>
-                <div class="detail-item">
-                    <label>Reviewed By</label>
-                    <p id="teacherDetailReviewedBy">Not reviewed</p>
-                </div>
-                <div class="detail-item">
-                    <label>Profile Image</label>
-                    <p><a href="#" id="teacherDetailProfileLink" target="_blank">View Image</a></p>
-                </div>
+            <div class="form-group">
+                <label>Phone Number *</label>
+                <input type="tel" id="teacherPhone" class="form-control" placeholder="+91 9876543210">
             </div>
             
-            <div class="review-actions" id="reviewActions">
-                <!-- Buttons will be added dynamically -->
+            <div class="form-group">
+                <label>Email Address</label>
+                <input type="email" id="teacherEmail" class="form-control" placeholder="teacher@school.com">
             </div>
             
             <div class="form-actions">
-                <button type="button" class="btn btn-secondary" id="closeTeacherDetails">
-                    <i class="fas fa-times"></i> Close
+                <button type="button" class="btn btn-secondary" id="cancelTeacherBtn">Cancel</button>
+                <button type="button" class="btn btn-success" id="saveTeacherBtn">
+                    <i class="fas fa-save"></i> Save Teacher
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Delete Confirmation Modal -->
+    <div class="modal" id="deleteModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="fas fa-exclamation-triangle" style="color: var(--danger);"></i> Confirm Delete</h3>
+                <button class="close-modal" id="closeDeleteModal">&times;</button>
+            </div>
+            
+            <div class="form-group">
+                <p id="deleteMessage">Are you sure you want to delete this item? This action cannot be undone.</p>
+            </div>
+            
+            <div class="form-actions">
+                <button type="button" class="btn btn-secondary" id="cancelDeleteBtn">Cancel</button>
+                <button type="button" class="btn btn-danger" id="confirmDeleteBtn">
+                    <i class="fas fa-trash"></i> Delete
                 </button>
             </div>
         </div>
     </div>
     
     <!-- Success Message -->
-    <div class="success-message" id="successMessage">
-        <div class="success-message-content">
-            <i class="fas fa-check-circle"></i>
-            <div class="success-message-text">
-                <h4>Success!</h4>
+    <div id="successMessage" style="display: none; position: fixed; bottom: 30px; right: 30px; background: var(--success); color: white; padding: 20px; border-radius: 8px; box-shadow: 0 5px 15px rgba(0,0,0,0.2); z-index: 3000;">
+        <div style="display: flex; align-items: center; gap: 15px;">
+            <i class="fas fa-check-circle" style="font-size: 24px;"></i>
+            <div>
+                <h4 style="margin-bottom: 5px;">Success!</h4>
                 <p id="successText">Operation completed successfully.</p>
             </div>
         </div>
     </div>
     
-    <!-- App Logic -->
+    <!-- Firebase Configuration and App Logic -->
     <script>
+        // Firebase Configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyDcKkAf2SRmfiJizVA71fILOqRZTtUGAdY",
+            authDomain: "schooladmin-51cdd.firebaseapp.com",
+            databaseURL: "https://schooladmin-51cdd-default-rtdb.firebaseio.com",
+            projectId: "schooladmin-51cdd",
+            storageBucket: "schooladmin-51cdd.firebasestorage.app",
+            messagingSenderId: "185301938780",
+            appId: "1:185301938780:web:bdeaabff3c7d2bff2bac99",
+            measurementId: "G-V8C5DE930K"
+        };
+
+        // EmailJS Configuration
+        const emailjsConfig = {
+            serviceId: 'service_u035226',
+            templateId: 'template_xyk8468',
+            publicKey: 'D-8liyb21zvqmvhPc'
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+
+        // Initialize EmailJS
+        (function() {
+            emailjs.init(emailjsConfig.publicKey);
+            console.log('EmailJS initialized with public key:', emailjsConfig.publicKey);
+        })();
+
         // Application State
         let currentUser = null;
         let currentAdmin = null;
-        let emailConfig = {
-            publicKey: "",
-            serviceId: "",
-            templateId: "",
-            senderName: "School Admin System"
-        };
-        let teachers = [];
-        let pendingRequests = [];
-        let students = [];
         let notices = [];
-        let selectedTeacher = null;
-
-        // Load saved config
-        const savedConfig = localStorage.getItem('emailjsConfig');
-        if (savedConfig) {
-            emailConfig = JSON.parse(savedConfig);
-            if (emailConfig.publicKey) {
-                emailjs.init(emailConfig.publicKey);
-            }
-        }
+        let teachers = [];
+        let activityLog = [];
+        let itemToDelete = null;
+        let deleteType = null;
+        let otpStore = {}; // Store OTPs temporarily
 
         // DOM Elements
         const authContainer = document.getElementById('authContainer');
         const adminPanel = document.getElementById('adminPanel');
+        const adminName = document.getElementById('adminName');
+        const adminEmail = document.getElementById('adminEmail');
+        const adminAvatar = document.getElementById('adminAvatar');
+        
+        // Auth Elements
+        const authTabs = document.querySelectorAll('.auth-tab');
+        const authContents = document.querySelectorAll('.auth-content');
         const loginBtn = document.getElementById('loginBtn');
         const registerBtn = document.getElementById('registerBtn');
         const sendOtpBtn = document.getElementById('sendOtpBtn');
         const verifyOtpBtn = document.getElementById('verifyOtpBtn');
         const resetPasswordBtn = document.getElementById('resetPasswordBtn');
         const verifyRegOtpBtn = document.getElementById('verifyRegOtpBtn');
-        const configureEmailBtn = document.getElementById('configureEmailBtn');
-        const emailSettingsModal = document.getElementById('emailSettingsModal');
-        const closeEmailSettings = document.getElementById('closeEmailSettings');
-        const testEmailBtn = document.getElementById('testEmailBtn');
+        
+        // Settings Elements
         const saveEmailSettingsBtn = document.getElementById('saveEmailSettingsBtn');
-        const successMessage = document.getElementById('successMessage');
-        const successText = document.getElementById('successText');
-        const logoutBtn = document.getElementById('logoutBtn');
+        const testEmailBtn = document.getElementById('testEmailBtn');
+        const emailSettingsAddress = document.getElementById('emailSettingsAddress');
+        
+        // Navigation
+        const navLinks = document.querySelectorAll('.nav-links a');
+        const contentSections = document.querySelectorAll('.content-section');
+        
+        // Dashboard Elements
+        const totalNoticesCount = document.getElementById('totalNoticesCount');
+        const totalTeachersCount = document.getElementById('totalTeachersCount');
+        const totalStudentsCount = document.getElementById('totalStudentsCount');
+        const urgentNoticesCount = document.getElementById('urgentNoticesCount');
+        const noticeCount = document.getElementById('noticeCount');
+        const teacherCount = document.getElementById('teacherCount');
+        const activityLogTable = document.getElementById('activityLog');
+        const currentDateElement = document.getElementById('currentDate');
+        
+        // Notice Elements
+        const sendNoticeBtn = document.getElementById('sendNoticeBtn');
+        const saveDraftBtn = document.getElementById('saveDraftBtn');
+        const refreshNoticesBtn = document.getElementById('refreshNoticesBtn');
+        const noticesTableBody = document.getElementById('noticesTableBody');
+        
+        // Teacher Elements
+        const addTeacherBtn = document.getElementById('addTeacherBtn');
+        const teachersTableBody = document.getElementById('teachersTableBody');
+        const saveTeacherBtn = document.getElementById('saveTeacherBtn');
+        const cancelTeacherBtn = document.getElementById('cancelTeacherBtn');
+        
+        // Modal Elements
+        const addTeacherModal = document.getElementById('addTeacherModal');
+        const deleteModal = document.getElementById('deleteModal');
+        const closeTeacherModal = document.getElementById('closeTeacherModal');
+        const closeDeleteModal = document.getElementById('closeDeleteModal');
+        const cancelDeleteBtn = document.getElementById('cancelDeleteBtn');
+        const confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
+        
+        // Settings Elements
         const updateProfileBtn = document.getElementById('updateProfileBtn');
         const changePasswordBtn = document.getElementById('changePasswordBtn');
-        const notificationBell = document.getElementById('notificationBell');
-        const notificationCount = document.getElementById('notificationCount');
-        const teacherDetailsModal = document.getElementById('teacherDetailsModal');
-        const closeTeacherDetails = document.getElementById('closeTeacherDetails');
+        const logoutBtn = document.getElementById('logoutBtn');
+        
+        // Success Message
+        const successMessage = document.getElementById('successMessage');
+        const successText = document.getElementById('successText');
 
         // Initialize Application
         document.addEventListener('DOMContentLoaded', function() {
             // Set current date
             const now = new Date();
-            document.getElementById('currentDate').textContent = now.toLocaleDateString('en-US', { 
+            currentDateElement.textContent = now.toLocaleDateString('en-US', { 
                 weekday: 'long', 
                 year: 'numeric', 
                 month: 'long', 
@@ -791,116 +1449,254 @@
             // Set up event listeners
             setupEventListeners();
             
-            // Check auth state
+            // Check if user is already logged in
             checkAuthState();
             
-            // Load email config to form
-            loadEmailConfigToForm();
+            // Load sample data for demo
+            loadSampleData();
+            
+            // Load saved email settings
+            loadEmailSettings();
         });
 
-        // ============================
-        // SETUP EVENT LISTENERS
-        // ============================
-
+        // Event Listeners Setup
         function setupEventListeners() {
             // Auth Tab Switching
-            document.querySelectorAll('.auth-tab').forEach(tab => {
+            authTabs.forEach(tab => {
                 tab.addEventListener('click', () => {
                     const tabId = tab.dataset.tab;
-                    document.querySelectorAll('.auth-tab').forEach(t => t.classList.remove('active'));
-                    document.querySelectorAll('.auth-content').forEach(c => c.classList.remove('active'));
-                    tab.classList.add('active');
-                    document.getElementById(tabId + 'Tab').classList.add('active');
-                });
-            });
-
-            // Navigation
-            document.querySelectorAll('.nav-links a').forEach(link => {
-                link.addEventListener('click', (e) => {
-                    e.preventDefault();
-                    document.querySelectorAll('.nav-links a').forEach(l => l.classList.remove('active'));
-                    link.classList.add('active');
                     
-                    const sectionId = link.dataset.section + 'Section';
-                    document.querySelectorAll('.content-section').forEach(section => {
-                        section.style.display = 'none';
-                        if (section.id === sectionId) {
-                            section.style.display = 'block';
-                            loadSectionData(sectionId);
+                    // Update active tab
+                    authTabs.forEach(t => t.classList.remove('active'));
+                    tab.classList.add('active');
+                    
+                    // Show corresponding content
+                    authContents.forEach(content => {
+                        content.classList.remove('active');
+                        if (content.id === tabId + 'Tab') {
+                            content.classList.add('active');
                         }
                     });
                 });
             });
 
-            // Auth buttons
+            // Forgot password link
+            document.querySelector('.forgot-password-link').addEventListener('click', (e) => {
+                e.preventDefault();
+                authTabs.forEach(t => t.classList.remove('active'));
+                document.querySelector('.auth-tab[data-tab="forgot"]').classList.add('active');
+                authContents.forEach(content => content.classList.remove('active'));
+                document.getElementById('forgotTab').classList.add('active');
+            });
+
+            // Login
             loginBtn.addEventListener('click', handleLogin);
+            
+            // Register
             registerBtn.addEventListener('click', handleRegister);
+            
+            // Send OTP for password reset
             sendOtpBtn.addEventListener('click', handleSendOtp);
+            
+            // Verify OTP for password reset
             verifyOtpBtn.addEventListener('click', handleVerifyOtp);
+            
+            // Reset Password
             resetPasswordBtn.addEventListener('click', handleResetPassword);
+            
+            // Verify OTP for registration
             verifyRegOtpBtn.addEventListener('click', handleVerifyRegOtp);
             
+            // Resend OTP links
+            document.getElementById('regResendLink')?.addEventListener('click', handleResendRegOtp);
+            document.getElementById('forgotResendLink')?.addEventListener('click', handleResendForgotOtp);
+
             // Email Settings
-            if (configureEmailBtn) {
-                configureEmailBtn.addEventListener('click', () => {
-                    emailSettingsModal.style.display = 'flex';
-                });
-            }
-            closeEmailSettings.addEventListener('click', () => {
-                emailSettingsModal.style.display = 'none';
-            });
-            testEmailBtn.addEventListener('click', testEmailConfiguration);
-            saveEmailSettingsBtn.addEventListener('click', saveEmailConfiguration);
-            
-            // Teacher Details Modal
-            closeTeacherDetails.addEventListener('click', () => {
-                teacherDetailsModal.style.display = 'none';
-            });
-            
-            // Notification Bell
-            notificationBell.addEventListener('click', () => {
-                // Navigate to teacher requests
-                document.querySelectorAll('.nav-links a').forEach(l => l.classList.remove('active'));
-                document.querySelector('.nav-links a[data-section="teacherRequests"]').classList.add('active');
-                document.querySelectorAll('.content-section').forEach(s => s.style.display = 'none');
-                document.getElementById('teacherRequestsSection').style.display = 'block';
-                loadSectionData('teacherRequestsSection');
-            });
-            
-            // Search Filters
-            document.getElementById('requestStatusFilter')?.addEventListener('change', filterTeacherRequests);
-            document.getElementById('searchRequests')?.addEventListener('input', filterTeacherRequests);
-            document.getElementById('searchStudents')?.addEventListener('input', filterStudents);
-        }
+            saveEmailSettingsBtn.addEventListener('click', saveEmailSettings);
+            testEmailBtn.addEventListener('click', testEmailSettings);
 
-        // ============================
-        // AUTHENTICATION
-        // ============================
-
-        function checkAuthState() {
-            window.firebase.onAuthStateChanged(window.firebase.auth, (user) => {
-                if (user) {
-                    currentUser = {
-                        uid: user.uid,
-                        email: user.email,
-                        displayName: user.displayName || 'Admin User',
-                        photoURL: user.photoURL
-                    };
-                    localStorage.setItem('schoolAdminUser', JSON.stringify(currentUser));
-                    showAdminPanel();
-                    loadDashboardData();
-                } else {
-                    const storedUser = localStorage.getItem('schoolAdminUser');
-                    if (storedUser) {
-                        currentUser = JSON.parse(storedUser);
-                        showAdminPanel();
-                        loadDashboardData();
+            // Navigation
+            navLinks.forEach(link => {
+                link.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    
+                    // Update active nav
+                    navLinks.forEach(l => l.classList.remove('active'));
+                    link.classList.add('active');
+                    
+                    // Show corresponding section
+                    const sectionId = link.dataset.section + 'Section';
+                    contentSections.forEach(section => {
+                        section.style.display = 'none';
+                        if (section.id === sectionId) {
+                            section.style.display = 'block';
+                        }
+                    });
+                    
+                    // Load section data if needed
+                    if (sectionId === 'manageNoticesSection') {
+                        loadNoticesTable();
+                    } else if (sectionId === 'manageTeachersSection') {
+                        loadTeachersTable();
                     }
-                }
+                });
             });
+
+            // Notice Management
+            sendNoticeBtn.addEventListener('click', sendNotice);
+            saveDraftBtn.addEventListener('click', saveNoticeAsDraft);
+            refreshNoticesBtn.addEventListener('click', loadNoticesTable);
+
+            // Teacher Management
+            addTeacherBtn.addEventListener('click', () => {
+                document.getElementById('addTeacherModal').style.display = 'flex';
+            });
+            
+            saveTeacherBtn.addEventListener('click', saveTeacher);
+            cancelTeacherBtn.addEventListener('click', () => {
+                document.getElementById('addTeacherModal').style.display = 'none';
+                clearTeacherForm();
+            });
+            
+            closeTeacherModal.addEventListener('click', () => {
+                document.getElementById('addTeacherModal').style.display = 'none';
+                clearTeacherForm();
+            });
+
+            // Modal Controls
+            closeDeleteModal.addEventListener('click', () => {
+                document.getElementById('deleteModal').style.display = 'none';
+            });
+            
+            cancelDeleteBtn.addEventListener('click', () => {
+                document.getElementById('deleteModal').style.display = 'none';
+                itemToDelete = null;
+                deleteType = null;
+            });
+            
+            confirmDeleteBtn.addEventListener('click', confirmDelete);
+
+            // Settings
+            updateProfileBtn.addEventListener('click', updateProfile);
+            changePasswordBtn.addEventListener('click', changePassword);
+            logoutBtn.addEventListener('click', handleLogout);
+
+            // OTP Input Handling
+            setupOtpInputs();
         }
 
-        async function handleLogin() {
+        // Email Functions
+        function generateOTP() {
+            // Generate a 6-digit OTP
+            return Math.floor(100000 + Math.random() * 900000).toString();
+        }
+
+        async function sendOTPEmail(email, otp, purpose = 'verification') {
+            try {
+                const templateParams = {
+                    to_email: email,
+                    otp_code: otp,
+                    purpose: purpose,
+                    school_name: 'School Admin Portal',
+                    timestamp: new Date().toLocaleString()
+                };
+
+                const response = await emailjs.send(
+                    emailjsConfig.serviceId,
+                    emailjsConfig.templateId,
+                    templateParams
+                );
+
+                console.log('Email sent successfully:', response);
+                return { success: true, message: 'OTP sent successfully!' };
+            } catch (error) {
+                console.error('Email sending failed:', error);
+                return { success: false, message: 'Failed to send OTP email. Please try again.' };
+            }
+        }
+
+        async function testEmailSettings() {
+            const email = emailSettingsAddress.value;
+            
+            if (!email) {
+                showError('Please enter your email address first');
+                return;
+            }
+            
+            if (!validateEmail(email)) {
+                showError('Please enter a valid email address');
+                return;
+            }
+            
+            // Generate test OTP
+            const testOTP = generateOTP();
+            
+            // Store OTP temporarily for testing
+            otpStore[email] = {
+                otp: testOTP,
+                expires: Date.now() + 10 * 60 * 1000 // 10 minutes
+            };
+            
+            // Show loading
+            testEmailBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...';
+            testEmailBtn.disabled = true;
+            
+            try {
+                const result = await sendOTPEmail(email, testOTP, 'test');
+                
+                if (result.success) {
+                    showSuccess('Test email sent successfully! Check your inbox for OTP.');
+                    console.log('Test OTP:', testOTP); // For debugging
+                } else {
+                    showError(result.message);
+                }
+            } catch (error) {
+                showError('Failed to send test email. Please check your connection.');
+            } finally {
+                // Reset button
+                testEmailBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Test Email';
+                testEmailBtn.disabled = false;
+            }
+        }
+
+        function saveEmailSettings() {
+            const email = emailSettingsAddress.value;
+            
+            if (!email) {
+                showError('Please enter your email address');
+                return;
+            }
+            
+            if (!validateEmail(email)) {
+                showError('Please enter a valid email address');
+                return;
+            }
+            
+            // Save to localStorage
+            localStorage.setItem('schoolAdminEmail', email);
+            
+            showSuccess('Email settings saved successfully!');
+            addActivityLog('Updated Email Settings', `Email: ${email}`);
+        }
+
+        function loadEmailSettings() {
+            const savedEmail = localStorage.getItem('schoolAdminEmail');
+            if (savedEmail) {
+                emailSettingsAddress.value = savedEmail;
+            }
+        }
+
+        // Firebase Authentication Functions
+        function checkAuthState() {
+            // For demo purposes, we'll simulate checking auth state
+            const storedUser = localStorage.getItem('schoolAdminUser');
+            if (storedUser) {
+                currentUser = JSON.parse(storedUser);
+                showAdminPanel();
+            }
+        }
+
+        function handleLogin() {
             const email = document.getElementById('loginEmail').value;
             const password = document.getElementById('loginPassword').value;
             
@@ -909,670 +1705,189 @@
                 return;
             }
             
-            try {
-                const userCredential = await window.firebase.signInWithEmailAndPassword(
-                    window.firebase.auth, 
-                    email, 
-                    password
-                );
-                
+            // For demo - simulate Firebase auth
+            if (email === 'admin@school.com' && password === 'admin123') {
                 currentUser = {
-                    uid: userCredential.user.uid,
-                    email: userCredential.user.email,
-                    displayName: userCredential.user.displayName || 'Admin User',
-                    photoURL: userCredential.user.photoURL
+                    uid: 'admin001',
+                    email: email,
+                    displayName: 'Admin User',
+                    photoURL: null
                 };
                 
+                // Store in localStorage for demo
                 localStorage.setItem('schoolAdminUser', JSON.stringify(currentUser));
+                
                 showSuccess('Login successful!');
                 showAdminPanel();
-                loadDashboardData();
-                
-            } catch (error) {
-                showError('Login failed: ' + error.message);
-            }
-        }
-
-        async function handleLogout() {
-            try {
-                await window.firebase.signOut(window.firebase.auth);
-                localStorage.removeItem('schoolAdminUser');
-                currentUser = null;
-                authContainer.style.display = 'flex';
-                adminPanel.style.display = 'none';
-                showSuccess('Logged out successfully!');
-            } catch (error) {
-                showError('Logout failed: ' + error.message);
-            }
-        }
-
-        // ============================
-        // DASHBOARD & DATA LOADING
-        // ============================
-
-        function loadSectionData(sectionId) {
-            switch(sectionId) {
-                case 'dashboardSection':
-                    loadDashboardData();
-                    break;
-                case 'teacherRequestsSection':
-                    loadTeacherRequests();
-                    break;
-                case 'studentsSection':
-                    loadStudents();
-                    break;
-            }
-        }
-
-        async function loadDashboardData() {
-            try {
-                // Load teacher requests
-                await loadTeacherRequests();
-                
-                // Load approved teachers
-                const approvedTeachers = teachers.filter(t => t.status === 'approved');
-                document.getElementById('totalApprovedTeachers').textContent = approvedTeachers.length;
-                document.getElementById('teacherCount').textContent = approvedTeachers.length;
-                
-                // Load pending requests
-                const pending = teachers.filter(t => t.status === 'pending');
-                document.getElementById('totalPendingRequests').textContent = pending.length;
-                document.getElementById('pendingRequestsCount').textContent = pending.length;
-                updateNotificationCount(pending.length);
-                
-                // Load notices count
-                const noticesRef = window.firebase.ref(window.firebase.rtdb, 'notices');
-                const noticesSnapshot = await window.firebase.get(noticesRef);
-                const noticesCount = noticesSnapshot.exists() ? Object.keys(noticesSnapshot.val()).length : 0;
-                document.getElementById('totalNotices').textContent = noticesCount;
-                document.getElementById('noticeCount').textContent = noticesCount;
-                
-                // Load students count
-                const studentsRef = window.firebase.ref(window.firebase.rtdb, 'students');
-                const studentsSnapshot = await window.firebase.get(studentsRef);
-                const studentsCount = studentsSnapshot.exists() ? Object.keys(studentsSnapshot.val()).length : 0;
-                document.getElementById('totalStudents').textContent = studentsCount;
-                document.getElementById('studentCount').textContent = studentsCount;
-                
-                // Load activity log
-                loadActivityLog();
-                
-            } catch (error) {
-                console.error('Error loading dashboard data:', error);
-            }
-        }
-
-        function updateNotificationCount(count) {
-            if (count > 0) {
-                notificationCount.textContent = count;
-                notificationCount.style.display = 'flex';
             } else {
-                notificationCount.style.display = 'none';
+                showError('Invalid email or password');
             }
         }
 
-        async function loadTeacherRequests() {
-            try {
-                const teachersRef = window.firebase.ref(window.firebase.rtdb, 'teachers');
-                const snapshot = await window.firebase.get(teachersRef);
-                
-                teachers = [];
-                if (snapshot.exists()) {
-                    const teachersData = snapshot.val();
-                    Object.keys(teachersData).forEach(uid => {
-                        const teacher = {
-                            uid: uid,
-                            ...teachersData[uid]
-                        };
-                        teachers.push(teacher);
-                    });
-                    
-                    // Sort by creation date (newest first)
-                    teachers.sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
-                }
-                
-                updateTeacherRequestsTable();
-                updateDashboardCounts();
-                
-            } catch (error) {
-                console.error('Error loading teacher requests:', error);
-                showError('Failed to load teacher requests');
-            }
-        }
-
-        function updateTeacherRequestsTable() {
-            const tableBody = document.getElementById('requestsTableBody');
-            if (!tableBody) return;
+        async function handleRegister() {
+            const name = document.getElementById('regName').value;
+            const email = document.getElementById('regEmail').value;
+            const password = document.getElementById('regPassword').value;
+            const confirmPassword = document.getElementById('regConfirmPassword').value;
             
-            tableBody.innerHTML = '';
-            
-            if (teachers.length === 0) {
-                tableBody.innerHTML = `
-                    <tr>
-                        <td colspan="7" style="text-align: center; padding: 40px; color: var(--gray);">
-                            <i class="fas fa-users" style="font-size: 48px; margin-bottom: 15px; display: block; opacity: 0.5;"></i>
-                            <h3>No teacher requests found</h3>
-                        </td>
-                    </tr>
-                `;
+            if (!name || !email || !password || !confirmPassword) {
+                showError('Please fill all fields');
                 return;
             }
             
-            teachers.forEach(teacher => {
-                const row = document.createElement('tr');
+            if (!validateEmail(email)) {
+                showError('Please enter a valid email address');
+                return;
+            }
+            
+            if (password !== confirmPassword) {
+                showError('Passwords do not match');
+                return;
+            }
+            
+            if (password.length < 6) {
+                showError('Password must be at least 6 characters');
+                return;
+            }
+            
+            // Generate OTP
+            const otp = generateOTP();
+            
+            // Store OTP temporarily
+            otpStore[email] = {
+                otp: otp,
+                expires: Date.now() + 10 * 60 * 1000, // 10 minutes
+                userData: { name, email, password }
+            };
+            
+            // Show loading
+            registerBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending OTP...';
+            registerBtn.disabled = true;
+            
+            try {
+                // Send OTP via EmailJS
+                const result = await sendOTPEmail(email, otp, 'registration');
                 
-                // Status badge
-                let statusBadge = '';
-                if (teacher.status === 'approved') {
-                    statusBadge = '<span class="status-badge status-approved">Approved</span>';
-                } else if (teacher.status === 'pending') {
-                    statusBadge = '<span class="status-badge status-pending">Pending</span>';
-                } else if (teacher.status === 'rejected') {
-                    statusBadge = '<span class="status-badge status-rejected">Rejected</span>';
-                }
-                
-                // Profile image
-                const profileImg = teacher.profileImage || 'https://via.placeholder.com/40';
-                
-                // Actions based on status
-                let actions = '';
-                if (teacher.status === 'pending') {
-                    actions = `
-                        <div class="action-buttons">
-                            <button class="btn btn-success btn-xs approve-btn" data-uid="${teacher.uid}">
-                                <i class="fas fa-check"></i> Approve
-                            </button>
-                            <button class="btn btn-danger btn-xs reject-btn" data-uid="${teacher.uid}">
-                                <i class="fas fa-times"></i> Reject
-                            </button>
-                            <button class="btn btn-primary btn-xs view-btn" data-uid="${teacher.uid}">
-                                <i class="fas fa-eye"></i> View
-                            </button>
-                        </div>
-                    `;
+                if (result.success) {
+                    showSuccess('OTP sent to your email! Please verify to complete registration.');
+                    
+                    // Show OTP section
+                    document.getElementById('regOtpContainer').style.display = 'flex';
+                    document.getElementById('regResendOtp').style.display = 'block';
+                    document.getElementById('verifyRegOtpBtn').style.display = 'block';
+                    registerBtn.style.display = 'none';
+                    
+                    // Start OTP timer
+                    startOtpTimer('reg');
                 } else {
-                    actions = `
-                        <div class="action-buttons">
-                            <button class="btn btn-primary btn-xs view-btn" data-uid="${teacher.uid}">
-                                <i class="fas fa-eye"></i> View
-                            </button>
-                            ${teacher.status === 'approved' ? 
-                                `<button class="btn btn-warning btn-xs revoke-btn" data-uid="${teacher.uid}">
-                                    <i class="fas fa-ban"></i> Revoke
-                                </button>` : ''
-                            }
-                        </div>
-                    `;
+                    showError(result.message);
                 }
-                
-                row.innerHTML = `
-                    <td>
-                        <div style="display: flex; align-items: center; gap: 10px;">
-                            <img src="${profileImg}" alt="${teacher.fullName}" class="profile-image-small" 
-                                 onerror="this.src='https://via.placeholder.com/40'">
-                            <span>${teacher.fullName || 'N/A'}</span>
-                        </div>
-                    </td>
-                    <td>${teacher.email || 'N/A'}</td>
-                    <td>${teacher.subject || 'N/A'}</td>
-                    <td>${teacher.grade || 'N/A'}</td>
-                    <td>${teacher.createdAt ? new Date(teacher.createdAt).toLocaleDateString() : 'N/A'}</td>
-                    <td>${statusBadge}</td>
-                    <td>${actions}</td>
-                `;
-                
-                tableBody.appendChild(row);
-            });
-            
-            // Add event listeners to action buttons
-            addTeacherActionListeners();
-        }
-
-        function addTeacherActionListeners() {
-            // View buttons
-            document.querySelectorAll('.view-btn').forEach(btn => {
-                btn.addEventListener('click', function() {
-                    const uid = this.dataset.uid;
-                    showTeacherDetails(uid);
-                });
-            });
-            
-            // Approve buttons
-            document.querySelectorAll('.approve-btn').forEach(btn => {
-                btn.addEventListener('click', function() {
-                    const uid = this.dataset.uid;
-                    approveTeacher(uid);
-                });
-            });
-            
-            // Reject buttons
-            document.querySelectorAll('.reject-btn').forEach(btn => {
-                btn.addEventListener('click', function() {
-                    const uid = this.dataset.uid;
-                    rejectTeacher(uid);
-                });
-            });
-            
-            // Revoke buttons
-            document.querySelectorAll('.revoke-btn').forEach(btn => {
-                btn.addEventListener('click', function() {
-                    const uid = this.dataset.uid;
-                    revokeTeacher(uid);
-                });
-            });
-        }
-
-        async function showTeacherDetails(uid) {
-            const teacher = teachers.find(t => t.uid === uid);
-            if (!teacher) return;
-            
-            selectedTeacher = teacher;
-            
-            // Populate modal
-            document.getElementById('teacherDetailName').textContent = teacher.fullName || 'N/A';
-            document.getElementById('teacherDetailSubject').textContent = teacher.subject || 'N/A';
-            document.getElementById('teacherDetailGrade').textContent = teacher.grade || 'N/A';
-            document.getElementById('teacherDetailEmail').textContent = teacher.email || 'N/A';
-            document.getElementById('teacherDetailPhone').textContent = teacher.phone || 'N/A';
-            document.getElementById('teacherDetailUid').textContent = teacher.uid || 'N/A';
-            
-            // Status
-            const statusElement = document.getElementById('teacherDetailStatus');
-            statusElement.className = 'status-badge';
-            if (teacher.status === 'approved') {
-                statusElement.textContent = 'Approved';
-                statusElement.classList.add('status-approved');
-            } else if (teacher.status === 'pending') {
-                statusElement.textContent = 'Pending';
-                statusElement.classList.add('status-pending');
-            } else if (teacher.status === 'rejected') {
-                statusElement.textContent = 'Rejected';
-                statusElement.classList.add('status-rejected');
-            }
-            
-            // Dates
-            document.getElementById('teacherDetailCreatedAt').textContent = 
-                teacher.createdAt ? new Date(teacher.createdAt).toLocaleString() : 'N/A';
-            document.getElementById('teacherDetailReviewedAt').textContent = 
-                teacher.reviewedAt ? new Date(teacher.reviewedAt).toLocaleString() : 'Not reviewed';
-            document.getElementById('teacherDetailReviewedBy').textContent = 
-                teacher.reviewedByName || teacher.reviewedBy || 'Not reviewed';
-            
-            // Profile image
-            const imgElement = document.getElementById('teacherDetailImage');
-            const profileImg = teacher.profileImage || 'https://via.placeholder.com/100';
-            imgElement.src = profileImg;
-            
-            // Profile link
-            const linkElement = document.getElementById('teacherDetailProfileLink');
-            linkElement.href = profileImg;
-            linkElement.textContent = profileImg.includes('placeholder') ? 'No Image' : 'View Image';
-            
-            // Review actions
-            const reviewActions = document.getElementById('reviewActions');
-            reviewActions.innerHTML = '';
-            
-            if (teacher.status === 'pending') {
-                reviewActions.innerHTML = `
-                    <button class="btn btn-success" id="modalApproveBtn">
-                        <i class="fas fa-check"></i> Approve Teacher
-                    </button>
-                    <button class="btn btn-danger" id="modalRejectBtn">
-                        <i class="fas fa-times"></i> Reject Teacher
-                    </button>
-                `;
-                
-                document.getElementById('modalApproveBtn').addEventListener('click', () => approveTeacher(uid));
-                document.getElementById('modalRejectBtn').addEventListener('click', () => rejectTeacher(uid));
-            } else if (teacher.status === 'approved') {
-                reviewActions.innerHTML = `
-                    <button class="btn btn-warning" id="modalRevokeBtn">
-                        <i class="fas fa-ban"></i> Revoke Approval
-                    </button>
-                `;
-                
-                document.getElementById('modalRevokeBtn').addEventListener('click', () => revokeTeacher(uid));
-            }
-            
-            // Show modal
-            teacherDetailsModal.style.display = 'flex';
-        }
-
-        async function approveTeacher(uid) {
-            if (!confirm('Are you sure you want to approve this teacher?')) return;
-            
-            try {
-                const teacherRef = window.firebase.ref(window.firebase.rtdb, `teachers/${uid}`);
-                await window.firebase.update(teacherRef, {
-                    status: 'approved',
-                    approved: true,
-                    reviewedAt: new Date().toISOString(),
-                    reviewedBy: currentUser.uid,
-                    reviewedByName: currentUser.displayName || 'Admin'
-                });
-                
-                showSuccess('Teacher approved successfully!');
-                await loadTeacherRequests();
-                teacherDetailsModal.style.display = 'none';
-                
             } catch (error) {
-                showError('Failed to approve teacher: ' + error.message);
+                showError('Failed to send OTP. Please try again.');
+            } finally {
+                // Reset button
+                registerBtn.innerHTML = '<i class="fas fa-user-plus"></i> Create Admin Account';
+                registerBtn.disabled = false;
             }
         }
 
-        async function rejectTeacher(uid) {
-            if (!confirm('Are you sure you want to reject this teacher?')) return;
+        async function handleSendOtp() {
+            const email = document.getElementById('forgotEmail').value;
             
-            try {
-                const teacherRef = window.firebase.ref(window.firebase.rtdb, `teachers/${uid}`);
-                await window.firebase.update(teacherRef, {
-                    status: 'rejected',
-                    approved: false,
-                    reviewedAt: new Date().toISOString(),
-                    reviewedBy: currentUser.uid,
-                    reviewedByName: currentUser.displayName || 'Admin'
-                });
-                
-                showSuccess('Teacher rejected successfully!');
-                await loadTeacherRequests();
-                teacherDetailsModal.style.display = 'none';
-                
-            } catch (error) {
-                showError('Failed to reject teacher: ' + error.message);
-            }
-        }
-
-        async function revokeTeacher(uid) {
-            if (!confirm('Are you sure you want to revoke this teacher\'s approval?')) return;
-            
-            try {
-                const teacherRef = window.firebase.ref(window.firebase.rtdb, `teachers/${uid}`);
-                await window.firebase.update(teacherRef, {
-                    status: 'pending',
-                    approved: false,
-                    reviewedAt: new Date().toISOString(),
-                    reviewedBy: currentUser.uid,
-                    reviewedByName: currentUser.displayName || 'Admin'
-                });
-                
-                showSuccess('Teacher approval revoked successfully!');
-                await loadTeacherRequests();
-                teacherDetailsModal.style.display = 'none';
-                
-            } catch (error) {
-                showError('Failed to revoke teacher: ' + error.message);
-            }
-        }
-
-        async function loadStudents() {
-            try {
-                const studentsRef = window.firebase.ref(window.firebase.rtdb, 'students');
-                const snapshot = await window.firebase.get(studentsRef);
-                
-                students = [];
-                if (snapshot.exists()) {
-                    const studentsData = snapshot.val();
-                    Object.keys(studentsData).forEach(uid => {
-                        const student = {
-                            uid: uid,
-                            ...studentsData[uid]
-                        };
-                        students.push(student);
-                    });
-                }
-                
-                updateStudentsTable();
-                
-            } catch (error) {
-                console.error('Error loading students:', error);
-                showError('Failed to load students');
-            }
-        }
-
-        function updateStudentsTable() {
-            const tableBody = document.getElementById('studentsTableBody');
-            if (!tableBody) return;
-            
-            tableBody.innerHTML = '';
-            
-            if (students.length === 0) {
-                tableBody.innerHTML = `
-                    <tr>
-                        <td colspan="6" style="text-align: center; padding: 40px; color: var(--gray);">
-                            <i class="fas fa-user-graduate" style="font-size: 48px; margin-bottom: 15px; display: block; opacity: 0.5;"></i>
-                            <h3>No students found</h3>
-                        </td>
-                    </tr>
-                `;
+            if (!email) {
+                showError('Please enter your email address');
                 return;
             }
             
-            students.forEach(student => {
-                const row = document.createElement('tr');
-                
-                // Status badge
-                let statusBadge = '<span class="status-badge status-approved">Active</span>';
-                
-                row.innerHTML = `
-                    <td>${student.fullName || 'N/A'}</td>
-                    <td>${student.grade || 'N/A'}</td>
-                    <td>${student.email || 'N/A'}</td>
-                    <td>${student.parentPhone || 'N/A'}</td>
-                    <td>${statusBadge}</td>
-                    <td>
-                        <div class="action-buttons">
-                            <button class="btn btn-primary btn-xs view-student-btn" data-uid="${student.uid}">
-                                <i class="fas fa-eye"></i> View
-                            </button>
-                        </div>
-                    </td>
-                `;
-                
-                tableBody.appendChild(row);
-            });
-        }
-
-        function filterTeacherRequests() {
-            const statusFilter = document.getElementById('requestStatusFilter')?.value || 'all';
-            const searchTerm = document.getElementById('searchRequests')?.value.toLowerCase() || '';
+            if (!validateEmail(email)) {
+                showError('Please enter a valid email address');
+                return;
+            }
             
-            const filteredTeachers = teachers.filter(teacher => {
-                // Status filter
-                if (statusFilter !== 'all' && teacher.status !== statusFilter) {
-                    return false;
-                }
+            // Generate OTP
+            const otp = generateOTP();
+            
+            // Store OTP temporarily
+            otpStore[email] = {
+                otp: otp,
+                expires: Date.now() + 10 * 60 * 1000 // 10 minutes
+            };
+            
+            // Show loading
+            sendOtpBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending OTP...';
+            sendOtpBtn.disabled = true;
+            
+            try {
+                // Send OTP via EmailJS
+                const result = await sendOTPEmail(email, otp, 'password_reset');
                 
-                // Search filter
-                if (searchTerm) {
-                    const searchFields = [
-                        teacher.fullName,
-                        teacher.email,
-                        teacher.subject,
-                        teacher.grade,
-                        teacher.phone
-                    ].filter(Boolean).map(f => f.toLowerCase());
+                if (result.success) {
+                    showSuccess('OTP sent to your email! Please check your inbox.');
                     
-                    return searchFields.some(field => field.includes(searchTerm));
-                }
-                
-                return true;
-            });
-            
-            updateFilteredTeacherRequests(filteredTeachers);
-        }
-
-        function updateFilteredTeacherRequests(filteredTeachers) {
-            const tableBody = document.getElementById('requestsTableBody');
-            if (!tableBody) return;
-            
-            tableBody.innerHTML = '';
-            
-            if (filteredTeachers.length === 0) {
-                tableBody.innerHTML = `
-                    <tr>
-                        <td colspan="7" style="text-align: center; padding: 40px; color: var(--gray);">
-                            <i class="fas fa-search" style="font-size: 48px; margin-bottom: 15px; display: block; opacity: 0.5;"></i>
-                            <h3>No matching requests found</h3>
-                        </td>
-                    </tr>
-                `;
-                return;
-            }
-            
-            filteredTeachers.forEach(teacher => {
-                const row = document.createElement('tr');
-                
-                // Same row creation logic as updateTeacherRequestsTable()
-                // ... (copy the row creation code from updateTeacherRequestsTable)
-                
-                tableBody.appendChild(row);
-            });
-            
-            addTeacherActionListeners();
-        }
-
-        function filterStudents() {
-            const searchTerm = document.getElementById('searchStudents')?.value.toLowerCase() || '';
-            
-            const filteredStudents = students.filter(student => {
-                if (searchTerm) {
-                    const searchFields = [
-                        student.fullName,
-                        student.email,
-                        student.grade,
-                        student.parentPhone
-                    ].filter(Boolean).map(f => f.toLowerCase());
+                    // Show OTP section
+                    document.getElementById('forgotOtpContainer').style.display = 'flex';
+                    document.getElementById('forgotResendOtp').style.display = 'block';
+                    document.getElementById('verifyOtpBtn').style.display = 'block';
+                    sendOtpBtn.style.display = 'none';
                     
-                    return searchFields.some(field => field.includes(searchTerm));
+                    // Start OTP timer
+                    startOtpTimer('forgot');
+                } else {
+                    showError(result.message);
                 }
-                
-                return true;
-            });
-            
-            updateFilteredStudents(filteredStudents);
-        }
-
-        function updateFilteredStudents(filteredStudents) {
-            const tableBody = document.getElementById('studentsTableBody');
-            if (!tableBody) return;
-            
-            // Similar logic to updateStudentsTable() but using filteredStudents
-        }
-
-        function updateDashboardCounts() {
-            const approvedCount = teachers.filter(t => t.status === 'approved').length;
-            const pendingCount = teachers.filter(t => t.status === 'pending').length;
-            
-            document.getElementById('totalApprovedTeachers').textContent = approvedCount;
-            document.getElementById('totalPendingRequests').textContent = pendingCount;
-            document.getElementById('teacherCount').textContent = approvedCount;
-            document.getElementById('pendingRequestsCount').textContent = pendingCount;
-            updateNotificationCount(pendingCount);
-        }
-
-        async function loadActivityLog() {
-            try {
-                // This is a simplified version. In a real app, you would load from a dedicated logs collection
-                const activityLog = [
-                    {
-                        time: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}),
-                        activity: 'Dashboard Loaded',
-                        details: 'Admin dashboard initialized',
-                        status: 'Completed'
-                    }
-                ];
-                
-                // Add recent teacher approvals
-                const recentApprovals = teachers
-                    .filter(t => t.status === 'approved' && t.reviewedAt)
-                    .sort((a, b) => new Date(b.reviewedAt) - new Date(a.reviewedAt))
-                    .slice(0, 5);
-                
-                recentApprovals.forEach(teacher => {
-                    activityLog.push({
-                        time: teacher.reviewedAt ? new Date(teacher.reviewedAt).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : 'N/A',
-                        activity: 'Teacher Approved',
-                        details: `${teacher.fullName} - ${teacher.subject}`,
-                        status: 'Completed'
-                    });
-                });
-                
-                updateActivityLogTable(activityLog);
-                
             } catch (error) {
-                console.error('Error loading activity log:', error);
+                showError('Failed to send OTP. Please try again.');
+            } finally {
+                // Reset button
+                sendOtpBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Send OTP to Email';
+                sendOtpBtn.disabled = false;
             }
         }
 
-        function updateActivityLogTable(activities) {
-            const tableBody = document.getElementById('activityLog');
-            if (!tableBody) return;
+        function handleVerifyOtp() {
+            const email = document.getElementById('forgotEmail').value;
+            const otp = getOtpValue('forgot');
             
-            tableBody.innerHTML = '';
-            
-            activities.forEach(activity => {
-                const row = document.createElement('tr');
-                row.innerHTML = `
-                    <td>${activity.time}</td>
-                    <td>${activity.activity}</td>
-                    <td>${activity.details}</td>
-                    <td><span style="color: var(--success); font-weight: 600;">${activity.status}</span></td>
-                `;
-                tableBody.appendChild(row);
-            });
-        }
-
-        // ============================
-        // ADMIN PANEL UI
-        // ============================
-
-        function showAdminPanel() {
-            document.getElementById('adminName').textContent = currentUser.displayName || 'Admin User';
-            document.getElementById('adminEmail').textContent = currentUser.email;
-            document.getElementById('settingsName').value = currentUser.displayName || 'Admin User';
-            document.getElementById('settingsEmail').value = currentUser.email;
-            document.getElementById('adminAvatar').textContent = (currentUser.displayName || 'A').charAt(0).toUpperCase();
-            
-            authContainer.style.display = 'none';
-            adminPanel.style.display = 'block';
-        }
-
-        async function updateProfile() {
-            const name = document.getElementById('settingsName').value;
-            
-            if (!name) {
-                showError('Please enter your name');
+            if (!otp || otp.length !== 6) {
+                showError('Please enter a valid 6-digit OTP');
                 return;
             }
             
-            try {
-                await window.firebase.updateProfile(window.firebase.auth.currentUser, {
-                    displayName: name
-                });
-                
-                currentUser.displayName = name;
-                document.getElementById('adminName').textContent = name;
-                document.getElementById('adminAvatar').textContent = name.charAt(0).toUpperCase();
-                
-                localStorage.setItem('schoolAdminUser', JSON.stringify(currentUser));
-                
-                showSuccess('Profile updated successfully!');
-                
-            } catch (error) {
-                showError('Profile update failed: ' + error.message);
-            }
-        }
-
-        async function changePassword() {
-            const newPassword = document.getElementById('settingsNewPassword').value;
-            const confirmPassword = document.getElementById('settingsConfirmPassword').value;
-            
-            if (!newPassword || !confirmPassword) {
-                showError('Please fill both password fields');
+            // Check if OTP exists and is valid
+            if (!otpStore[email] || otpStore[email].otp !== otp) {
+                showError('Invalid OTP. Please try again.');
                 return;
             }
             
-            if (newPassword !== confirmPassword) {
+            // Check if OTP is expired
+            if (Date.now() > otpStore[email].expires) {
+                showError('OTP has expired. Please request a new one.');
+                delete otpStore[email];
+                return;
+            }
+            
+            showSuccess('OTP verified! You can now reset your password.');
+            
+            // Show password reset form
+            document.getElementById('resetPasswordForm').style.display = 'block';
+            document.getElementById('verifyOtpBtn').style.display = 'none';
+            document.getElementById('forgotOtpContainer').style.display = 'none';
+            document.getElementById('forgotResendOtp').style.display = 'none';
+            
+            // Clear OTP from store
+            delete otpStore[email];
+        }
+
+        function handleResetPassword() {
+            const newPassword = document.getElementById('newPassword').value;
+            const confirmNewPassword = document.getElementById('confirmNewPassword').value;
+            
+            if (!newPassword || !confirmNewPassword) {
+                showError('Please fill all fields');
+                return;
+            }
+            
+            if (newPassword !== confirmNewPassword) {
                 showError('Passwords do not match');
                 return;
             }
@@ -1582,77 +1897,811 @@
                 return;
             }
             
-            try {
-                await window.firebase.updatePassword(window.firebase.auth.currentUser, newPassword);
-                
-                showSuccess('Password changed successfully!');
-                
-                document.getElementById('settingsNewPassword').value = '';
-                document.getElementById('settingsConfirmPassword').value = '';
-                
-            } catch (error) {
-                showError('Password change failed: ' + error.message);
-            }
-        }
-
-        // ============================
-        // EMAILJS CONFIGURATION
-        // ============================
-
-        function loadEmailConfigToForm() {
-            document.getElementById('emailjsPublicKey').value = emailConfig.publicKey || '';
-            document.getElementById('emailjsServiceId').value = emailConfig.serviceId || '';
-            document.getElementById('emailjsTemplateId').value = emailConfig.templateId || '';
-            document.getElementById('senderName').value = emailConfig.senderName;
-        }
-
-        function saveEmailConfiguration() {
-            const publicKey = document.getElementById('emailjsPublicKey').value;
-            const serviceId = document.getElementById('emailjsServiceId').value;
-            const templateId = document.getElementById('emailjsTemplateId').value;
-            const senderName = document.getElementById('senderName').value;
+            // For demo - simulate password reset
+            showSuccess('Password reset successful! You can now login with your new password.');
             
-            if (!publicKey || !serviceId || !templateId) {
-                showError('Please fill all EmailJS configuration fields');
+            // Switch to login tab
+            document.querySelector('.auth-tab[data-tab="login"]').click();
+            
+            // Reset form
+            document.getElementById('resetPasswordForm').style.display = 'none';
+            document.getElementById('sendOtpBtn').style.display = 'block';
+            document.getElementById('forgotEmail').value = '';
+            document.getElementById('newPassword').value = '';
+            document.getElementById('confirmNewPassword').value = '';
+        }
+
+        function handleVerifyRegOtp() {
+            const email = document.getElementById('regEmail').value;
+            const otp = getOtpValue('reg');
+            
+            if (!otp || otp.length !== 6) {
+                showError('Please enter a valid 6-digit OTP');
                 return;
             }
             
-            emailConfig = {
-                publicKey: publicKey,
-                serviceId: serviceId,
-                templateId: templateId,
-                senderName: senderName
+            // Check if OTP exists and is valid
+            if (!otpStore[email] || otpStore[email].otp !== otp) {
+                showError('Invalid OTP. Please try again.');
+                return;
+            }
+            
+            // Check if OTP is expired
+            if (Date.now() > otpStore[email].expires) {
+                showError('OTP has expired. Please request a new one.');
+                delete otpStore[email];
+                return;
+            }
+            
+            // Get user data
+            const userData = otpStore[email].userData;
+            
+            // For demo - create user account
+            showSuccess('Email verified successfully! Account created.');
+            
+            // Switch to login tab
+            document.querySelector('.auth-tab[data-tab="login"]').click();
+            
+            // Reset form
+            document.getElementById('regOtpContainer').style.display = 'none';
+            document.getElementById('regResendOtp').style.display = 'none';
+            document.getElementById('verifyRegOtpBtn').style.display = 'none';
+            document.getElementById('registerBtn').style.display = 'block';
+            
+            // Clear form
+            clearRegistrationForm();
+            
+            // Clear OTP from store
+            delete otpStore[email];
+        }
+
+        async function handleResendRegOtp(e) {
+            e.preventDefault();
+            
+            const email = document.getElementById('regEmail').value;
+            
+            if (!email) {
+                showError('Please enter your email first');
+                return;
+            }
+            
+            // Generate new OTP
+            const otp = generateOTP();
+            
+            // Update OTP store
+            otpStore[email] = {
+                otp: otp,
+                expires: Date.now() + 10 * 60 * 1000,
+                userData: otpStore[email]?.userData
             };
             
-            localStorage.setItem('emailjsConfig', JSON.stringify(emailConfig));
-            emailjs.init(publicKey);
+            // Show loading
+            const resendLink = document.getElementById('regResendLink');
+            resendLink.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Resending...';
+            resendLink.style.pointerEvents = 'none';
             
-            showSuccess('Email configuration saved successfully!');
-            emailSettingsModal.style.display = 'none';
+            try {
+                const result = await sendOTPEmail(email, otp, 'registration');
+                
+                if (result.success) {
+                    showSuccess('New OTP sent to your email!');
+                    startOtpTimer('reg');
+                } else {
+                    showError(result.message);
+                }
+            } catch (error) {
+                showError('Failed to resend OTP. Please try again.');
+            } finally {
+                // Reset link
+                resendLink.innerHTML = 'Resend OTP';
+                resendLink.style.pointerEvents = 'auto';
+            }
         }
 
-        async function testEmailConfiguration() {
-            if (!currentUser) {
-                showError('Please login first to test email configuration');
+        async function handleResendForgotOtp(e) {
+            e.preventDefault();
+            
+            const email = document.getElementById('forgotEmail').value;
+            
+            if (!email) {
+                showError('Please enter your email first');
                 return;
             }
             
-            if (!emailConfig.publicKey || !emailConfig.serviceId || !emailConfig.templateId) {
-                showError('Please save your EmailJS configuration first');
+            // Generate new OTP
+            const otp = generateOTP();
+            
+            // Update OTP store
+            otpStore[email] = {
+                otp: otp,
+                expires: Date.now() + 10 * 60 * 1000
+            };
+            
+            // Show loading
+            const resendLink = document.getElementById('forgotResendLink');
+            resendLink.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Resending...';
+            resendLink.style.pointerEvents = 'none';
+            
+            try {
+                const result = await sendOTPEmail(email, otp, 'password_reset');
+                
+                if (result.success) {
+                    showSuccess('New OTP sent to your email!');
+                    startOtpTimer('forgot');
+                } else {
+                    showError(result.message);
+                }
+            } catch (error) {
+                showError('Failed to resend OTP. Please try again.');
+            } finally {
+                // Reset link
+                resendLink.innerHTML = 'Resend OTP';
+                resendLink.style.pointerEvents = 'auto';
+            }
+        }
+
+        function handleLogout() {
+            // Clear local storage
+            localStorage.removeItem('schoolAdminUser');
+            
+            // Reset app state
+            currentUser = null;
+            currentAdmin = null;
+            
+            // Show auth screen
+            authContainer.style.display = 'flex';
+            adminPanel.style.display = 'none';
+            
+            // Reset forms
+            clearLoginForm();
+            
+            showSuccess('Logged out successfully!');
+        }
+
+        // OTP Functions
+        function setupOtpInputs() {
+            // For registration OTP
+            const regOtpInputs = document.querySelectorAll('#regOtpContainer .otp-input');
+            setupOtpInputBehavior(regOtpInputs);
+            
+            // For forgot password OTP
+            const forgotOtpInputs = document.querySelectorAll('#forgotOtpContainer .otp-input');
+            setupOtpInputBehavior(forgotOtpInputs);
+        }
+
+        function setupOtpInputBehavior(inputs) {
+            inputs.forEach((input, index) => {
+                input.addEventListener('input', (e) => {
+                    const value = e.target.value;
+                    
+                    // Only allow numbers
+                    if (!/^\d*$/.test(value)) {
+                        e.target.value = '';
+                        return;
+                    }
+                    
+                    // Auto-focus next input
+                    if (value.length === 1 && index < inputs.length - 1) {
+                        inputs[index + 1].focus();
+                    }
+                    
+                    // Enable paste
+                    if (value.length > 1) {
+                        const pastedValue = value.replace(/\D/g, '').substring(0, inputs.length);
+                        for (let i = 0; i < pastedValue.length; i++) {
+                            inputs[i].value = pastedValue[i];
+                            if (i < inputs.length - 1) {
+                                inputs[i + 1].focus();
+                            }
+                        }
+                        e.target.value = pastedValue[0];
+                    }
+                });
+                
+                input.addEventListener('keydown', (e) => {
+                    // Handle backspace
+                    if (e.key === 'Backspace' && !e.target.value && index > 0) {
+                        inputs[index - 1].focus();
+                        inputs[index - 1].value = '';
+                    }
+                    
+                    // Handle arrow keys
+                    if (e.key === 'ArrowLeft' && index > 0) {
+                        inputs[index - 1].focus();
+                    }
+                    if (e.key === 'ArrowRight' && index < inputs.length - 1) {
+                        inputs[index + 1].focus();
+                    }
+                });
+            });
+        }
+
+        function getOtpValue(type) {
+            const containerId = type === 'reg' ? 'regOtpContainer' : 'forgotOtpContainer';
+            const inputs = document.querySelectorAll(`#${containerId} .otp-input`);
+            let otp = '';
+            inputs.forEach(input => {
+                otp += input.value;
+            });
+            return otp;
+        }
+
+        function startOtpTimer(type) {
+            const timerId = type === 'reg' ? 'regOtpTimer' : 'forgotOtpTimer';
+            const timerElement = document.getElementById(timerId);
+            let timeLeft = 300; // 5 minutes
+            
+            const timer = setInterval(() => {
+                const minutes = Math.floor(timeLeft / 60);
+                const seconds = timeLeft % 60;
+                timerElement.textContent = `OTP expires in: ${minutes}:${seconds.toString().padStart(2, '0')}`;
+                
+                timeLeft--;
+                
+                if (timeLeft < 0) {
+                    clearInterval(timer);
+                    timerElement.textContent = 'OTP expired';
+                    timerElement.style.color = 'var(--danger)';
+                }
+            }, 1000);
+        }
+
+        // Utility Functions
+        function validateEmail(email) {
+            const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            return re.test(email);
+        }
+
+        // Admin Panel Functions
+        function showAdminPanel() {
+            // Update user info
+            adminName.textContent = currentUser.displayName || 'Admin User';
+            adminEmail.textContent = currentUser.email;
+            adminAvatar.textContent = currentUser.displayName ? currentUser.displayName.charAt(0).toUpperCase() : 'A';
+            
+            // Switch to admin panel
+            authContainer.style.display = 'none';
+            adminPanel.style.display = 'block';
+            
+            // Load dashboard data
+            loadDashboardData();
+        }
+
+        function loadDashboardData() {
+            // Update counts
+            totalNoticesCount.textContent = notices.length;
+            totalTeachersCount.textContent = teachers.length;
+            totalStudentsCount.textContent = '2847'; // Simulated data
+            urgentNoticesCount.textContent = notices.filter(n => n.priority === 'high').length;
+            noticeCount.textContent = notices.length;
+            teacherCount.textContent = teachers.length;
+            
+            // Load activity log
+            loadActivityLog();
+        }
+
+        function loadActivityLog() {
+            // Simulated activity data
+            const activities = [
+                { time: '10:30 AM', activity: 'Sent Notice', details: 'Annual Sports Day Announcement', status: 'Completed' },
+                { time: 'Yesterday, 3:15 PM', activity: 'Added Teacher', details: 'Mr. John Smith - Mathematics', status: 'Completed' },
+                { time: 'Mar 12, 9:45 AM', activity: 'Deleted Notice', details: 'Old Library Schedule', status: 'Completed' },
+                { time: 'Mar 10, 2:20 PM', activity: 'Password Changed', details: 'Account security update', status: 'Completed' },
+                { time: 'Mar 8, 11:05 AM', activity: 'Sent Notice', details: 'Parent-Teacher Meeting Schedule', status: 'Completed' }
+            ];
+            
+            activityLogTable.innerHTML = '';
+            activities.forEach(activity => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${activity.time}</td>
+                    <td>${activity.activity}</td>
+                    <td>${activity.details}</td>
+                    <td><span style="color: var(--success); font-weight: 600;">${activity.status}</span></td>
+                `;
+                activityLogTable.appendChild(row);
+            });
+        }
+
+        // Notice Management Functions
+        function sendNotice() {
+            const title = document.getElementById('noticeTitle').value;
+            const content = document.getElementById('noticeContent').value;
+            const priority = document.getElementById('noticePriority').value;
+            const category = document.getElementById('noticeCategory').value;
+            const sendToTeachers = document.getElementById('sendToTeachers').checked;
+            const sendToStudents = document.getElementById('sendToStudents').checked;
+            
+            if (!title || !content) {
+                showError('Please enter notice title and content');
                 return;
             }
             
-            // ... (same as before)
+            if (!sendToTeachers && !sendToStudents) {
+                showError('Please select at least one recipient group');
+                return;
+            }
+            
+            // Create notice object
+            const notice = {
+                id: 'notice_' + Date.now(),
+                title: title,
+                content: content,
+                priority: priority,
+                category: category,
+                recipients: {
+                    teachers: sendToTeachers,
+                    students: sendToStudents
+                },
+                timestamp: new Date().toISOString(),
+                status: 'sent',
+                sentBy: currentUser.displayName || 'Admin'
+            };
+            
+            // Add to notices array
+            notices.unshift(notice);
+            
+            showSuccess('Notice sent successfully to Teachers & Students apps!');
+            
+            // Update dashboard
+            loadDashboardData();
+            
+            // Clear form
+            clearNoticeForm();
+            
+            // If on manage notices tab, refresh
+            if (document.getElementById('manageNoticesSection').style.display === 'block') {
+                loadNoticesTable();
+            }
+            
+            // Log activity
+            addActivityLog('Sent Notice', title);
         }
 
-        // ============================
-        // UTILITY FUNCTIONS
-        // ============================
+        function saveNoticeAsDraft() {
+            const title = document.getElementById('noticeTitle').value;
+            const content = document.getElementById('noticeContent').value;
+            
+            if (!title || !content) {
+                showError('Please enter notice title and content to save as draft');
+                return;
+            }
+            
+            showSuccess('Notice saved as draft successfully!');
+            addActivityLog('Saved Draft', title);
+        }
+
+        function loadNoticesTable() {
+            // Clear table
+            noticesTableBody.innerHTML = '';
+            
+            // Check if we have notices
+            if (notices.length === 0) {
+                noticesTableBody.innerHTML = `
+                    <tr>
+                        <td colspan="6" style="text-align: center; padding: 40px; color: var(--gray);">
+                            <i class="fas fa-inbox" style="font-size: 48px; margin-bottom: 15px; display: block; opacity: 0.5;"></i>
+                            <h3>No notices found</h3>
+                            <p>Send your first notice using the "Send Notice" tab</p>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+            
+            // Add notices to table
+            notices.forEach(notice => {
+                const row = document.createElement('tr');
+                
+                // Format date
+                const date = new Date(notice.timestamp);
+                const formattedDate = date.toLocaleDateString('en-US', { 
+                    month: 'short', 
+                    day: 'numeric',
+                    year: 'numeric'
+                });
+                
+                // Priority badge
+                let priorityBadge = '';
+                if (notice.priority === 'high') {
+                    priorityBadge = '<span class="priority-badge priority-high">High</span>';
+                } else if (notice.priority === 'medium') {
+                    priorityBadge = '<span class="priority-badge priority-medium">Medium</span>';
+                } else {
+                    priorityBadge = '<span class="priority-badge priority-low">Low</span>';
+                }
+                
+                // Recipients text
+                let recipientsText = '';
+                if (notice.recipients.teachers && notice.recipients.students) {
+                    recipientsText = 'All Teachers & Students';
+                } else if (notice.recipients.teachers) {
+                    recipientsText = 'Teachers Only';
+                } else if (notice.recipients.students) {
+                    recipientsText = 'Students Only';
+                }
+                
+                row.innerHTML = `
+                    <td><strong>${notice.title}</strong></td>
+                    <td>${notice.category || 'General'}</td>
+                    <td>${priorityBadge}</td>
+                    <td>${formattedDate}</td>
+                    <td>${recipientsText}</td>
+                    <td>
+                        <div class="action-buttons">
+                            <button class="btn btn-secondary btn-sm view-notice-btn" data-id="${notice.id}">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                            <button class="btn btn-danger btn-sm delete-notice-btn" data-id="${notice.id}">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </td>
+                `;
+                
+                noticesTableBody.appendChild(row);
+            });
+            
+            // Add event listeners to delete buttons
+            document.querySelectorAll('.delete-notice-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const noticeId = this.dataset.id;
+                    showDeleteConfirmation('notice', noticeId, 'Are you sure you want to delete this notice?');
+                });
+            });
+            
+            // Add event listeners to view buttons
+            document.querySelectorAll('.view-notice-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const noticeId = this.dataset.id;
+                    viewNotice(noticeId);
+                });
+            });
+        }
+
+        function viewNotice(noticeId) {
+            const notice = notices.find(n => n.id === noticeId);
+            if (!notice) return;
+            
+            alert(`Notice Details:\n\nTitle: ${notice.title}\n\nContent: ${notice.content}\n\nPriority: ${notice.priority}\n\nCategory: ${notice.category}\n\nSent to: ${notice.recipients.teachers ? 'Teachers' : ''}${notice.recipients.teachers && notice.recipients.students ? ' & ' : ''}${notice.recipients.students ? 'Students' : ''}\n\nDate: ${new Date(notice.timestamp).toLocaleString()}`);
+        }
+
+        // Teacher Management Functions
+        function loadTeachersTable() {
+            // Clear table
+            teachersTableBody.innerHTML = '';
+            
+            // Check if we have teachers
+            if (teachers.length === 0) {
+                teachersTableBody.innerHTML = `
+                    <tr>
+                        <td colspan="5" style="text-align: center; padding: 40px; color: var(--gray);">
+                            <i class="fas fa-users" style="font-size: 48px; margin-bottom: 15px; display: block; opacity: 0.5;"></i>
+                            <h3>No teachers added yet</h3>
+                            <p>Add your first teacher using the "Add Teacher" button</p>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+            
+            // Add teachers to table
+            teachers.forEach(teacher => {
+                const row = document.createElement('tr');
+                
+                row.innerHTML = `
+                    <td><strong>${teacher.name}</strong></td>
+                    <td>${teacher.subject}</td>
+                    <td>${teacher.phone}</td>
+                    <td>${teacher.email || 'Not provided'}</td>
+                    <td>
+                        <div class="action-buttons">
+                            <a href="tel:${teacher.phone}" class="call-btn" target="_blank">
+                                <i class="fas fa-phone"></i> Call
+                            </a>
+                            <button class="btn btn-danger btn-sm delete-teacher-btn" data-id="${teacher.id}">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </td>
+                `;
+                
+                teachersTableBody.appendChild(row);
+            });
+            
+            // Add event listeners to delete buttons
+            document.querySelectorAll('.delete-teacher-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const teacherId = this.dataset.id;
+                    showDeleteConfirmation('teacher', teacherId, 'Are you sure you want to delete this teacher?');
+                });
+            });
+        }
+
+        function saveTeacher() {
+            const name = document.getElementById('teacherName').value;
+            const subject = document.getElementById('teacherSubject').value;
+            const grade = document.getElementById('teacherGrade').value;
+            const phone = document.getElementById('teacherPhone').value;
+            const email = document.getElementById('teacherEmail').value;
+            
+            if (!name || !subject || !phone) {
+                showError('Please fill all required fields (Name, Subject, Phone)');
+                return;
+            }
+            
+            // Create teacher object
+            const teacher = {
+                id: 'teacher_' + Date.now(),
+                name: name,
+                subject: subject,
+                grade: grade,
+                phone: phone,
+                email: email,
+                addedDate: new Date().toISOString(),
+                addedBy: currentUser.displayName || 'Admin'
+            };
+            
+            // Add to teachers array
+            teachers.push(teacher);
+            
+            showSuccess('Teacher added successfully!');
+            
+            // Close modal
+            document.getElementById('addTeacherModal').style.display = 'none';
+            
+            // Update dashboard
+            loadDashboardData();
+            
+            // If on manage teachers tab, refresh
+            if (document.getElementById('manageTeachersSection').style.display === 'block') {
+                loadTeachersTable();
+            }
+            
+            // Clear form
+            clearTeacherForm();
+            
+            // Log activity
+            addActivityLog('Added Teacher', `${name} - ${subject}`);
+        }
+
+        function clearTeacherForm() {
+            document.getElementById('teacherName').value = '';
+            document.getElementById('teacherSubject').value = '';
+            document.getElementById('teacherGrade').value = '';
+            document.getElementById('teacherPhone').value = '';
+            document.getElementById('teacherEmail').value = '';
+        }
+
+        // Delete Functions
+        function showDeleteConfirmation(type, id, message) {
+            itemToDelete = id;
+            deleteType = type;
+            
+            document.getElementById('deleteMessage').textContent = message;
+            document.getElementById('deleteModal').style.display = 'flex';
+        }
+
+        function confirmDelete() {
+            if (!itemToDelete || !deleteType) return;
+            
+            if (deleteType === 'notice') {
+                // Delete notice
+                const index = notices.findIndex(n => n.id === itemToDelete);
+                if (index !== -1) {
+                    const noticeTitle = notices[index].title;
+                    notices.splice(index, 1);
+                    
+                    showSuccess(`Notice "${noticeTitle}" deleted successfully!`);
+                    addActivityLog('Deleted Notice', noticeTitle);
+                }
+                
+                // Update UI
+                loadDashboardData();
+                if (document.getElementById('manageNoticesSection').style.display === 'block') {
+                    loadNoticesTable();
+                }
+                
+            } else if (deleteType === 'teacher') {
+                // Delete teacher
+                const index = teachers.findIndex(t => t.id === itemToDelete);
+                if (index !== -1) {
+                    const teacherName = teachers[index].name;
+                    teachers.splice(index, 1);
+                    
+                    showSuccess(`Teacher "${teacherName}" deleted successfully!`);
+                    addActivityLog('Deleted Teacher', teacherName);
+                }
+                
+                // Update UI
+                loadDashboardData();
+                if (document.getElementById('manageTeachersSection').style.display === 'block') {
+                    loadTeachersTable();
+                }
+            }
+            
+            // Close modal
+            document.getElementById('deleteModal').style.display = 'none';
+            itemToDelete = null;
+            deleteType = null;
+        }
+
+        // Settings Functions
+        function updateProfile() {
+            const name = document.getElementById('settingsName').value;
+            
+            if (!name) {
+                showError('Please enter your name');
+                return;
+            }
+            
+            // Update current user
+            currentUser.displayName = name;
+            adminName.textContent = name;
+            adminAvatar.textContent = name.charAt(0).toUpperCase();
+            
+            // Update localStorage for demo
+            localStorage.setItem('schoolAdminUser', JSON.stringify(currentUser));
+            
+            showSuccess('Profile updated successfully!');
+            addActivityLog('Updated Profile', 'Changed display name');
+        }
+
+        function changePassword() {
+            const currentPassword = document.getElementById('currentPassword').value;
+            const newPassword = document.getElementById('settingsNewPassword').value;
+            const confirmPassword = document.getElementById('settingsConfirmPassword').value;
+            
+            if (!currentPassword || !newPassword || !confirmPassword) {
+                showError('Please fill all fields');
+                return;
+            }
+            
+            if (newPassword !== confirmPassword) {
+                showError('New passwords do not match');
+                return;
+            }
+            
+            if (newPassword.length < 6) {
+                showError('New password must be at least 6 characters');
+                return;
+            }
+            
+            // For demo - simulate password change
+            if (currentPassword !== 'admin123') {
+                showError('Current password is incorrect');
+                return;
+            }
+            
+            showSuccess('Password changed successfully!');
+            
+            // Clear form
+            document.getElementById('currentPassword').value = '';
+            document.getElementById('settingsNewPassword').value = '';
+            document.getElementById('settingsConfirmPassword').value = '';
+            
+            // Log activity
+            addActivityLog('Changed Password', 'Account security update');
+        }
+
+        // Utility Functions
+        function loadSampleData() {
+            // Sample notices
+            notices = [
+                {
+                    id: 'notice_1',
+                    title: 'Annual Sports Day Announcement',
+                    content: 'We are pleased to announce that our Annual Sports Day will be held on 25th November 2023. All students are required to participate in at least one event. Teachers are requested to coordinate with the sports department.',
+                    priority: 'high',
+                    category: 'event',
+                    recipients: { teachers: true, students: true },
+                    timestamp: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
+                    status: 'sent',
+                    sentBy: 'Admin'
+                },
+                {
+                    id: 'notice_2',
+                    title: 'Library Maintenance Notice',
+                    content: 'The main library will be closed for maintenance on 5th October 2023. Students can use the digital library during this period. All borrowed books must be returned by 4th October.',
+                    priority: 'medium',
+                    category: 'academic',
+                    recipients: { teachers: false, students: true },
+                    timestamp: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(),
+                    status: 'sent',
+                    sentBy: 'Admin'
+                },
+                {
+                    id: 'notice_3',
+                    title: 'Parent-Teacher Meeting Schedule',
+                    content: 'Meeting scheduled for all classes from 10th to 15th October 2023. Parents are requested to book their slots through the portal. Teachers should prepare progress reports.',
+                    priority: 'high',
+                    category: 'general',
+                    recipients: { teachers: true, students: true },
+                    timestamp: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(),
+                    status: 'sent',
+                    sentBy: 'Admin'
+                }
+            ];
+            
+            // Sample teachers
+            teachers = [
+                {
+                    id: 'teacher_1',
+                    name: 'Mr. John Smith',
+                    subject: 'Mathematics',
+                    grade: 'Grade 10',
+                    phone: '+91 9876543210',
+                    email: 'john.smith@school.com',
+                    addedDate: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString(),
+                    addedBy: 'Admin'
+                },
+                {
+                    id: 'teacher_2',
+                    name: 'Ms. Sarah Johnson',
+                    subject: 'Science',
+                    grade: 'Grade 9 & 10',
+                    phone: '+91 9876543211',
+                    email: 'sarah.j@school.com',
+                    addedDate: new Date(Date.now() - 15 * 24 * 60 * 60 * 1000).toISOString(),
+                    addedBy: 'Admin'
+                },
+                {
+                    id: 'teacher_3',
+                    name: 'Mr. Robert Williams',
+                    subject: 'English Literature',
+                    grade: 'Grade 11 & 12',
+                    phone: '+91 9876543212',
+                    email: 'robert.w@school.com',
+                    addedDate: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000).toISOString(),
+                    addedBy: 'Admin'
+                }
+            ];
+        }
+
+        function clearNoticeForm() {
+            document.getElementById('noticeTitle').value = '';
+            document.getElementById('noticeContent').value = '';
+            document.getElementById('noticePriority').value = 'low';
+            document.getElementById('noticeCategory').value = 'general';
+            document.getElementById('sendToTeachers').checked = true;
+            document.getElementById('sendToStudents').checked = true;
+        }
+
+        function clearLoginForm() {
+            document.getElementById('loginEmail').value = '';
+            document.getElementById('loginPassword').value = '';
+        }
+
+        function clearRegistrationForm() {
+            document.getElementById('regName').value = '';
+            document.getElementById('regEmail').value = '';
+            document.getElementById('regPassword').value = '';
+            document.getElementById('regConfirmPassword').value = '';
+        }
+
+        function addActivityLog(activity, details) {
+            const now = new Date();
+            const timeString = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+            
+            // Add to beginning of array
+            activityLog.unshift({
+                time: timeString,
+                activity: activity,
+                details: details,
+                status: 'Completed'
+            });
+            
+            // Update activity log table if on dashboard
+            if (document.getElementById('dashboardSection').style.display === 'block') {
+                loadActivityLog();
+            }
+        }
 
         function showSuccess(message) {
             successText.textContent = message;
             successMessage.style.display = 'block';
             
+            // Auto-hide after 5 seconds
             setTimeout(() => {
                 successMessage.style.display = 'none';
             }, 5000);
