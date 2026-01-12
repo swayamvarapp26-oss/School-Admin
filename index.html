@@ -97,6 +97,9 @@
             font-size: 22px;
             font-weight: 700;
             color: white;
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
         }
 
         .user-details h3 {
@@ -484,6 +487,57 @@
             color: #219653;
         }
 
+        /* Profile Image */
+        .profile-image-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .profile-image {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 5px solid var(--light);
+            box-shadow: var(--box-shadow);
+            margin-bottom: 15px;
+        }
+
+        .profile-image-placeholder {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--secondary) 0%, var(--secondary-dark) 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 48px;
+            color: white;
+            border: 5px solid var(--light);
+            box-shadow: var(--box-shadow);
+            margin-bottom: 15px;
+        }
+
+        .upload-profile-btn {
+            background-color: var(--light);
+            color: var(--dark);
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: var(--transition);
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 500;
+        }
+
+        .upload-profile-btn:hover {
+            background-color: var(--light-gray);
+        }
+
         /* Auth Screens */
         .auth-container {
             display: flex;
@@ -773,9 +827,9 @@
                 <p>School Administration Management Portal</p>
             </div>
             
+            <!-- Only Login and Reset Password tabs -->
             <div class="auth-tabs">
                 <div class="auth-tab active" data-tab="login">Login</div>
-                <div class="auth-tab" data-tab="register">Create Account</div>
                 <div class="auth-tab" data-tab="forgot">Reset Password</div>
             </div>
             
@@ -804,52 +858,6 @@
                 <div class="auth-footer">
                     <p>Default Admin Credentials: admin@school.com / admin123</p>
                 </div>
-            </div>
-            
-            <!-- Register Tab -->
-            <div class="auth-content" id="registerTab">
-                <div class="form-group">
-                    <label>Full Name</label>
-                    <input type="text" id="regName" class="form-control" placeholder="Enter your full name">
-                </div>
-                
-                <div class="form-group">
-                    <label>Email Address</label>
-                    <input type="email" id="regEmail" class="form-control" placeholder="Enter your school email">
-                </div>
-                
-                <div class="form-group">
-                    <label>Create Password</label>
-                    <input type="password" id="regPassword" class="form-control" placeholder="Create a strong password">
-                </div>
-                
-                <div class="form-group">
-                    <label>Confirm Password</label>
-                    <input type="password" id="regConfirmPassword" class="form-control" placeholder="Confirm your password">
-                </div>
-                
-                <button class="btn btn-success btn-block" id="registerBtn">
-                    <i class="fas fa-user-plus"></i> Create Admin Account
-                </button>
-                
-                <!-- Updated minimal OTP box -->
-                <div class="otp-container" id="regOtpContainer" style="display: none;">
-                    <input type="text" class="otp-input" maxlength="1" data-index="0">
-                    <input type="text" class="otp-input" maxlength="1" data-index="1">
-                    <input type="text" class="otp-input" maxlength="1" data-index="2">
-                    <input type="text" class="otp-input" maxlength="1" data-index="3">
-                    <input type="text" class="otp-input" maxlength="1" data-index="4">
-                    <input type="text" class="otp-input" maxlength="1" data-index="5">
-                </div>
-                
-                <div class="resend-otp" id="regResendOtp" style="display: none;">
-                    <p>Didn't receive OTP? <a href="#" id="regResendLink">Resend OTP</a></p>
-                    <p id="regOtpTimer" style="color: var(--danger); font-weight: 600;"></p>
-                </div>
-                
-                <button class="btn btn-primary btn-block" id="verifyRegOtpBtn" style="display: none;">
-                    <i class="fas fa-check-circle"></i> Verify OTP & Complete Registration
-                </button>
             </div>
             
             <!-- Forgot Password Tab -->
@@ -911,7 +919,7 @@
             </div>
             
             <div class="user-info">
-                <div class="user-avatar" id="adminAvatar">A</div>
+                <div class="user-avatar" id="adminAvatar"></div>
                 <div class="user-details">
                     <h3 id="adminName">Admin User</h3>
                     <p id="adminEmail">admin@school.com</p>
@@ -951,6 +959,13 @@
                             <i class="fas fa-chalkboard-teacher"></i>
                             <span>Manage Teachers</span>
                             <span class="nav-count" id="teacherCount">0</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" data-section="manageAdmins">
+                            <i class="fas fa-user-shield"></i>
+                            <span>Manage Admins</span>
+                            <span class="nav-count" id="adminCount">0</span>
                         </a>
                     </li>
                     <li>
@@ -1012,11 +1027,11 @@
                             <div class="card-icon">
                                 <i class="fas fa-exclamation-triangle"></i>
                             </div>
-                            <h3>Urgent Notices</h3>
-                            <div class="number" id="urgentNoticesCount">0</div>
-                            <div class="trend down">
-                                <i class="fas fa-arrow-down"></i>
-                                <span>1 resolved</span>
+                            <h3>Active Admins</h3>
+                            <div class="number" id="activeAdminsCount">0</div>
+                            <div class="trend up">
+                                <i class="fas fa-arrow-up"></i>
+                                <span>All systems operational</span>
                             </div>
                         </div>
                     </div>
@@ -1163,6 +1178,34 @@
                     </div>
                 </div>
                 
+                <!-- Manage Admins Section -->
+                <div class="content-section" id="manageAdminsSection" style="display: none;">
+                    <div class="section-header">
+                        <h2><i class="fas fa-user-shield"></i> Manage Admins</h2>
+                        <button class="btn btn-success" id="addAdminBtn">
+                            <i class="fas fa-plus"></i> Add Admin
+                        </button>
+                    </div>
+                    
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Profile</th>
+                                    <th>Name</th>
+                                    <th>Email</th>
+                                    <th>Role</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="adminsTableBody">
+                                <!-- Admins will be populated here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                
                 <!-- Settings Section -->
                 <div class="content-section" id="settingsSection" style="display: none;">
                     <div class="section-header">
@@ -1170,6 +1213,17 @@
                     </div>
                     
                     <div class="form-container">
+                        <!-- Profile Image Section -->
+                        <div class="profile-image-container">
+                            <div id="profileImageContainer">
+                                <!-- Profile image will be loaded here -->
+                            </div>
+                            <button class="upload-profile-btn" id="uploadProfileBtn">
+                                <i class="fas fa-camera"></i> Change Profile Picture
+                            </button>
+                            <input type="file" id="profileImageInput" accept="image/*" style="display: none;">
+                        </div>
+                        
                         <div class="form-group">
                             <h3 style="margin-bottom: 20px; color: var(--primary);">
                                 <i class="fas fa-user-circle"></i> Account Settings
@@ -1178,12 +1232,12 @@
                         
                         <div class="form-group">
                             <label>Full Name</label>
-                            <input type="text" id="settingsName" class="form-control" value="Admin User">
+                            <input type="text" id="settingsName" class="form-control" placeholder="Enter your full name">
                         </div>
                         
                         <div class="form-group">
                             <label>Email Address</label>
-                            <input type="email" id="settingsEmail" class="form-control" value="admin@school.com" disabled>
+                            <input type="email" id="settingsEmail" class="form-control" placeholder="Enter your email" disabled>
                         </div>
                         
                         <div class="form-actions">
@@ -1295,6 +1349,64 @@
         </div>
     </div>
     
+    <!-- Add Admin Modal -->
+    <div class="modal" id="addAdminModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="fas fa-user-shield"></i> Add New Admin</h3>
+                <button class="close-modal" id="closeAdminModal">&times;</button>
+            </div>
+            
+            <div class="form-group">
+                <label>Full Name *</label>
+                <input type="text" id="adminNameInput" class="form-control" placeholder="Enter admin's full name">
+            </div>
+            
+            <div class="form-group">
+                <label>Email Address *</label>
+                <input type="email" id="adminEmailInput" class="form-control" placeholder="admin@school.com">
+            </div>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Role *</label>
+                    <select id="adminRole" class="form-control">
+                        <option value="admin">Admin</option>
+                        <option value="super_admin">Super Admin</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label>Status</label>
+                    <select id="adminStatus" class="form-control">
+                        <option value="active">Active</option>
+                        <option value="inactive">Inactive</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label>Initial Password *</label>
+                <input type="password" id="adminPassword" class="form-control" placeholder="Enter initial password">
+                <small style="color: var(--gray); margin-top: 5px; display: block;">
+                    Admin will be able to change this password after first login
+                </small>
+            </div>
+            
+            <div class="form-group">
+                <label>Confirm Password *</label>
+                <input type="password" id="adminConfirmPassword" class="form-control" placeholder="Confirm password">
+            </div>
+            
+            <div class="form-actions">
+                <button type="button" class="btn btn-secondary" id="cancelAdminBtn">Cancel</button>
+                <button type="button" class="btn btn-success" id="saveAdminBtn">
+                    <i class="fas fa-save"></i> Create Admin Account
+                </button>
+            </div>
+        </div>
+    </div>
+    
     <!-- Delete Confirmation Modal -->
     <div class="modal" id="deleteModal">
         <div class="modal-content">
@@ -1364,6 +1476,7 @@
         let currentAdmin = null;
         let notices = [];
         let teachers = [];
+        let admins = [];
         let activityLog = [];
         let itemToDelete = null;
         let deleteType = null;
@@ -1375,16 +1488,29 @@
         const adminName = document.getElementById('adminName');
         const adminEmail = document.getElementById('adminEmail');
         const adminAvatar = document.getElementById('adminAvatar');
+        const profileImageContainer = document.getElementById('profileImageContainer');
         
         // Auth Elements
         const authTabs = document.querySelectorAll('.auth-tab');
         const authContents = document.querySelectorAll('.auth-content');
         const loginBtn = document.getElementById('loginBtn');
-        const registerBtn = document.getElementById('registerBtn');
         const sendOtpBtn = document.getElementById('sendOtpBtn');
         const verifyOtpBtn = document.getElementById('verifyOtpBtn');
         const resetPasswordBtn = document.getElementById('resetPasswordBtn');
-        const verifyRegOtpBtn = document.getElementById('verifyRegOtpBtn');
+        
+        // Admin Management
+        const addAdminBtn = document.getElementById('addAdminBtn');
+        const saveAdminBtn = document.getElementById('saveAdminBtn');
+        const cancelAdminBtn = document.getElementById('cancelAdminBtn');
+        const closeAdminModal = document.getElementById('closeAdminModal');
+        const addAdminModal = document.getElementById('addAdminModal');
+        const adminsTableBody = document.getElementById('adminsTableBody');
+        const adminCount = document.getElementById('adminCount');
+        const activeAdminsCount = document.getElementById('activeAdminsCount');
+        
+        // Profile Image
+        const uploadProfileBtn = document.getElementById('uploadProfileBtn');
+        const profileImageInput = document.getElementById('profileImageInput');
         
         // Settings Elements
         const sendResetOtpBtn = document.getElementById('sendResetOtpBtn');
@@ -1403,7 +1529,6 @@
         const totalNoticesCount = document.getElementById('totalNoticesCount');
         const totalTeachersCount = document.getElementById('totalTeachersCount');
         const totalStudentsCount = document.getElementById('totalStudentsCount');
-        const urgentNoticesCount = document.getElementById('urgentNoticesCount');
         const noticeCount = document.getElementById('noticeCount');
         const teacherCount = document.getElementById('teacherCount');
         const activityLogTable = document.getElementById('activityLog');
@@ -1436,6 +1561,9 @@
         // Success Message
         const successMessage = document.getElementById('successMessage');
         const successText = document.getElementById('successText');
+
+        // Default profile image URL
+        const defaultProfileImage = "https://res.cloudinary.com/dmhyflswb/image/upload/v1766410851/teacher_app/profiles/upoa2bskjucas6ogpwuh.png";
 
         // Initialize Application
         document.addEventListener('DOMContentLoaded', function() {
@@ -1491,9 +1619,6 @@
             // Login
             loginBtn.addEventListener('click', handleLogin);
             
-            // Register
-            registerBtn.addEventListener('click', handleRegister);
-            
             // Send OTP for password reset (forgot password tab)
             sendOtpBtn.addEventListener('click', handleSendOtp);
             
@@ -1503,13 +1628,32 @@
             // Reset Password (forgot password tab)
             resetPasswordBtn.addEventListener('click', handleResetPassword);
             
-            // Verify OTP for registration
-            verifyRegOtpBtn.addEventListener('click', handleVerifyRegOtp);
-            
             // Resend OTP links
-            document.getElementById('regResendLink')?.addEventListener('click', handleResendRegOtp);
             document.getElementById('forgotResendLink')?.addEventListener('click', handleResendForgotOtp);
             document.getElementById('resetResendLink')?.addEventListener('click', handleResendResetOtp);
+
+            // Admin Management
+            addAdminBtn.addEventListener('click', () => {
+                document.getElementById('addAdminModal').style.display = 'flex';
+            });
+            
+            saveAdminBtn.addEventListener('click', handleAddAdmin);
+            cancelAdminBtn.addEventListener('click', () => {
+                document.getElementById('addAdminModal').style.display = 'none';
+                clearAdminForm();
+            });
+            
+            closeAdminModal.addEventListener('click', () => {
+                document.getElementById('addAdminModal').style.display = 'none';
+                clearAdminForm();
+            });
+
+            // Profile Image Upload
+            uploadProfileBtn.addEventListener('click', () => {
+                profileImageInput.click();
+            });
+            
+            profileImageInput.addEventListener('change', handleProfileImageUpload);
 
             // Settings - Password Reset
             sendResetOtpBtn.addEventListener('click', handleSendResetOtp);
@@ -1539,6 +1683,8 @@
                         loadNoticesTable();
                     } else if (sectionId === 'manageTeachersSection') {
                         loadTeachersTable();
+                    } else if (sectionId === 'manageAdminsSection') {
+                        loadAdminsTable();
                     }
                 });
             });
@@ -1590,24 +1736,26 @@
             try {
                 // Load admins
                 const adminsSnapshot = await database.ref('admins').once('value');
-                const admins = adminsSnapshot.val();
-                console.log('Loaded admins:', admins);
+                const firebaseAdmins = adminsSnapshot.val();
+                
+                if (firebaseAdmins) {
+                    admins = Object.keys(firebaseAdmins).map(adminId => ({
+                        id: adminId,
+                        ...firebaseAdmins[adminId]
+                    }));
+                    updateCounts();
+                }
                 
                 // Load notices
                 const noticesSnapshot = await database.ref('notices').once('value');
                 const firebaseNotices = noticesSnapshot.val();
                 
                 if (firebaseNotices) {
-                    notices = Object.values(firebaseNotices).map(notice => ({
-                        id: notice.id || Object.keys(firebaseNotices).find(key => firebaseNotices[key] === notice),
-                        title: notice.title || '',
-                        content: notice.content || '',
-                        priority: notice.priority || 'medium',
-                        category: notice.category || 'general',
-                        timestamp: notice.timestamp || new Date().toISOString(),
-                        status: 'sent',
-                        sentBy: notice.sentBy || 'Admin'
+                    notices = Object.keys(firebaseNotices).map(noticeId => ({
+                        id: noticeId,
+                        ...firebaseNotices[noticeId]
                     }));
+                    updateCounts();
                 }
                 
                 // Load teachers
@@ -1615,23 +1763,39 @@
                 const firebaseTeachers = teachersSnapshot.val();
                 
                 if (firebaseTeachers) {
-                    teachers = Object.values(firebaseTeachers).map(teacher => ({
-                        id: teacher.id || Object.keys(firebaseTeachers).find(key => firebaseTeachers[key] === teacher),
-                        name: teacher.name || '',
-                        subject: teacher.subject || '',
-                        phone: teacher.phone || '',
-                        email: teacher.email || '',
-                        addedDate: teacher.addedDate || new Date().toISOString()
+                    teachers = Object.keys(firebaseTeachers).map(teacherId => ({
+                        id: teacherId,
+                        ...firebaseTeachers[teacherId]
                     }));
+                    updateCounts();
                 }
                 
-                console.log('Loaded data from Firebase:', { notices, teachers });
+                console.log('Loaded data from Firebase:', { admins, notices, teachers });
                 
             } catch (error) {
                 console.error('Error loading data from Firebase:', error);
                 // Load sample data if Firebase fails
                 loadSampleData();
             }
+        }
+
+        // Update Counts Function
+        function updateCounts() {
+            // Update admin counts
+            adminCount.textContent = admins.length;
+            const activeAdmins = admins.filter(a => a.isActive !== false).length;
+            activeAdminsCount.textContent = activeAdmins;
+            
+            // Update notice counts
+            noticeCount.textContent = notices.length;
+            totalNoticesCount.textContent = notices.length;
+            
+            // Update teacher counts
+            teacherCount.textContent = teachers.length;
+            totalTeachersCount.textContent = teachers.length;
+            
+            // Update student count (simulated)
+            totalStudentsCount.textContent = '2847';
         }
 
         async function saveNoticeToFirebase(notice) {
@@ -1647,7 +1811,7 @@
                     category: notice.category,
                     timestamp: new Date().toISOString(),
                     sentBy: currentUser.uid,
-                    sentByName: currentUser.displayName || 'Admin'
+                    sentByName: currentAdmin?.name || currentUser.displayName || 'Admin'
                 };
                 
                 await noticeRef.set(noticeData);
@@ -1681,7 +1845,7 @@
                     email: teacher.email || '',
                     addedDate: new Date().toISOString(),
                     addedBy: currentUser.uid,
-                    addedByName: currentUser.displayName || 'Admin'
+                    addedByName: currentAdmin?.name || currentUser.displayName || 'Admin'
                 };
                 
                 await teacherRef.set(teacherData);
@@ -1702,6 +1866,67 @@
             }
         }
 
+        async function createAdminInFirebase(adminData) {
+            try {
+                // First create the user in Firebase Auth
+                const userCredential = await auth.createUserWithEmailAndPassword(
+                    adminData.email, 
+                    adminData.password
+                );
+                
+                const newAdminUser = userCredential.user;
+                
+                // Update user profile
+                await newAdminUser.updateProfile({
+                    displayName: adminData.name
+                });
+                
+                // Create admin record in database
+                const adminRecord = {
+                    name: adminData.name,
+                    email: adminData.email,
+                    role: adminData.role || 'admin',
+                    isActive: adminData.isActive !== false,
+                    profileImage: adminData.profileImage || defaultProfileImage,
+                    createdAt: new Date().toISOString(),
+                    createdBy: currentUser.uid,
+                    createdByName: currentAdmin?.name || currentUser.displayName || 'Admin'
+                };
+                
+                await database.ref('admins').child(newAdminUser.uid).set(adminRecord);
+                
+                return { 
+                    success: true, 
+                    adminId: newAdminUser.uid,
+                    adminRecord 
+                };
+                
+            } catch (error) {
+                console.error('Error creating admin:', error);
+                throw error;
+            }
+        }
+
+        async function updateAdminInFirebase(adminId, adminData) {
+            try {
+                await database.ref('admins').child(adminId).update(adminData);
+                return true;
+            } catch (error) {
+                console.error('Error updating admin:', error);
+                throw error;
+            }
+        }
+
+        async function deleteAdminFromFirebase(adminId) {
+            try {
+                await database.ref('admins').child(adminId).remove();
+                return true;
+            } catch (error) {
+                console.error('Error deleting admin:', error);
+                throw error;
+            }
+        }
+
         async function updateAdminProfile(adminData) {
             try {
                 if (!currentUser || !currentUser.uid) {
@@ -1716,34 +1941,648 @@
             }
         }
 
-        // Email Functions
-        function generateOTP() {
-            // Generate a 6-digit OTP
-            return Math.floor(100000 + Math.random() * 900000).toString();
+        // Profile Image Functions
+        function loadProfileImage() {
+            const profileImageUrl = currentAdmin?.profileImage || defaultProfileImage;
+            
+            // Update header avatar
+            adminAvatar.style.backgroundImage = `url('${profileImageUrl}')`;
+            adminAvatar.innerHTML = ''; // Remove text
+            
+            // Update settings profile image
+            profileImageContainer.innerHTML = `
+                <img src="${profileImageUrl}" alt="Profile" class="profile-image" id="profileImage">
+            `;
         }
 
-        async function sendOTPEmail(email, otp, purpose = 'verification') {
+        async function handleProfileImageUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            
+            // For now, we'll use the default Cloudinary URL since we don't have upload functionality
+            // In a real app, you would upload to Cloudinary/Firebase Storage
+            
+            showSuccess('Profile image updated! Using default image for demo.');
+            
+            // Update profile image in Firebase
+            try {
+                await updateAdminProfile({
+                    profileImage: defaultProfileImage,
+                    updatedAt: new Date().toISOString()
+                });
+                
+                // Update current admin
+                currentAdmin.profileImage = defaultProfileImage;
+                
+                // Reload profile image
+                loadProfileImage();
+                
+                addActivityLog('Updated Profile', 'Changed profile picture');
+                
+            } catch (error) {
+                console.error('Error updating profile image:', error);
+                showError('Failed to update profile image');
+            }
+            
+            // Reset file input
+            event.target.value = '';
+        }
+
+        // Admin Management Functions
+        async function handleAddAdmin() {
+            const name = document.getElementById('adminNameInput').value;
+            const email = document.getElementById('adminEmailInput').value;
+            const role = document.getElementById('adminRole').value;
+            const status = document.getElementById('adminStatus').value;
+            const password = document.getElementById('adminPassword').value;
+            const confirmPassword = document.getElementById('adminConfirmPassword').value;
+            
+            if (!name || !email || !password || !confirmPassword) {
+                showError('Please fill all required fields');
+                return;
+            }
+            
+            if (!validateEmail(email)) {
+                showError('Please enter a valid email address');
+                return;
+            }
+            
+            if (password !== confirmPassword) {
+                showError('Passwords do not match');
+                return;
+            }
+            
+            if (password.length < 6) {
+                showError('Password must be at least 6 characters');
+                return;
+            }
+            
+            // Check if admin already exists
+            const existingAdmin = admins.find(a => a.email === email);
+            if (existingAdmin) {
+                showError('An admin with this email already exists');
+                return;
+            }
+            
+            // Show loading
+            saveAdminBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Creating Admin...';
+            saveAdminBtn.disabled = true;
+            
+            try {
+                const adminData = {
+                    name: name,
+                    email: email,
+                    role: role,
+                    isActive: status === 'active',
+                    password: password,
+                    profileImage: defaultProfileImage
+                };
+                
+                const result = await createAdminInFirebase(adminData);
+                
+                if (result.success) {
+                    // Add to local array
+                    admins.push({
+                        id: result.adminId,
+                        ...result.adminRecord
+                    });
+                    
+                    // Update counts
+                    updateCounts();
+                    
+                    showSuccess(`Admin "${name}" created successfully!`);
+                    
+                    // Close modal
+                    document.getElementById('addAdminModal').style.display = 'none';
+                    
+                    // Clear form
+                    clearAdminForm();
+                    
+                    // If on manage admins tab, refresh
+                    if (document.getElementById('manageAdminsSection').style.display === 'block') {
+                        loadAdminsTable();
+                    }
+                    
+                    // Log activity
+                    addActivityLog('Added Admin', `${name} (${email})`);
+                    
+                    // Send welcome email with credentials
+                    await sendAdminWelcomeEmail(email, name, password);
+                }
+                
+            } catch (error) {
+                console.error('Error creating admin:', error);
+                showError(getFirebaseErrorMessage(error));
+            } finally {
+                // Reset button
+                saveAdminBtn.innerHTML = '<i class="fas fa-save"></i> Create Admin Account';
+                saveAdminBtn.disabled = false;
+            }
+        }
+
+        async function sendAdminWelcomeEmail(email, name, password) {
             try {
                 const templateParams = {
                     to_email: email,
-                    otp_code: otp,
-                    purpose: purpose,
+                    admin_name: name,
+                    admin_email: email,
+                    admin_password: password,
+                    login_url: window.location.href,
                     school_name: 'School Admin Portal',
                     timestamp: new Date().toLocaleString()
                 };
 
-                const response = await emailjs.send(
+                await emailjs.send(
                     emailjsConfig.serviceId,
-                    emailjsConfig.templateId,
+                    'template_welcome_admin', // You'll need to create this template in EmailJS
                     templateParams
                 );
 
-                console.log('Email sent successfully:', response);
-                return { success: true, message: 'OTP sent successfully!' };
+                console.log('Welcome email sent to:', email);
             } catch (error) {
-                console.error('Email sending failed:', error);
-                return { success: false, message: 'Failed to send OTP email. Please try again.' };
+                console.error('Error sending welcome email:', error);
+                // Don't show error to user - admin creation was successful
             }
+        }
+
+        function loadAdminsTable() {
+            // Clear table
+            adminsTableBody.innerHTML = '';
+            
+            // Check if we have admins
+            if (admins.length === 0) {
+                adminsTableBody.innerHTML = `
+                    <tr>
+                        <td colspan="6" style="text-align: center; padding: 40px; color: var(--gray);">
+                            <i class="fas fa-users" style="font-size: 48px; margin-bottom: 15px; display: block; opacity: 0.5;"></i>
+                            <h3>No admins found</h3>
+                            <p>Add your first admin using the "Add Admin" button</p>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+            
+            // Add admins to table (excluding current user)
+            const otherAdmins = admins.filter(admin => admin.id !== currentUser.uid);
+            
+            if (otherAdmins.length === 0) {
+                adminsTableBody.innerHTML = `
+                    <tr>
+                        <td colspan="6" style="text-align: center; padding: 40px; color: var(--gray);">
+                            <i class="fas fa-user-shield" style="font-size: 48px; margin-bottom: 15px; display: block; opacity: 0.5;"></i>
+                            <h3>No other admins</h3>
+                            <p>You are the only admin. Add more admins using the "Add Admin" button</p>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+            
+            otherAdmins.forEach(admin => {
+                const row = document.createElement('tr');
+                
+                // Status badge
+                let statusBadge = '';
+                if (admin.isActive === false) {
+                    statusBadge = '<span class="priority-badge priority-low">Inactive</span>';
+                } else {
+                    statusBadge = '<span class="priority-badge" style="background-color: rgba(46, 204, 113, 0.1); color: #27ae60;">Active</span>';
+                }
+                
+                // Role badge
+                let roleBadge = '';
+                if (admin.role === 'super_admin') {
+                    roleBadge = '<span class="priority-badge priority-high">Super Admin</span>';
+                } else {
+                    roleBadge = '<span class="priority-badge priority-medium">Admin</span>';
+                }
+                
+                row.innerHTML = `
+                    <td>
+                        <div style="width: 40px; height: 40px; border-radius: 50%; background-size: cover; background-position: center; background-image: url('${admin.profileImage || defaultProfileImage}')"></div>
+                    </td>
+                    <td><strong>${admin.name}</strong></td>
+                    <td>${admin.email}</td>
+                    <td>${roleBadge}</td>
+                    <td>${statusBadge}</td>
+                    <td>
+                        <div class="action-buttons">
+                            <button class="btn btn-secondary btn-sm edit-admin-btn" data-id="${admin.id}">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="btn btn-danger btn-sm delete-admin-btn" data-id="${admin.id}">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </td>
+                `;
+                
+                adminsTableBody.appendChild(row);
+            });
+            
+            // Add event listeners to delete buttons
+            document.querySelectorAll('.delete-admin-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const adminId = this.dataset.id;
+                    const admin = admins.find(a => a.id === adminId);
+                    showDeleteConfirmation('admin', adminId, `Are you sure you want to delete admin "${admin?.name}"?`);
+                });
+            });
+            
+            // Add event listeners to edit buttons
+            document.querySelectorAll('.edit-admin-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const adminId = this.dataset.id;
+                    editAdmin(adminId);
+                });
+            });
+        }
+
+        function editAdmin(adminId) {
+            const admin = admins.find(a => a.id === adminId);
+            if (!admin) return;
+            
+            // For now, just show an alert with admin details
+            // In a real app, you would show an edit modal
+            alert(`Admin Details:\n\nName: ${admin.name}\nEmail: ${admin.email}\nRole: ${admin.role}\nStatus: ${admin.isActive !== false ? 'Active' : 'Inactive'}\nCreated: ${admin.createdAt ? new Date(admin.createdAt).toLocaleString() : 'N/A'}`);
+        }
+
+        function clearAdminForm() {
+            document.getElementById('adminNameInput').value = '';
+            document.getElementById('adminEmailInput').value = '';
+            document.getElementById('adminRole').value = 'admin';
+            document.getElementById('adminStatus').value = 'active';
+            document.getElementById('adminPassword').value = '';
+            document.getElementById('adminConfirmPassword').value = '';
+        }
+
+        // Delete Functions
+        async function confirmDelete() {
+            if (!itemToDelete || !deleteType) return;
+            
+            try {
+                if (deleteType === 'notice') {
+                    // Delete notice from Firebase
+                    await deleteNoticeFromFirebase(itemToDelete);
+                    
+                    // Delete from local array
+                    const index = notices.findIndex(n => n.id === itemToDelete);
+                    if (index !== -1) {
+                        const noticeTitle = notices[index].title;
+                        notices.splice(index, 1);
+                        
+                        showSuccess(`Notice "${noticeTitle}" deleted successfully!`);
+                        addActivityLog('Deleted Notice', noticeTitle);
+                    }
+                    
+                    // Update UI
+                    updateCounts();
+                    if (document.getElementById('manageNoticesSection').style.display === 'block') {
+                        loadNoticesTable();
+                    }
+                    
+                } else if (deleteType === 'teacher') {
+                    // Delete teacher from Firebase
+                    await deleteTeacherFromFirebase(itemToDelete);
+                    
+                    // Delete from local array
+                    const index = teachers.findIndex(t => t.id === itemToDelete);
+                    if (index !== -1) {
+                        const teacherName = teachers[index].name;
+                        teachers.splice(index, 1);
+                        
+                        showSuccess(`Teacher "${teacherName}" deleted successfully!`);
+                        addActivityLog('Deleted Teacher', teacherName);
+                    }
+                    
+                    // Update UI
+                    updateCounts();
+                    if (document.getElementById('manageTeachersSection').style.display === 'block') {
+                        loadTeachersTable();
+                    }
+                    
+                } else if (deleteType === 'admin') {
+                    // Delete admin from Firebase
+                    await deleteAdminFromFirebase(itemToDelete);
+                    
+                    // Delete from local array
+                    const index = admins.findIndex(a => a.id === itemToDelete);
+                    if (index !== -1) {
+                        const adminName = admins[index].name;
+                        admins.splice(index, 1);
+                        
+                        showSuccess(`Admin "${adminName}" deleted successfully!`);
+                        addActivityLog('Deleted Admin', adminName);
+                    }
+                    
+                    // Update counts
+                    updateCounts();
+                    
+                    // Update UI
+                    if (document.getElementById('manageAdminsSection').style.display === 'block') {
+                        loadAdminsTable();
+                    }
+                }
+                
+            } catch (error) {
+                console.error('Error deleting item:', error);
+                showError('Failed to delete item. Please try again.');
+            } finally {
+                // Close modal
+                document.getElementById('deleteModal').style.display = 'none';
+                itemToDelete = null;
+                deleteType = null;
+            }
+        }
+
+        // Notice Management Functions
+        async function sendNotice() {
+            const title = document.getElementById('noticeTitle').value;
+            const content = document.getElementById('noticeContent').value;
+            const priority = document.getElementById('noticePriority').value;
+            const category = document.getElementById('noticeCategory').value;
+            const sendToTeachers = document.getElementById('sendToTeachers').checked;
+            const sendToStudents = document.getElementById('sendToStudents').checked;
+            
+            if (!title || !content) {
+                showError('Please enter notice title and content');
+                return;
+            }
+            
+            if (!sendToTeachers && !sendToStudents) {
+                showError('Please select at least one recipient group');
+                return;
+            }
+            
+            // Create notice object
+            const notice = {
+                title: title,
+                content: content,
+                priority: priority,
+                category: category,
+                timestamp: new Date().toISOString(),
+                sentBy: currentUser.uid,
+                sentByName: currentAdmin?.name || currentUser.displayName || 'Admin'
+            };
+            
+            try {
+                // Show loading
+                sendNoticeBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...';
+                sendNoticeBtn.disabled = true;
+                
+                // Save to Firebase
+                const noticeId = await saveNoticeToFirebase(notice);
+                
+                // Add to local array with ID
+                notice.id = noticeId;
+                notices.unshift(notice);
+                
+                // Update counts
+                updateCounts();
+                
+                showSuccess('Notice sent successfully to Teachers & Students apps!');
+                
+                // Clear form
+                clearNoticeForm();
+                
+                // If on manage notices tab, refresh
+                if (document.getElementById('manageNoticesSection').style.display === 'block') {
+                    loadNoticesTable();
+                }
+                
+                // Log activity
+                addActivityLog('Sent Notice', title);
+                
+            } catch (error) {
+                console.error('Error sending notice:', error);
+                showError('Failed to send notice. Please try again.');
+            } finally {
+                // Reset button
+                sendNoticeBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Send Notice';
+                sendNoticeBtn.disabled = false;
+            }
+        }
+
+        function saveNoticeAsDraft() {
+            const title = document.getElementById('noticeTitle').value;
+            const content = document.getElementById('noticeContent').value;
+            
+            if (!title || !content) {
+                showError('Please enter notice title and content to save as draft');
+                return;
+            }
+            
+            showSuccess('Notice saved as draft successfully!');
+            addActivityLog('Saved Draft', title);
+        }
+
+        function loadNoticesTable() {
+            // Clear table
+            noticesTableBody.innerHTML = '';
+            
+            // Check if we have notices
+            if (notices.length === 0) {
+                noticesTableBody.innerHTML = `
+                    <tr>
+                        <td colspan="6" style="text-align: center; padding: 40px; color: var(--gray);">
+                            <i class="fas fa-inbox" style="font-size: 48px; margin-bottom: 15px; display: block; opacity: 0.5;"></i>
+                            <h3>No notices found</h3>
+                            <p>Send your first notice using the "Send Notice" tab</p>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+            
+            // Add notices to table
+            notices.forEach(notice => {
+                const row = document.createElement('tr');
+                
+                // Format date
+                const date = new Date(notice.timestamp);
+                const formattedDate = date.toLocaleDateString('en-US', { 
+                    month: 'short', 
+                    day: 'numeric',
+                    year: 'numeric'
+                });
+                
+                // Priority badge
+                let priorityBadge = '';
+                if (notice.priority === 'high') {
+                    priorityBadge = '<span class="priority-badge priority-high">High</span>';
+                } else if (notice.priority === 'medium') {
+                    priorityBadge = '<span class="priority-badge priority-medium">Medium</span>';
+                } else {
+                    priorityBadge = '<span class="priority-badge priority-low">Low</span>';
+                }
+                
+                row.innerHTML = `
+                    <td><strong>${notice.title}</strong></td>
+                    <td>${notice.category || 'General'}</td>
+                    <td>${priorityBadge}</td>
+                    <td>${formattedDate}</td>
+                    <td>All Teachers & Students</td>
+                    <td>
+                        <div class="action-buttons">
+                            <button class="btn btn-secondary btn-sm view-notice-btn" data-id="${notice.id}">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                            <button class="btn btn-danger btn-sm delete-notice-btn" data-id="${notice.id}">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </td>
+                `;
+                
+                noticesTableBody.appendChild(row);
+            });
+            
+            // Add event listeners to delete buttons
+            document.querySelectorAll('.delete-notice-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const noticeId = this.dataset.id;
+                    showDeleteConfirmation('notice', noticeId, 'Are you sure you want to delete this notice?');
+                });
+            });
+            
+            // Add event listeners to view buttons
+            document.querySelectorAll('.view-notice-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const noticeId = this.dataset.id;
+                    viewNotice(noticeId);
+                });
+            });
+        }
+
+        function viewNotice(noticeId) {
+            const notice = notices.find(n => n.id === noticeId);
+            if (!notice) return;
+            
+            alert(`Notice Details:\n\nTitle: ${notice.title}\n\nContent: ${notice.content}\n\nPriority: ${notice.priority}\n\nCategory: ${notice.category}\n\nDate: ${new Date(notice.timestamp).toLocaleString()}`);
+        }
+
+        // Teacher Management Functions
+        async function saveTeacher() {
+            const name = document.getElementById('teacherName').value;
+            const subject = document.getElementById('teacherSubject').value;
+            const grade = document.getElementById('teacherGrade').value;
+            const phone = document.getElementById('teacherPhone').value;
+            const email = document.getElementById('teacherEmail').value;
+            
+            if (!name || !subject || !phone) {
+                showError('Please fill all required fields (Name, Subject, Phone)');
+                return;
+            }
+            
+            // Create teacher object
+            const teacher = {
+                name: name,
+                subject: subject,
+                phone: phone,
+                email: email || '',
+                grade: grade || ''
+            };
+            
+            try {
+                // Show loading
+                saveTeacherBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
+                saveTeacherBtn.disabled = true;
+                
+                // Save to Firebase
+                const teacherId = await saveTeacherToFirebase(teacher);
+                
+                // Add to local array with ID
+                teacher.id = teacherId;
+                teacher.addedDate = new Date().toISOString();
+                teachers.push(teacher);
+                
+                // Update counts
+                updateCounts();
+                
+                showSuccess('Teacher added successfully!');
+                
+                // Close modal
+                document.getElementById('addTeacherModal').style.display = 'none';
+                
+                // If on manage teachers tab, refresh
+                if (document.getElementById('manageTeachersSection').style.display === 'block') {
+                    loadTeachersTable();
+                }
+                
+                // Clear form
+                clearTeacherForm();
+                
+                // Log activity
+                addActivityLog('Added Teacher', `${name} - ${subject}`);
+                
+            } catch (error) {
+                console.error('Error saving teacher:', error);
+                showError('Failed to add teacher. Please try again.');
+            } finally {
+                // Reset button
+                saveTeacherBtn.innerHTML = '<i class="fas fa-save"></i> Save Teacher';
+                saveTeacherBtn.disabled = false;
+            }
+        }
+
+        function loadTeachersTable() {
+            // Clear table
+            teachersTableBody.innerHTML = '';
+            
+            // Check if we have teachers
+            if (teachers.length === 0) {
+                teachersTableBody.innerHTML = `
+                    <tr>
+                        <td colspan="5" style="text-align: center; padding: 40px; color: var(--gray);">
+                            <i class="fas fa-users" style="font-size: 48px; margin-bottom: 15px; display: block; opacity: 0.5;"></i>
+                            <h3>No teachers added yet</h3>
+                            <p>Add your first teacher using the "Add Teacher" button</p>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+            
+            // Add teachers to table
+            teachers.forEach(teacher => {
+                const row = document.createElement('tr');
+                
+                row.innerHTML = `
+                    <td><strong>${teacher.name}</strong></td>
+                    <td>${teacher.subject}</td>
+                    <td>${teacher.phone}</td>
+                    <td>${teacher.email || 'Not provided'}</td>
+                    <td>
+                        <div class="action-buttons">
+                            <a href="tel:${teacher.phone}" class="call-btn" target="_blank">
+                                <i class="fas fa-phone"></i> Call
+                            </a>
+                            <button class="btn btn-danger btn-sm delete-teacher-btn" data-id="${teacher.id}">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </td>
+                `;
+                
+                teachersTableBody.appendChild(row);
+            });
+            
+            // Add event listeners to delete buttons
+            document.querySelectorAll('.delete-teacher-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const teacherId = this.dataset.id;
+                    showDeleteConfirmation('teacher', teacherId, 'Are you sure you want to delete this teacher?');
+                });
+            });
+        }
+
+        function clearTeacherForm() {
+            document.getElementById('teacherName').value = '';
+            document.getElementById('teacherSubject').value = '';
+            document.getElementById('teacherGrade').value = '';
+            document.getElementById('teacherPhone').value = '';
+            document.getElementById('teacherEmail').value = '';
         }
 
         // Firebase Authentication Functions
@@ -1813,141 +2652,6 @@
                 // Reset button
                 loginBtn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Login to Admin Panel';
                 loginBtn.disabled = false;
-            }
-        }
-
-        async function handleRegister() {
-            const name = document.getElementById('regName').value;
-            const email = document.getElementById('regEmail').value;
-            const password = document.getElementById('regPassword').value;
-            const confirmPassword = document.getElementById('regConfirmPassword').value;
-            
-            if (!name || !email || !password || !confirmPassword) {
-                showError('Please fill all fields');
-                return;
-            }
-            
-            if (!validateEmail(email)) {
-                showError('Please enter a valid email address');
-                return;
-            }
-            
-            if (password !== confirmPassword) {
-                showError('Passwords do not match');
-                return;
-            }
-            
-            if (password.length < 6) {
-                showError('Password must be at least 6 characters');
-                return;
-            }
-            
-            // Generate OTP
-            const otp = generateOTP();
-            
-            // Store OTP temporarily
-            otpStore[email] = {
-                otp: otp,
-                expires: Date.now() + 10 * 60 * 1000, // 10 minutes
-                userData: { name, email, password }
-            };
-            
-            // Show loading
-            registerBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending OTP...';
-            registerBtn.disabled = true;
-            
-            try {
-                // Send OTP via EmailJS
-                const result = await sendOTPEmail(email, otp, 'registration');
-                
-                if (result.success) {
-                    showSuccess('OTP sent to your email! Please verify to complete registration.');
-                    
-                    // Show OTP section
-                    document.getElementById('regOtpContainer').style.display = 'flex';
-                    document.getElementById('regResendOtp').style.display = 'block';
-                    document.getElementById('verifyRegOtpBtn').style.display = 'block';
-                    registerBtn.style.display = 'none';
-                    
-                    // Start OTP timer
-                    startOtpTimer('reg');
-                } else {
-                    showError(result.message);
-                }
-            } catch (error) {
-                showError('Failed to send OTP. Please try again.');
-            } finally {
-                // Reset button
-                registerBtn.innerHTML = '<i class="fas fa-user-plus"></i> Create Admin Account';
-                registerBtn.disabled = false;
-            }
-        }
-
-        async function handleVerifyRegOtp() {
-            const email = document.getElementById('regEmail').value;
-            const otp = getOtpValue('reg');
-            
-            if (!otp || otp.length !== 6) {
-                showError('Please enter a valid 6-digit OTP');
-                return;
-            }
-            
-            // Check if OTP exists and is valid
-            if (!otpStore[email] || otpStore[email].otp !== otp) {
-                showError('Invalid OTP. Please try again.');
-                return;
-            }
-            
-            // Check if OTP is expired
-            if (Date.now() > otpStore[email].expires) {
-                showError('OTP has expired. Please request a new one.');
-                delete otpStore[email];
-                return;
-            }
-            
-            // Get user data
-            const userData = otpStore[email].userData;
-            
-            // Show loading
-            verifyRegOtpBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Creating Account...';
-            verifyRegOtpBtn.disabled = true;
-            
-            try {
-                // Create user in Firebase Auth
-                const userCredential = await auth.createUserWithEmailAndPassword(userData.email, userData.password);
-                currentUser = userCredential.user;
-                
-                // Update user profile
-                await currentUser.updateProfile({
-                    displayName: userData.name
-                });
-                
-                // Create admin record in database
-                const adminData = {
-                    name: userData.name,
-                    email: userData.email,
-                    role: 'admin',
-                    isActive: true,
-                    createdAt: new Date().toISOString(),
-                    lastLogin: new Date().toISOString()
-                };
-                
-                await database.ref('admins').child(currentUser.uid).set(adminData);
-                currentAdmin = adminData;
-                
-                showSuccess('Account created successfully!');
-                showAdminPanel();
-                
-            } catch (error) {
-                console.error('Registration error:', error);
-                showError(getFirebaseErrorMessage(error));
-            } finally {
-                // Reset button
-                verifyRegOtpBtn.innerHTML = '<i class="fas fa-check-circle"></i> Verify OTP & Complete Registration';
-                verifyRegOtpBtn.disabled = false;
-                
-                // Clear OTP from store
-                delete otpStore[email];
             }
         }
 
@@ -2258,49 +2962,6 @@
             }
         }
 
-        async function handleResendRegOtp(e) {
-            e.preventDefault();
-            
-            const email = document.getElementById('regEmail').value;
-            
-            if (!email) {
-                showError('Please enter your email first');
-                return;
-            }
-            
-            // Generate new OTP
-            const otp = generateOTP();
-            
-            // Update OTP store
-            otpStore[email] = {
-                otp: otp,
-                expires: Date.now() + 10 * 60 * 1000,
-                userData: otpStore[email]?.userData
-            };
-            
-            // Show loading
-            const resendLink = document.getElementById('regResendLink');
-            resendLink.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Resending...';
-            resendLink.style.pointerEvents = 'none';
-            
-            try {
-                const result = await sendOTPEmail(email, otp, 'registration');
-                
-                if (result.success) {
-                    showSuccess('New OTP sent to your email!');
-                    startOtpTimer('reg');
-                } else {
-                    showError(result.message);
-                }
-            } catch (error) {
-                showError('Failed to resend OTP. Please try again.');
-            } finally {
-                // Reset link
-                resendLink.innerHTML = 'Resend OTP';
-                resendLink.style.pointerEvents = 'auto';
-            }
-        }
-
         async function handleResendForgotOtp(e) {
             e.preventDefault();
             
@@ -2407,12 +3068,180 @@
             }
         }
 
+        // Admin Panel Functions
+        function showAdminPanel() {
+            // Update user info
+            adminName.textContent = currentAdmin?.name || currentUser.displayName || 'Admin User';
+            adminEmail.textContent = currentUser.email;
+            
+            // Load profile image
+            loadProfileImage();
+            
+            // Set email in reset form
+            resetEmail.value = currentUser.email;
+            document.getElementById('settingsName').value = currentAdmin?.name || currentUser.displayName || '';
+            document.getElementById('settingsEmail').value = currentUser.email;
+            
+            // Switch to admin panel
+            authContainer.style.display = 'none';
+            adminPanel.style.display = 'block';
+            
+            // Load dashboard data
+            loadDashboardData();
+        }
+
+        function loadDashboardData() {
+            // Update counts
+            updateCounts();
+            
+            // Load activity log
+            loadActivityLog();
+        }
+
+        function loadActivityLog() {
+            // Simulated activity data
+            const activities = [
+                { time: '10:30 AM', activity: 'Sent Notice', details: 'Annual Sports Day Announcement', status: 'Completed' },
+                { time: 'Yesterday, 3:15 PM', activity: 'Added Teacher', details: 'Mr. John Smith - Mathematics', status: 'Completed' },
+                { time: 'Mar 12, 9:45 AM', activity: 'Deleted Notice', details: 'Old Library Schedule', status: 'Completed' },
+                { time: 'Mar 10, 2:20 PM', activity: 'Password Changed', details: 'Account security update', status: 'Completed' },
+                { time: 'Mar 8, 11:05 AM', activity: 'Sent Notice', details: 'Parent-Teacher Meeting Schedule', status: 'Completed' }
+            ];
+            
+            activityLogTable.innerHTML = '';
+            activities.forEach(activity => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${activity.time}</td>
+                    <td>${activity.activity}</td>
+                    <td>${activity.details}</td>
+                    <td><span style="color: var(--success); font-weight: 600;">${activity.status}</span></td>
+                `;
+                activityLogTable.appendChild(row);
+            });
+        }
+
+        // Settings Functions
+        async function updateProfile() {
+            const name = document.getElementById('settingsName').value;
+            
+            if (!name) {
+                showError('Please enter your name');
+                return;
+            }
+            
+            try {
+                // Show loading
+                updateProfileBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Updating...';
+                updateProfileBtn.disabled = true;
+                
+                // Update in Firebase Auth
+                await currentUser.updateProfile({
+                    displayName: name
+                });
+                
+                // Update in Firebase Database
+                await updateAdminProfile({
+                    name: name,
+                    updatedAt: new Date().toISOString()
+                });
+                
+                // Update current admin
+                currentAdmin.name = name;
+                
+                // Update UI
+                adminName.textContent = name;
+                
+                showSuccess('Profile updated successfully!');
+                addActivityLog('Updated Profile', 'Changed display name');
+                
+            } catch (error) {
+                console.error('Error updating profile:', error);
+                showError('Failed to update profile. Please try again.');
+            } finally {
+                // Reset button
+                updateProfileBtn.innerHTML = '<i class="fas fa-save"></i> Update Profile';
+                updateProfileBtn.disabled = false;
+            }
+        }
+
+        // Utility Functions
+        function loadSampleData() {
+            // Sample admins (fallback if Firebase fails)
+            admins = [
+                {
+                    id: 'admin_1',
+                    name: 'Admin User',
+                    email: 'admin@school.com',
+                    role: 'admin',
+                    isActive: true,
+                    profileImage: defaultProfileImage,
+                    createdAt: new Date().toISOString()
+                }
+            ];
+            
+            // Sample notices (fallback if Firebase fails)
+            notices = [
+                {
+                    id: 'notice_1',
+                    title: 'Annual Sports Day Announcement',
+                    content: 'We are pleased to announce that our Annual Sports Day will be held on 25th November 2023. All students are required to participate in at least one event. Teachers are requested to coordinate with the sports department.',
+                    priority: 'high',
+                    category: 'event',
+                    timestamp: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
+                    status: 'sent',
+                    sentBy: 'Admin'
+                }
+            ];
+            
+            // Sample teachers (fallback if Firebase fails)
+            teachers = [
+                {
+                    id: 'teacher_1',
+                    name: 'Mr. John Smith',
+                    subject: 'Mathematics',
+                    phone: '+91 9876543210',
+                    email: 'john.smith@school.com',
+                    addedDate: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString()
+                }
+            ];
+            
+            // Update counts
+            updateCounts();
+        }
+
+        // Email Functions
+        function generateOTP() {
+            // Generate a 6-digit OTP
+            return Math.floor(100000 + Math.random() * 900000).toString();
+        }
+
+        async function sendOTPEmail(email, otp, purpose = 'verification') {
+            try {
+                const templateParams = {
+                    to_email: email,
+                    otp_code: otp,
+                    purpose: purpose,
+                    school_name: 'School Admin Portal',
+                    timestamp: new Date().toLocaleString()
+                };
+
+                const response = await emailjs.send(
+                    emailjsConfig.serviceId,
+                    emailjsConfig.templateId,
+                    templateParams
+                );
+
+                console.log('Email sent successfully:', response);
+                return { success: true, message: 'OTP sent successfully!' };
+            } catch (error) {
+                console.error('Email sending failed:', error);
+                return { success: false, message: 'Failed to send OTP email. Please try again.' };
+            }
+        }
+
         // OTP Functions
         function setupOtpInputs() {
-            // For registration OTP
-            const regOtpInputs = document.querySelectorAll('#regOtpContainer .otp-input');
-            setupOtpInputBehavior(regOtpInputs, 'reg');
-            
             // For forgot password OTP
             const forgotOtpInputs = document.querySelectorAll('#forgotOtpContainer .otp-input');
             setupOtpInputBehavior(forgotOtpInputs, 'forgot');
@@ -2470,9 +3299,7 @@
         }
 
         function getOtpValue(type) {
-            const containerId = type === 'reg' ? 'regOtpContainer' : 
-                              type === 'forgot' ? 'forgotOtpContainer' : 
-                              'resetOtpContainer';
+            const containerId = type === 'forgot' ? 'forgotOtpContainer' : 'resetOtpContainer';
             const inputs = document.querySelectorAll(`#${containerId} .otp-input`);
             let otp = '';
             inputs.forEach(input => {
@@ -2482,9 +3309,7 @@
         }
 
         function startOtpTimer(type) {
-            const timerId = type === 'reg' ? 'regOtpTimer' : 
-                           type === 'forgot' ? 'forgotOtpTimer' : 
-                           'resetOtpTimer';
+            const timerId = type === 'forgot' ? 'forgotOtpTimer' : 'resetOtpTimer';
             const timerElement = document.getElementById(timerId);
             let timeLeft = 300; // 5 minutes
             
@@ -2503,7 +3328,6 @@
             }, 1000);
         }
 
-        // Utility Functions
         function validateEmail(email) {
             const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
             return re.test(email);
@@ -2534,498 +3358,6 @@
             }
         }
 
-        // Admin Panel Functions
-        function showAdminPanel() {
-            // Update user info
-            adminName.textContent = currentAdmin?.name || currentUser.displayName || 'Admin User';
-            adminEmail.textContent = currentUser.email;
-            adminAvatar.textContent = (currentAdmin?.name || currentUser.displayName || 'A').charAt(0).toUpperCase();
-            
-            // Set email in reset form
-            resetEmail.value = currentUser.email;
-            
-            // Switch to admin panel
-            authContainer.style.display = 'none';
-            adminPanel.style.display = 'block';
-            
-            // Load dashboard data
-            loadDashboardData();
-        }
-
-        function loadDashboardData() {
-            // Update counts
-            totalNoticesCount.textContent = notices.length;
-            totalTeachersCount.textContent = teachers.length;
-            totalStudentsCount.textContent = '2847'; // Simulated data
-            urgentNoticesCount.textContent = notices.filter(n => n.priority === 'high').length;
-            noticeCount.textContent = notices.length;
-            teacherCount.textContent = teachers.length;
-            
-            // Load activity log
-            loadActivityLog();
-        }
-
-        function loadActivityLog() {
-            // Simulated activity data
-            const activities = [
-                { time: '10:30 AM', activity: 'Sent Notice', details: 'Annual Sports Day Announcement', status: 'Completed' },
-                { time: 'Yesterday, 3:15 PM', activity: 'Added Teacher', details: 'Mr. John Smith - Mathematics', status: 'Completed' },
-                { time: 'Mar 12, 9:45 AM', activity: 'Deleted Notice', details: 'Old Library Schedule', status: 'Completed' },
-                { time: 'Mar 10, 2:20 PM', activity: 'Password Changed', details: 'Account security update', status: 'Completed' },
-                { time: 'Mar 8, 11:05 AM', activity: 'Sent Notice', details: 'Parent-Teacher Meeting Schedule', status: 'Completed' }
-            ];
-            
-            activityLogTable.innerHTML = '';
-            activities.forEach(activity => {
-                const row = document.createElement('tr');
-                row.innerHTML = `
-                    <td>${activity.time}</td>
-                    <td>${activity.activity}</td>
-                    <td>${activity.details}</td>
-                    <td><span style="color: var(--success); font-weight: 600;">${activity.status}</span></td>
-                `;
-                activityLogTable.appendChild(row);
-            });
-        }
-
-        // Notice Management Functions
-        async function sendNotice() {
-            const title = document.getElementById('noticeTitle').value;
-            const content = document.getElementById('noticeContent').value;
-            const priority = document.getElementById('noticePriority').value;
-            const category = document.getElementById('noticeCategory').value;
-            const sendToTeachers = document.getElementById('sendToTeachers').checked;
-            const sendToStudents = document.getElementById('sendToStudents').checked;
-            
-            if (!title || !content) {
-                showError('Please enter notice title and content');
-                return;
-            }
-            
-            if (!sendToTeachers && !sendToStudents) {
-                showError('Please select at least one recipient group');
-                return;
-            }
-            
-            // Create notice object
-            const notice = {
-                title: title,
-                content: content,
-                priority: priority,
-                category: category,
-                timestamp: new Date().toISOString(),
-                sentBy: currentUser.uid,
-                sentByName: currentAdmin?.name || currentUser.displayName || 'Admin'
-            };
-            
-            try {
-                // Show loading
-                sendNoticeBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...';
-                sendNoticeBtn.disabled = true;
-                
-                // Save to Firebase
-                const noticeId = await saveNoticeToFirebase(notice);
-                
-                // Add to local array with ID
-                notice.id = noticeId;
-                notices.unshift(notice);
-                
-                showSuccess('Notice sent successfully to Teachers & Students apps!');
-                
-                // Update dashboard
-                loadDashboardData();
-                
-                // Clear form
-                clearNoticeForm();
-                
-                // If on manage notices tab, refresh
-                if (document.getElementById('manageNoticesSection').style.display === 'block') {
-                    loadNoticesTable();
-                }
-                
-                // Log activity
-                addActivityLog('Sent Notice', title);
-                
-            } catch (error) {
-                console.error('Error sending notice:', error);
-                showError('Failed to send notice. Please try again.');
-            } finally {
-                // Reset button
-                sendNoticeBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Send Notice';
-                sendNoticeBtn.disabled = false;
-            }
-        }
-
-        function saveNoticeAsDraft() {
-            const title = document.getElementById('noticeTitle').value;
-            const content = document.getElementById('noticeContent').value;
-            
-            if (!title || !content) {
-                showError('Please enter notice title and content to save as draft');
-                return;
-            }
-            
-            showSuccess('Notice saved as draft successfully!');
-            addActivityLog('Saved Draft', title);
-        }
-
-        function loadNoticesTable() {
-            // Clear table
-            noticesTableBody.innerHTML = '';
-            
-            // Check if we have notices
-            if (notices.length === 0) {
-                noticesTableBody.innerHTML = `
-                    <tr>
-                        <td colspan="6" style="text-align: center; padding: 40px; color: var(--gray);">
-                            <i class="fas fa-inbox" style="font-size: 48px; margin-bottom: 15px; display: block; opacity: 0.5;"></i>
-                            <h3>No notices found</h3>
-                            <p>Send your first notice using the "Send Notice" tab</p>
-                        </td>
-                    </tr>
-                `;
-                return;
-            }
-            
-            // Add notices to table
-            notices.forEach(notice => {
-                const row = document.createElement('tr');
-                
-                // Format date
-                const date = new Date(notice.timestamp);
-                const formattedDate = date.toLocaleDateString('en-US', { 
-                    month: 'short', 
-                    day: 'numeric',
-                    year: 'numeric'
-                });
-                
-                // Priority badge
-                let priorityBadge = '';
-                if (notice.priority === 'high') {
-                    priorityBadge = '<span class="priority-badge priority-high">High</span>';
-                } else if (notice.priority === 'medium') {
-                    priorityBadge = '<span class="priority-badge priority-medium">Medium</span>';
-                } else {
-                    priorityBadge = '<span class="priority-badge priority-low">Low</span>';
-                }
-                
-                row.innerHTML = `
-                    <td><strong>${notice.title}</strong></td>
-                    <td>${notice.category || 'General'}</td>
-                    <td>${priorityBadge}</td>
-                    <td>${formattedDate}</td>
-                    <td>All Teachers & Students</td>
-                    <td>
-                        <div class="action-buttons">
-                            <button class="btn btn-secondary btn-sm view-notice-btn" data-id="${notice.id}">
-                                <i class="fas fa-eye"></i>
-                            </button>
-                            <button class="btn btn-danger btn-sm delete-notice-btn" data-id="${notice.id}">
-                                <i class="fas fa-trash"></i>
-                            </button>
-                        </div>
-                    </td>
-                `;
-                
-                noticesTableBody.appendChild(row);
-            });
-            
-            // Add event listeners to delete buttons
-            document.querySelectorAll('.delete-notice-btn').forEach(btn => {
-                btn.addEventListener('click', function() {
-                    const noticeId = this.dataset.id;
-                    showDeleteConfirmation('notice', noticeId, 'Are you sure you want to delete this notice?');
-                });
-            });
-            
-            // Add event listeners to view buttons
-            document.querySelectorAll('.view-notice-btn').forEach(btn => {
-                btn.addEventListener('click', function() {
-                    const noticeId = this.dataset.id;
-                    viewNotice(noticeId);
-                });
-            });
-        }
-
-        function viewNotice(noticeId) {
-            const notice = notices.find(n => n.id === noticeId);
-            if (!notice) return;
-            
-            alert(`Notice Details:\n\nTitle: ${notice.title}\n\nContent: ${notice.content}\n\nPriority: ${notice.priority}\n\nCategory: ${notice.category}\n\nDate: ${new Date(notice.timestamp).toLocaleString()}`);
-        }
-
-        // Teacher Management Functions
-        function loadTeachersTable() {
-            // Clear table
-            teachersTableBody.innerHTML = '';
-            
-            // Check if we have teachers
-            if (teachers.length === 0) {
-                teachersTableBody.innerHTML = `
-                    <tr>
-                        <td colspan="5" style="text-align: center; padding: 40px; color: var(--gray);">
-                            <i class="fas fa-users" style="font-size: 48px; margin-bottom: 15px; display: block; opacity: 0.5;"></i>
-                            <h3>No teachers added yet</h3>
-                            <p>Add your first teacher using the "Add Teacher" button</p>
-                        </td>
-                    </tr>
-                `;
-                return;
-            }
-            
-            // Add teachers to table
-            teachers.forEach(teacher => {
-                const row = document.createElement('tr');
-                
-                row.innerHTML = `
-                    <td><strong>${teacher.name}</strong></td>
-                    <td>${teacher.subject}</td>
-                    <td>${teacher.phone}</td>
-                    <td>${teacher.email || 'Not provided'}</td>
-                    <td>
-                        <div class="action-buttons">
-                            <a href="tel:${teacher.phone}" class="call-btn" target="_blank">
-                                <i class="fas fa-phone"></i> Call
-                            </a>
-                            <button class="btn btn-danger btn-sm delete-teacher-btn" data-id="${teacher.id}">
-                                <i class="fas fa-trash"></i>
-                            </button>
-                        </div>
-                    </td>
-                `;
-                
-                teachersTableBody.appendChild(row);
-            });
-            
-            // Add event listeners to delete buttons
-            document.querySelectorAll('.delete-teacher-btn').forEach(btn => {
-                btn.addEventListener('click', function() {
-                    const teacherId = this.dataset.id;
-                    showDeleteConfirmation('teacher', teacherId, 'Are you sure you want to delete this teacher?');
-                });
-            });
-        }
-
-        async function saveTeacher() {
-            const name = document.getElementById('teacherName').value;
-            const subject = document.getElementById('teacherSubject').value;
-            const grade = document.getElementById('teacherGrade').value;
-            const phone = document.getElementById('teacherPhone').value;
-            const email = document.getElementById('teacherEmail').value;
-            
-            if (!name || !subject || !phone) {
-                showError('Please fill all required fields (Name, Subject, Phone)');
-                return;
-            }
-            
-            // Create teacher object
-            const teacher = {
-                name: name,
-                subject: subject,
-                phone: phone,
-                email: email || '',
-                grade: grade || ''
-            };
-            
-            try {
-                // Show loading
-                saveTeacherBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
-                saveTeacherBtn.disabled = true;
-                
-                // Save to Firebase
-                const teacherId = await saveTeacherToFirebase(teacher);
-                
-                // Add to local array with ID
-                teacher.id = teacherId;
-                teacher.addedDate = new Date().toISOString();
-                teachers.push(teacher);
-                
-                showSuccess('Teacher added successfully!');
-                
-                // Close modal
-                document.getElementById('addTeacherModal').style.display = 'none';
-                
-                // Update dashboard
-                loadDashboardData();
-                
-                // If on manage teachers tab, refresh
-                if (document.getElementById('manageTeachersSection').style.display === 'block') {
-                    loadTeachersTable();
-                }
-                
-                // Clear form
-                clearTeacherForm();
-                
-                // Log activity
-                addActivityLog('Added Teacher', `${name} - ${subject}`);
-                
-            } catch (error) {
-                console.error('Error saving teacher:', error);
-                showError('Failed to add teacher. Please try again.');
-            } finally {
-                // Reset button
-                saveTeacherBtn.innerHTML = '<i class="fas fa-save"></i> Save Teacher';
-                saveTeacherBtn.disabled = false;
-            }
-        }
-
-        function clearTeacherForm() {
-            document.getElementById('teacherName').value = '';
-            document.getElementById('teacherSubject').value = '';
-            document.getElementById('teacherGrade').value = '';
-            document.getElementById('teacherPhone').value = '';
-            document.getElementById('teacherEmail').value = '';
-        }
-
-        // Delete Functions
-        function showDeleteConfirmation(type, id, message) {
-            itemToDelete = id;
-            deleteType = type;
-            
-            document.getElementById('deleteMessage').textContent = message;
-            document.getElementById('deleteModal').style.display = 'flex';
-        }
-
-        async function confirmDelete() {
-            if (!itemToDelete || !deleteType) return;
-            
-            try {
-                if (deleteType === 'notice') {
-                    // Delete notice from Firebase
-                    await deleteNoticeFromFirebase(itemToDelete);
-                    
-                    // Delete from local array
-                    const index = notices.findIndex(n => n.id === itemToDelete);
-                    if (index !== -1) {
-                        const noticeTitle = notices[index].title;
-                        notices.splice(index, 1);
-                        
-                        showSuccess(`Notice "${noticeTitle}" deleted successfully!`);
-                        addActivityLog('Deleted Notice', noticeTitle);
-                    }
-                    
-                    // Update UI
-                    loadDashboardData();
-                    if (document.getElementById('manageNoticesSection').style.display === 'block') {
-                        loadNoticesTable();
-                    }
-                    
-                } else if (deleteType === 'teacher') {
-                    // Delete teacher from Firebase
-                    await deleteTeacherFromFirebase(itemToDelete);
-                    
-                    // Delete from local array
-                    const index = teachers.findIndex(t => t.id === itemToDelete);
-                    if (index !== -1) {
-                        const teacherName = teachers[index].name;
-                        teachers.splice(index, 1);
-                        
-                        showSuccess(`Teacher "${teacherName}" deleted successfully!`);
-                        addActivityLog('Deleted Teacher', teacherName);
-                    }
-                    
-                    // Update UI
-                    loadDashboardData();
-                    if (document.getElementById('manageTeachersSection').style.display === 'block') {
-                        loadTeachersTable();
-                    }
-                }
-                
-            } catch (error) {
-                console.error('Error deleting item:', error);
-                showError('Failed to delete item. Please try again.');
-            } finally {
-                // Close modal
-                document.getElementById('deleteModal').style.display = 'none';
-                itemToDelete = null;
-                deleteType = null;
-            }
-        }
-
-        // Settings Functions
-        async function updateProfile() {
-            const name = document.getElementById('settingsName').value;
-            
-            if (!name) {
-                showError('Please enter your name');
-                return;
-            }
-            
-            try {
-                // Show loading
-                updateProfileBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Updating...';
-                updateProfileBtn.disabled = true;
-                
-                // Update in Firebase Auth
-                await currentUser.updateProfile({
-                    displayName: name
-                });
-                
-                // Update in Firebase Database
-                await updateAdminProfile({
-                    name: name,
-                    updatedAt: new Date().toISOString()
-                });
-                
-                // Update current admin
-                currentAdmin.name = name;
-                
-                // Update UI
-                adminName.textContent = name;
-                adminAvatar.textContent = name.charAt(0).toUpperCase();
-                
-                showSuccess('Profile updated successfully!');
-                addActivityLog('Updated Profile', 'Changed display name');
-                
-            } catch (error) {
-                console.error('Error updating profile:', error);
-                showError('Failed to update profile. Please try again.');
-            } finally {
-                // Reset button
-                updateProfileBtn.innerHTML = '<i class="fas fa-save"></i> Update Profile';
-                updateProfileBtn.disabled = false;
-            }
-        }
-
-        // Utility Functions
-        function loadSampleData() {
-            // Sample notices (fallback if Firebase fails)
-            notices = [
-                {
-                    id: 'notice_1',
-                    title: 'Annual Sports Day Announcement',
-                    content: 'We are pleased to announce that our Annual Sports Day will be held on 25th November 2023. All students are required to participate in at least one event. Teachers are requested to coordinate with the sports department.',
-                    priority: 'high',
-                    category: 'event',
-                    timestamp: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
-                    status: 'sent',
-                    sentBy: 'Admin'
-                },
-                {
-                    id: 'notice_2',
-                    title: 'Library Maintenance Notice',
-                    content: 'The main library will be closed for maintenance on 5th October 2023. Students can use the digital library during this period. All borrowed books must be returned by 4th October.',
-                    priority: 'medium',
-                    category: 'academic',
-                    timestamp: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(),
-                    status: 'sent',
-                    sentBy: 'Admin'
-                }
-            ];
-            
-            // Sample teachers (fallback if Firebase fails)
-            teachers = [
-                {
-                    id: 'teacher_1',
-                    name: 'Mr. John Smith',
-                    subject: 'Mathematics',
-                    phone: '+91 9876543210',
-                    email: 'john.smith@school.com',
-                    addedDate: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString()
-                }
-            ];
-        }
-
         function clearNoticeForm() {
             document.getElementById('noticeTitle').value = '';
             document.getElementById('noticeContent').value = '';
@@ -3038,13 +3370,6 @@
         function clearLoginForm() {
             document.getElementById('loginEmail').value = '';
             document.getElementById('loginPassword').value = '';
-        }
-
-        function clearRegistrationForm() {
-            document.getElementById('regName').value = '';
-            document.getElementById('regEmail').value = '';
-            document.getElementById('regPassword').value = '';
-            document.getElementById('regConfirmPassword').value = '';
         }
 
         function addActivityLog(activity, details) {
