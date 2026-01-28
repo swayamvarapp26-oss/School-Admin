@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+ <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -226,6 +226,7 @@
         .card-teachers::before { background: linear-gradient(90deg, #9b59b6, #e74c3c); }
         .card-students::before { background: linear-gradient(90deg, #f39c12, #d35400); }
         .card-urgent::before { background: linear-gradient(90deg, #e74c3c, #c0392b); }
+        .card-developer::before { background: linear-gradient(90deg, #8e44ad, #3498db); }
 
         .card-icon {
             width: 70px;
@@ -243,6 +244,7 @@
         .card-teachers .card-icon { background: linear-gradient(135deg, #9b59b6, #e74c3c); }
         .card-students .card-icon { background: linear-gradient(135deg, #f39c12, #d35400); }
         .card-urgent .card-icon { background: linear-gradient(135deg, #e74c3c, #c0392b); }
+        .card-developer .card-icon { background: linear-gradient(135deg, #8e44ad, #3498db); }
 
         .dashboard-card h3 {
             font-size: 16px;
@@ -400,6 +402,24 @@
             background-color: var(--light-gray);
         }
 
+        .btn-warning {
+            background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);
+            color: white;
+        }
+        
+        .btn-warning:hover {
+            background: linear-gradient(135deg, #e67e22 0%, #f39c12 100%);
+        }
+
+        .btn-info {
+            background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+            color: white;
+        }
+        
+        .btn-info:hover {
+            background: linear-gradient(135deg, #2980b9 0%, #3498db 100%);
+        }
+
         .btn-sm {
             padding: 8px 16px;
             font-size: 14px;
@@ -407,6 +427,12 @@
 
         .btn-block {
             width: 100%;
+        }
+
+        .btn.active {
+            background: linear-gradient(135deg, var(--secondary) 0%, var(--secondary-dark) 100%);
+            color: white;
+            border: none;
         }
 
         /* Tables */
@@ -817,21 +843,6 @@
             background-color: rgba(52, 152, 219, 0.2);
         }
 
-        .btn.active {
-            background: linear-gradient(135deg, var(--secondary) 0%, var(--secondary-dark) 100%);
-            color: white;
-            border: none;
-        }
-        
-        .btn-warning {
-            background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);
-            color: white;
-        }
-        
-        .btn-warning:hover {
-            background: linear-gradient(135deg, #e67e22 0%, #f39c12 100%);
-        }
-
         /* Admin status badges */
         .status-active { 
             background-color: rgba(46, 204, 113, 0.1); 
@@ -946,6 +957,116 @@
             text-decoration: underline;
         }
 
+        /* Developer Notifications */
+        .notification-item {
+            background-color: rgba(52, 152, 219, 0.05);
+            border-left: 4px solid var(--secondary);
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 8px;
+            transition: var(--transition);
+        }
+        
+        .notification-item:hover {
+            background-color: rgba(52, 152, 219, 0.1);
+        }
+        
+        .notification-item h4 {
+            color: var(--primary);
+            margin-bottom: 5px;
+            font-size: 16px;
+        }
+        
+        .notification-item p {
+            color: var(--gray);
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+        
+        .notification-item .notification-time {
+            font-size: 12px;
+            color: var(--light-gray);
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .notification-item.update {
+            border-left-color: var(--success);
+        }
+        
+        .notification-item.warning {
+            border-left-color: var(--warning);
+        }
+        
+        .notification-item.error {
+            border-left-color: var(--danger);
+        }
+        
+        .developer-section {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+        
+        .developer-card {
+            background-color: white;
+            border-radius: var(--border-radius);
+            padding: 25px;
+            box-shadow: var(--box-shadow);
+            border: 1px solid var(--light);
+        }
+        
+        .developer-card h3 {
+            color: var(--primary);
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--light);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .json-viewer {
+            background-color: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            padding: 15px;
+            max-height: 300px;
+            overflow-y: auto;
+            font-family: monospace;
+            font-size: 13px;
+            white-space: pre-wrap;
+        }
+        
+        .data-stats {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .stat-item {
+            background-color: rgba(52, 152, 219, 0.05);
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+        }
+        
+        .stat-item h4 {
+            font-size: 24px;
+            color: var(--primary);
+            margin-bottom: 5px;
+        }
+        
+        .stat-item p {
+            font-size: 12px;
+            color: var(--gray);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
         /* Responsive */
         @media (max-width: 992px) {
             .container {
@@ -981,6 +1102,10 @@
                 flex-direction: column;
                 gap: 0;
             }
+            
+            .developer-section {
+                grid-template-columns: 1fr;
+            }
         }
 
         @media (max-width: 768px) {
@@ -1000,6 +1125,10 @@
             
             .modal-content {
                 padding: 30px 20px;
+            }
+            
+            .data-stats {
+                grid-template-columns: 1fr;
             }
         }
     </style>
@@ -1180,6 +1309,13 @@
                         </a>
                     </li>
                     <li>
+                        <a href="#" data-section="developer">
+                            <i class="fas fa-code"></i>
+                            <span>Developer</span>
+                            <span class="nav-count" id="developerCount">3</span>
+                        </a>
+                    </li>
+                    <li>
                         <a href="#" data-section="settings">
                             <i class="fas fa-cog"></i>
                             <span>Settings</span>
@@ -1234,15 +1370,15 @@
                             </div>
                         </div>
                         
-                        <div class="dashboard-card card-urgent">
+                        <div class="dashboard-card card-developer">
                             <div class="card-icon">
-                                <i class="fas fa-exclamation-triangle"></i>
+                                <i class="fas fa-code"></i>
                             </div>
-                            <h3>Total Admins</h3>
-                            <div class="number" id="totalAdminsCount">0</div>
+                            <h3>Database Collections</h3>
+                            <div class="number" id="totalCollectionsCount">9</div>
                             <div class="trend up">
                                 <i class="fas fa-arrow-up"></i>
-                                <span>3 active</span>
+                                <span>Realtime Updates</span>
                             </div>
                         </div>
                     </div>
@@ -1426,6 +1562,81 @@
                                 <!-- Admins will be populated here -->
                             </tbody>
                         </table>
+                    </div>
+                </div>
+                
+                <!-- Developer Section -->
+                <div class="content-section" id="developerSection" style="display: none;">
+                    <div class="section-header">
+                        <h2><i class="fas fa-code"></i> Developer Tools</h2>
+                        <button class="btn btn-primary" id="refreshDeveloperDataBtn">
+                            <i class="fas fa-sync-alt"></i> Refresh Data
+                        </button>
+                    </div>
+                    
+                    <!-- Developer Notifications -->
+                    <div class="developer-section">
+                        <div class="developer-card">
+                            <h3><i class="fas fa-bell"></i> Developer Notifications</h3>
+                            <div id="developerNotifications">
+                                <!-- Notifications will be loaded here -->
+                            </div>
+                        </div>
+                        
+                        <div class="developer-card">
+                            <h3><i class="fas fa-database"></i> Database Operations</h3>
+                            <div class="form-group">
+                                <label>Select Collection</label>
+                                <select id="developerCollection" class="form-control">
+                                    <option value="notices">Notices</option>
+                                    <option value="teachers">Teachers</option>
+                                    <option value="students">Students</option>
+                                    <option value="admins">Admins</option>
+                                    <option value="attendance">Attendance</option>
+                                    <option value="homeworks">Homeworks</option>
+                                </select>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label>JSON Data to Upload</label>
+                                <textarea id="developerJsonData" class="form-control textarea" placeholder='{"key": "value", "array": [1, 2, 3]}' rows="5"></textarea>
+                            </div>
+                            
+                            <div class="form-actions">
+                                <button type="button" class="btn btn-warning" id="clearCollectionBtn">
+                                    <i class="fas fa-trash"></i> Clear Collection
+                                </button>
+                                <button type="button" class="btn btn-success" id="uploadJsonDataBtn">
+                                    <i class="fas fa-upload"></i> Upload Data
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Database Stats -->
+                    <div class="section-header">
+                        <h2><i class="fas fa-chart-bar"></i> Database Statistics</h2>
+                    </div>
+                    
+                    <div class="data-stats" id="databaseStats">
+                        <!-- Stats will be loaded here -->
+                    </div>
+                    
+                    <!-- Data Viewer -->
+                    <div class="section-header">
+                        <h2><i class="fas fa-eye"></i> Data Viewer</h2>
+                        <div style="display: flex; gap: 10px;">
+                            <button class="btn btn-secondary" id="loadSampleDataBtn">
+                                <i class="fas fa-download"></i> Load Sample Data
+                            </button>
+                            <button class="btn btn-info" id="viewCurrentDataBtn">
+                                <i class="fas fa-search"></i> View Current Data
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="json-viewer" id="jsonViewer">
+                        {/* JSON data will be displayed here */}
                     </div>
                 </div>
                 
@@ -1776,6 +1987,8 @@
         let otpType = null;
         let failedLoginAttempts = 0; // Track failed login attempts
         let lastFailedLoginTime = null;
+        let developerNotifications = [];
+        let databaseStats = {};
 
         // ============================
         // DOM ELEMENTS
@@ -1809,10 +2022,11 @@
         const totalNoticesCount = document.getElementById('totalNoticesCount');
         const totalTeachersCount = document.getElementById('totalTeachersCount');
         const totalStudentsCount = document.getElementById('totalStudentsCount');
-        const totalAdminsCount = document.getElementById('totalAdminsCount');
+        const totalCollectionsCount = document.getElementById('totalCollectionsCount');
         const noticeCount = document.getElementById('noticeCount');
         const teacherCount = document.getElementById('teacherCount');
         const adminCount = document.getElementById('adminCount');
+        const developerCount = document.getElementById('developerCount');
         const activityLogTable = document.getElementById('activityLog');
         const currentDateElement = document.getElementById('currentDate');
         
@@ -1836,6 +2050,18 @@
         const adminsTableBody = document.getElementById('adminsTableBody');
         const saveAdminBtn = document.getElementById('saveAdminBtn');
         const cancelAdminBtn = document.getElementById('cancelAdminBtn');
+        
+        // Developer Elements
+        const developerNotificationsDiv = document.getElementById('developerNotifications');
+        const developerCollectionSelect = document.getElementById('developerCollection');
+        const developerJsonData = document.getElementById('developerJsonData');
+        const clearCollectionBtn = document.getElementById('clearCollectionBtn');
+        const uploadJsonDataBtn = document.getElementById('uploadJsonDataBtn');
+        const refreshDeveloperDataBtn = document.getElementById('refreshDeveloperDataBtn');
+        const databaseStatsDiv = document.getElementById('databaseStats');
+        const jsonViewer = document.getElementById('jsonViewer');
+        const loadSampleDataBtn = document.getElementById('loadSampleDataBtn');
+        const viewCurrentDataBtn = document.getElementById('viewCurrentDataBtn');
         
         // Settings Elements
         const settingsProfileImage = document.getElementById('settingsProfileImage');
@@ -1878,6 +2104,9 @@
             
             // Load sample data for demo
             loadSampleData();
+            
+            // Initialize developer notifications
+            loadDeveloperNotifications();
         });
 
         // ============================
@@ -2003,6 +2232,8 @@
                         loadTeachersTable();
                     } else if (sectionId === 'manageAdminsSection') {
                         loadAdminsTable();
+                    } else if (sectionId === 'developerSection') {
+                        loadDeveloperData();
                     }
                 });
             });
@@ -2064,6 +2295,13 @@
                 teacherDetailsModal.style.display = 'none';
             });
 
+            // Developer Management
+            clearCollectionBtn.addEventListener('click', clearCollection);
+            uploadJsonDataBtn.addEventListener('click', uploadJsonData);
+            refreshDeveloperDataBtn.addEventListener('click', loadDeveloperData);
+            loadSampleDataBtn.addEventListener('click', loadSampleDeveloperData);
+            viewCurrentDataBtn.addEventListener('click', viewCurrentData);
+
             // Modal Controls
             closeDeleteModal.addEventListener('click', () => {
                 document.getElementById('deleteModal').style.display = 'none';
@@ -2111,6 +2349,436 @@
             // Real-time validation for new password fields in forgot password
             newPasswordInput.addEventListener('input', validateForgotPasswordFields);
             confirmNewPasswordInput.addEventListener('input', validateForgotPasswordFields);
+        }
+
+        // ============================
+        // DEVELOPER FUNCTIONS
+        // ============================
+        function loadDeveloperNotifications() {
+            // Sample developer notifications
+            developerNotifications = [
+                {
+                    id: 'notif_1',
+                    title: 'App Update Available',
+                    message: 'A new version (v2.1.0) is available with bug fixes and performance improvements.',
+                    type: 'update',
+                    timestamp: Date.now() - (2 * 60 * 60 * 1000), // 2 hours ago
+                    link: 'https://play.google.com/store/apps/details?id=com.example.teacherapp'
+                },
+                {
+                    id: 'notif_2',
+                    title: 'Database Backup Recommended',
+                    message: 'It has been 7 days since last backup. Consider backing up your data.',
+                    type: 'warning',
+                    timestamp: Date.now() - (24 * 60 * 60 * 1000), // 1 day ago
+                    link: null
+                },
+                {
+                    id: 'notif_3',
+                    title: 'New Features Added',
+                    message: 'Developer tools and data management features have been added to the admin panel.',
+                    type: 'update',
+                    timestamp: Date.now() - (3 * 24 * 60 * 60 * 1000), // 3 days ago
+                    link: null
+                }
+            ];
+            
+            // Update notification count
+            developerCount.textContent = developerNotifications.length;
+            
+            // Display notifications
+            displayDeveloperNotifications();
+        }
+        
+        function displayDeveloperNotifications() {
+            if (!developerNotificationsDiv) return;
+            
+            developerNotificationsDiv.innerHTML = '';
+            
+            if (developerNotifications.length === 0) {
+                developerNotificationsDiv.innerHTML = '<p style="text-align: center; color: var(--gray);">No notifications</p>';
+                return;
+            }
+            
+            developerNotifications.forEach(notif => {
+                const notificationDiv = document.createElement('div');
+                notificationDiv.className = `notification-item ${notif.type}`;
+                
+                const timeAgo = getTimeAgo(notif.timestamp);
+                
+                notificationDiv.innerHTML = `
+                    <h4>${notif.title}</h4>
+                    <p>${notif.message}</p>
+                    <div class="notification-time">
+                        <i class="far fa-clock"></i>
+                        <span>${timeAgo}</span>
+                    </div>
+                `;
+                
+                if (notif.link) {
+                    notificationDiv.style.cursor = 'pointer';
+                    notificationDiv.addEventListener('click', () => {
+                        window.open(notif.link, '_blank');
+                    });
+                }
+                
+                developerNotificationsDiv.appendChild(notificationDiv);
+            });
+        }
+        
+        function getTimeAgo(timestamp) {
+            const now = Date.now();
+            const diff = now - timestamp;
+            
+            if (diff < 60000) { // less than 1 minute
+                return 'Just now';
+            } else if (diff < 3600000) { // less than 1 hour
+                const minutes = Math.floor(diff / 60000);
+                return `${minutes} minute${minutes > 1 ? 's' : ''} ago`;
+            } else if (diff < 86400000) { // less than 1 day
+                const hours = Math.floor(diff / 3600000);
+                return `${hours} hour${hours > 1 ? 's' : ''} ago`;
+            } else {
+                const days = Math.floor(diff / 86400000);
+                return `${days} day${days > 1 ? 's' : ''} ago`;
+            }
+        }
+        
+        async function loadDeveloperData() {
+            try {
+                // Show loading
+                refreshDeveloperDataBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Loading...';
+                
+                // Load database statistics
+                await loadDatabaseStats();
+                
+                // Load sample JSON data for the currently selected collection
+                await loadCollectionSampleData();
+                
+                showSuccess('Developer data loaded successfully!');
+            } catch (error) {
+                showError('Failed to load developer data: ' + error.message);
+            } finally {
+                refreshDeveloperDataBtn.innerHTML = '<i class="fas fa-sync-alt"></i> Refresh Data';
+            }
+        }
+        
+        async function loadDatabaseStats() {
+            try {
+                const collections = [
+                    'admins',
+                    'attendance',
+                    'attendance_summary',
+                    'homeworks',
+                    'notices',
+                    'pdf_access_logs',
+                    'pdf_storage_summary',
+                    'student_requests',
+                    'students'
+                ];
+                
+                databaseStats = {};
+                
+                // Load counts for each collection
+                for (const collection of collections) {
+                    try {
+                        const snapshot = await database.ref(collection).once('value');
+                        const count = snapshot.exists() ? Object.keys(snapshot.val()).length : 0;
+                        databaseStats[collection] = count;
+                    } catch (error) {
+                        console.warn(`Could not load ${collection}:`, error);
+                        databaseStats[collection] = 0;
+                    }
+                }
+                
+                // Display stats
+                displayDatabaseStats();
+                
+            } catch (error) {
+                console.error('Error loading database stats:', error);
+            }
+        }
+        
+        function displayDatabaseStats() {
+            if (!databaseStatsDiv) return;
+            
+            let statsHTML = '';
+            
+            for (const [collection, count] of Object.entries(databaseStats)) {
+                const displayName = collection.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+                
+                statsHTML += `
+                    <div class="stat-item">
+                        <h4>${count}</h4>
+                        <p>${displayName}</p>
+                    </div>
+                `;
+            }
+            
+            databaseStatsDiv.innerHTML = statsHTML;
+            
+            // Update total collections count
+            const totalCollections = Object.keys(databaseStats).length;
+            totalCollectionsCount.textContent = totalCollections;
+        }
+        
+        async function loadCollectionSampleData() {
+            const collection = developerCollectionSelect.value;
+            
+            try {
+                const snapshot = await database.ref(collection).limitToFirst(5).once('value');
+                
+                if (snapshot.exists()) {
+                    const data = snapshot.val();
+                    
+                    // Format JSON for display
+                    let formattedJson = JSON.stringify(data, null, 2);
+                    
+                    // If data is large, show only first few items
+                    if (Object.keys(data).length > 5) {
+                        const limitedData = {};
+                        let count = 0;
+                        for (const key in data) {
+                            if (count < 3) {
+                                limitedData[key] = data[key];
+                                count++;
+                            } else {
+                                limitedData[key] = '... (data truncated)';
+                                break;
+                            }
+                        }
+                        formattedJson = JSON.stringify(limitedData, null, 2);
+                    }
+                    
+                    jsonViewer.textContent = formattedJson;
+                    syntaxHighlightJSON(formattedJson);
+                } else {
+                    jsonViewer.textContent = 'No data found in this collection.';
+                }
+            } catch (error) {
+                jsonViewer.textContent = 'Error loading data: ' + error.message;
+            }
+        }
+        
+        function loadSampleDeveloperData() {
+            // Load sample data for the selected collection
+            const collection = developerCollectionSelect.value;
+            
+            let sampleData = '';
+            
+            switch (collection) {
+                case 'notices':
+                    sampleData = `{
+  "notice_001": {
+    "title": "Sample Notice Title",
+    "content": "This is a sample notice content for testing purposes.",
+    "priority": "high",
+    "category": "general",
+    "timestamp": "${new Date().toISOString()}",
+    "sentBy": "admin_001"
+  },
+  "notice_002": {
+    "title": "Another Sample Notice",
+    "content": "This is another sample notice for demonstration.",
+    "priority": "medium",
+    "category": "academic",
+    "timestamp": "${new Date(Date.now() - 86400000).toISOString()}",
+    "sentBy": "admin_001"
+  }
+}`;
+                    break;
+                    
+                case 'teachers':
+                    sampleData = `{
+  "teacher_001": {
+    "fullName": "Sample Teacher",
+    "subject": "Mathematics",
+    "grade": "Grade 10",
+    "phone": "+91 9876543210",
+    "email": "teacher@school.com",
+    "status": "approved",
+    "createdAt": "${new Date().toISOString()}"
+  }
+}`;
+                    break;
+                    
+                case 'students':
+                    sampleData = `{
+  "student_001": {
+    "fullName": "Sample Student",
+    "grade": "10",
+    "section": "A",
+    "rollNumber": "25",
+    "parentPhone": "+91 9876543211",
+    "email": "student@school.com",
+    "status": "active",
+    "createdAt": "${new Date().toISOString()}"
+  }
+}`;
+                    break;
+                    
+                default:
+                    sampleData = `{
+  "sample_key": "sample_value",
+  "description": "Sample data for ${collection} collection",
+  "timestamp": "${new Date().toISOString()}",
+  "createdBy": "developer_tool"
+}`;
+            }
+            
+            developerJsonData.value = sampleData;
+            showSuccess('Sample data loaded for ' + collection);
+        }
+        
+        async function clearCollection() {
+            const collection = developerCollectionSelect.value;
+            
+            if (!collection) {
+                showError('Please select a collection');
+                return;
+            }
+            
+            const confirmation = confirm(`Are you sure you want to clear ALL data from "${collection}" collection? This action cannot be undone!`);
+            
+            if (!confirmation) return;
+            
+            try {
+                // Show loading
+                clearCollectionBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Clearing...';
+                clearCollectionBtn.disabled = true;
+                
+                await database.ref(collection).remove();
+                
+                showSuccess(`Collection "${collection}" cleared successfully!`);
+                
+                // Update stats
+                await loadDatabaseStats();
+                
+                // Clear JSON viewer
+                jsonViewer.textContent = `Collection "${collection}" is now empty.`;
+                
+            } catch (error) {
+                showError('Failed to clear collection: ' + error.message);
+            } finally {
+                clearCollectionBtn.innerHTML = '<i class="fas fa-trash"></i> Clear Collection';
+                clearCollectionBtn.disabled = false;
+            }
+        }
+        
+        async function uploadJsonData() {
+            const collection = developerCollectionSelect.value;
+            const jsonData = developerJsonData.value;
+            
+            if (!collection) {
+                showError('Please select a collection');
+                return;
+            }
+            
+            if (!jsonData) {
+                showError('Please enter JSON data to upload');
+                return;
+            }
+            
+            try {
+                // Parse JSON
+                const data = JSON.parse(jsonData);
+                
+                // Show loading
+                uploadJsonDataBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Uploading...';
+                uploadJsonDataBtn.disabled = true;
+                
+                // Upload to Firebase
+                await database.ref(collection).update(data);
+                
+                showSuccess(`Data uploaded successfully to "${collection}" collection!`);
+                
+                // Update stats
+                await loadDatabaseStats();
+                
+                // Clear JSON input
+                developerJsonData.value = '';
+                
+                // Show updated data
+                await loadCollectionSampleData();
+                
+            } catch (error) {
+                if (error instanceof SyntaxError) {
+                    showError('Invalid JSON format. Please check your JSON syntax.');
+                } else {
+                    showError('Failed to upload data: ' + error.message);
+                }
+            } finally {
+                uploadJsonDataBtn.innerHTML = '<i class="fas fa-upload"></i> Upload Data';
+                uploadJsonDataBtn.disabled = false;
+            }
+        }
+        
+        async function viewCurrentData() {
+            const collection = developerCollectionSelect.value;
+            
+            if (!collection) {
+                showError('Please select a collection');
+                return;
+            }
+            
+            try {
+                // Show loading
+                viewCurrentDataBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Loading...';
+                
+                const snapshot = await database.ref(collection).once('value');
+                
+                if (snapshot.exists()) {
+                    const data = snapshot.val();
+                    const formattedJson = JSON.stringify(data, null, 2);
+                    jsonViewer.textContent = formattedJson;
+                    syntaxHighlightJSON(formattedJson);
+                    
+                    // Show count
+                    const count = Object.keys(data).length;
+                    showSuccess(`Loaded ${count} items from "${collection}" collection`);
+                } else {
+                    jsonViewer.textContent = 'No data found in this collection.';
+                }
+            } catch (error) {
+                jsonViewer.textContent = 'Error loading data: ' + error.message;
+            } finally {
+                viewCurrentDataBtn.innerHTML = '<i class="fas fa-search"></i> View Current Data';
+            }
+        }
+        
+        function syntaxHighlightJSON(json) {
+            jsonViewer.innerHTML = '';
+            
+            // Simple JSON syntax highlighting
+            const highlighted = json
+                .replace(/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g, function(match) {
+                    let cls = 'number';
+                    if (/^"/.test(match)) {
+                        if (/:$/.test(match)) {
+                            cls = 'key';
+                        } else {
+                            cls = 'string';
+                        }
+                    } else if (/true|false/.test(match)) {
+                        cls = 'boolean';
+                    } else if (/null/.test(match)) {
+                        cls = 'null';
+                    }
+                    return '<span class="' + cls + '">' + match + '</span>';
+                });
+            
+            jsonViewer.innerHTML = highlighted;
+            
+            // Add basic styling
+            const style = document.createElement('style');
+            style.textContent = `
+                .json-viewer .string { color: green; }
+                .json-viewer .number { color: darkorange; }
+                .json-viewer .boolean { color: blue; }
+                .json-viewer .null { color: magenta; }
+                .json-viewer .key { color: red; font-weight: bold; }
+            `;
+            jsonViewer.appendChild(style);
         }
 
         // ============================
@@ -2896,6 +3564,9 @@
                 
                 // Simulated students data
                 totalStudentsCount.textContent = '2847';
+                
+                // Load developer data
+                await loadDatabaseStats();
                 
                 // Load activity log
                 loadActivityLog();
