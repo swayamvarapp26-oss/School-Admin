@@ -1088,6 +1088,41 @@
                 padding: 30px 20px;
             }
         }
+        
+        /* Activity Log Styles */
+        .activity-status-completed {
+            color: var(--success);
+            font-weight: 600;
+        }
+        
+        .activity-status-failed {
+            color: var(--danger);
+            font-weight: 600;
+        }
+        
+        .activity-status-pending {
+            color: var(--warning);
+            font-weight: 600;
+        }
+        
+        .activity-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        
+        .no-activities {
+            text-align: center;
+            padding: 40px;
+            color: var(--gray);
+        }
+        
+        .no-activities i {
+            font-size: 48px;
+            margin-bottom: 15px;
+            display: block;
+            opacity: 0.5;
+        }
     </style>
 </head>
 <body>
@@ -1306,7 +1341,7 @@
                             <div class="number" id="totalNoticesCount">0</div>
                             <div class="trend up">
                                 <i class="fas fa-arrow-up"></i>
-                                <span>5 sent this week</span>
+                                <span id="noticesTrend">0 sent this week</span>
                             </div>
                         </div>
                         
@@ -1318,7 +1353,7 @@
                             <div class="number" id="totalTeachersCount">0</div>
                             <div class="trend up">
                                 <i class="fas fa-arrow-up"></i>
-                                <span>2 new this month</span>
+                                <span id="teachersTrend">0 new this month</span>
                             </div>
                         </div>
                         
@@ -1330,7 +1365,7 @@
                             <div class="number" id="totalStudentsCount">0</div>
                             <div class="trend up">
                                 <i class="fas fa-arrow-up"></i>
-                                <span>45 active today</span>
+                                <span id="studentsTrend">0 active today</span>
                             </div>
                         </div>
                         
@@ -1349,6 +1384,14 @@
                     
                     <div class="section-header">
                         <h2><i class="fas fa-history"></i> Recent Activity</h2>
+                        <div class="activity-actions">
+                            <button class="btn btn-secondary btn-sm" id="refreshActivityBtn">
+                                <i class="fas fa-sync-alt"></i> Refresh
+                            </button>
+                            <button class="btn btn-danger btn-sm" id="clearActivityBtn">
+                                <i class="fas fa-trash"></i> Clear All
+                            </button>
+                        </div>
                     </div>
                     
                     <div class="table-container">
@@ -2037,6 +2080,13 @@
         const adminCount = document.getElementById('adminCount');
         const activityLogTable = document.getElementById('activityLog');
         const currentDateElement = document.getElementById('currentDate');
+        const refreshActivityBtn = document.getElementById('refreshActivityBtn');
+        const clearActivityBtn = document.getElementById('clearActivityBtn');
+        
+        // Trend Elements
+        const noticesTrend = document.getElementById('noticesTrend');
+        const teachersTrend = document.getElementById('teachersTrend');
+        const studentsTrend = document.getElementById('studentsTrend');
         
         // Notice Elements
         const sendNoticeBtn = document.getElementById('sendNoticeBtn');
@@ -2239,9 +2289,15 @@
                         loadAdminsTable();
                     } else if (sectionId === 'developerSection') {
                         loadDeveloperData();
+                    } else if (sectionId === 'dashboardSection') {
+                        loadActivityLogFromDB();
                     }
                 });
             });
+
+            // Activity Log Buttons
+            refreshActivityBtn.addEventListener('click', loadActivityLogFromDB);
+            clearActivityBtn.addEventListener('click', clearAllActivities);
 
             // Notice Management
             sendNoticeBtn.addEventListener('click', sendNotice);
@@ -2357,6 +2413,186 @@
             // Real-time validation for new password fields in forgot password
             newPasswordInput.addEventListener('input', validateForgotPasswordFields);
             confirmNewPasswordInput.addEventListener('input', validateForgotPasswordFields);
+        }
+
+        // ============================
+        // ENHANCED ACTIVITY LOG SYSTEM
+        // ============================
+        
+        async function loadActivityLogFromDB() {
+            try {
+                refreshActivityBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Loading...';
+                refreshActivityBtn.disabled = true;
+                
+                // Try to load from Firebase first
+                const snapshot = await database.ref('activity_log').orderByChild('timestamp').limitToLast(50).once('value');
+                
+                activityLog = [];
+                if (snapshot.exists()) {
+                    snapshot.forEach((childSnapshot) => {
+                        const activity = childSnapshot.val();
+                        activity.id = childSnapshot.key;
+                        activityLog.unshift(activity); // Add to beginning to show newest first
+                    });
+                }
+                
+                // If no activities in Firebase, load from localStorage
+                if (activityLog.length === 0) {
+                    const localActivities = JSON.parse(localStorage.getItem('activity_log') || '[]');
+                    activityLog = localActivities.slice(-50).reverse(); // Get last 50 activities
+                }
+                
+                displayActivityLog();
+                
+            } catch (error) {
+                console.error('Failed to load activity log from database:', error);
+                // Load from localStorage
+                const localActivities = JSON.parse(localStorage.getItem('activity_log') || '[]');
+                activityLog = localActivities.slice(-50).reverse();
+                displayActivityLog();
+            } finally {
+                refreshActivityBtn.innerHTML = '<i class="fas fa-sync-alt"></i> Refresh';
+                refreshActivityBtn.disabled = false;
+            }
+        }
+        
+        function displayActivityLog() {
+            activityLogTable.innerHTML = '';
+            
+            if (activityLog.length === 0) {
+                activityLogTable.innerHTML = `
+                    <tr>
+                        <td colspan="4" class="no-activities">
+                            <i class="fas fa-history"></i>
+                            <h3>No activities yet</h3>
+                            <p>Start using the admin panel to see activities here</p>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+            
+            activityLog.forEach(activity => {
+                const row = document.createElement('tr');
+                
+                // Format date and time
+                let timeDisplay = '';
+                if (activity.timestamp) {
+                    const activityDate = new Date(activity.timestamp);
+                    const now = new Date();
+                    const diffMs = now - activityDate;
+                    const diffMins = Math.floor(diffMs / 60000);
+                    const diffHours = Math.floor(diffMs / 3600000);
+                    const diffDays = Math.floor(diffMs / 86400000);
+                    
+                    if (diffMins < 1) {
+                        timeDisplay = 'Just now';
+                    } else if (diffMins < 60) {
+                        timeDisplay = `${diffMins} minute${diffMins > 1 ? 's' : ''} ago`;
+                    } else if (diffHours < 24) {
+                        timeDisplay = `${diffHours} hour${diffHours > 1 ? 's' : ''} ago`;
+                    } else if (diffDays === 1) {
+                        timeDisplay = 'Yesterday, ' + activityDate.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+                    } else if (diffDays < 7) {
+                        timeDisplay = activityDate.toLocaleDateString('en-US', { weekday: 'long' }) + ', ' + 
+                                     activityDate.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+                    } else {
+                        timeDisplay = activityDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) + ', ' + 
+                                     activityDate.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+                    }
+                } else {
+                    timeDisplay = 'Recently';
+                }
+                
+                // Status class
+                let statusClass = 'activity-status-completed';
+                let statusText = 'Completed';
+                
+                if (activity.status === 'failed') {
+                    statusClass = 'activity-status-failed';
+                    statusText = 'Failed';
+                } else if (activity.status === 'pending') {
+                    statusClass = 'activity-status-pending';
+                    statusText = 'Pending';
+                }
+                
+                row.innerHTML = `
+                    <td>${timeDisplay}</td>
+                    <td>${activity.action || activity.activity}</td>
+                    <td>${activity.details || activity.description || ''}</td>
+                    <td><span class="${statusClass}">${statusText}</span></td>
+                `;
+                
+                activityLogTable.appendChild(row);
+            });
+        }
+        
+        async function addActivityLog(action, details, status = 'completed') {
+            if (!currentUser || !currentAdmin) return;
+            
+            const activity = {
+                action: action,
+                details: details,
+                status: status,
+                timestamp: new Date().toISOString(),
+                user: currentUser.uid,
+                userName: currentAdmin.name || currentUser.displayName || 'Admin',
+                userEmail: currentAdmin.email || currentUser.email || 'admin@school.com'
+            };
+            
+            // Add to local array
+            activityLog.unshift(activity);
+            
+            // Update display if on dashboard
+            if (document.getElementById('dashboardSection').style.display === 'block') {
+                displayActivityLog();
+            }
+            
+            // Save to Firebase
+            try {
+                const activityId = database.ref().child('activity_log').push().key;
+                await database.ref('activity_log/' + activityId).set(activity);
+            } catch (error) {
+                console.warn('Could not save activity to Firebase:', error);
+            }
+            
+            // Save to localStorage as backup
+            try {
+                const localActivities = JSON.parse(localStorage.getItem('activity_log') || '[]');
+                localActivities.push(activity);
+                // Keep only last 100 activities in localStorage
+                if (localActivities.length > 100) {
+                    localActivities.splice(0, localActivities.length - 100);
+                }
+                localStorage.setItem('activity_log', JSON.stringify(localActivities));
+            } catch (error) {
+                console.warn('Could not save activity to localStorage:', error);
+            }
+        }
+        
+        async function clearAllActivities() {
+            const confirmation = confirm('Are you sure you want to clear all activity logs? This action cannot be undone.');
+            if (!confirmation) return;
+            
+            try {
+                // Clear from Firebase
+                await database.ref('activity_log').remove();
+                
+                // Clear from localStorage
+                localStorage.removeItem('activity_log');
+                
+                // Clear local array
+                activityLog = [];
+                
+                // Update display
+                displayActivityLog();
+                
+                showSuccess('All activity logs cleared successfully!');
+                addActivityLog('Cleared Activity Log', 'All activity logs removed', 'completed');
+                
+            } catch (error) {
+                showError('Failed to clear activity logs: ' + error.message);
+            }
         }
 
         // ============================
@@ -2888,6 +3124,9 @@
                 
                 showSuccess('Login successful!');
                 
+                // Add login activity
+                addActivityLog('Admin Login', `Logged in from ${navigator.userAgent.substring(0, 50)}...`, 'completed');
+                
                 await loadAdminData(currentUser.uid);
                 showAdminPanel();
                 
@@ -2921,6 +3160,9 @@
                 
                 showError(errorMessage);
                 
+                // Add failed login activity
+                addActivityLog('Failed Login', `Failed login attempt for ${email}`, 'failed');
+                
                 if (failedLoginAttempts >= 5) {
                     loginBtn.disabled = true;
                     loginBtn.innerHTML = '<i class="fas fa-clock"></i> Try again in 5 minutes';
@@ -2945,6 +3187,9 @@
                 console.log("Logout successful");
                 
                 localStorage.removeItem('schoolAdminUser');
+                
+                // Add logout activity
+                addActivityLog('Admin Logout', 'Logged out from admin panel', 'completed');
                 
                 currentUser = null;
                 currentAdmin = null;
@@ -2977,6 +3222,7 @@
             adminPanel.style.display = 'block';
             
             loadDashboardData();
+            loadActivityLogFromDB();
         }
 
         // Function to update profile image
@@ -3008,10 +3254,30 @@
                     const noticesCount = noticesSnapshot.exists() ? Object.keys(noticesSnapshot.val()).length : 0;
                     totalNoticesCount.textContent = noticesCount;
                     noticeCount.textContent = noticesCount;
+                    
+                    // Calculate notices this week
+                    let noticesThisWeek = 0;
+                    if (noticesSnapshot.exists()) {
+                        const oneWeekAgo = new Date();
+                        oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
+                        
+                        noticesSnapshot.forEach((childSnapshot) => {
+                            const notice = childSnapshot.val();
+                            if (notice.timestamp) {
+                                const noticeDate = new Date(notice.timestamp);
+                                if (noticeDate >= oneWeekAgo) {
+                                    noticesThisWeek++;
+                                }
+                            }
+                        });
+                    }
+                    noticesTrend.textContent = `${noticesThisWeek} sent this week`;
+                    
                 } catch (error) {
                     console.warn('Could not load notices:', error);
                     totalNoticesCount.textContent = notices.length;
                     noticeCount.textContent = notices.length;
+                    noticesTrend.textContent = `${notices.length} sent total`;
                 }
                 
                 // Load teachers count
@@ -3019,8 +3285,12 @@
                     const teachersSnapshot = await database.ref('teachers').once('value');
                     let teachersCount = 0;
                     let pendingTeachers = 0;
+                    let newTeachersThisMonth = 0;
                     
                     if (teachersSnapshot.exists()) {
+                        const oneMonthAgo = new Date();
+                        oneMonthAgo.setMonth(oneMonthAgo.getMonth() - 1);
+                        
                         teachersSnapshot.forEach((childSnapshot) => {
                             const teacher = childSnapshot.val();
                             if (teacher.status === 'approved' || teacher.approved === true) {
@@ -3029,12 +3299,22 @@
                             if (teacher.status === 'pending' || teacher.approved === false) {
                                 pendingTeachers++;
                             }
+                            
+                            // Check if teacher was added this month
+                            if (teacher.addedDate) {
+                                const addedDate = new Date(teacher.addedDate);
+                                if (addedDate >= oneMonthAgo) {
+                                    newTeachersThisMonth++;
+                                }
+                            }
                         });
                     }
                     
                     totalTeachersCount.textContent = teachersCount;
                     teacherCount.textContent = pendingTeachers;
                     pendingTeachersCount.textContent = pendingTeachers;
+                    teachersTrend.textContent = `${newTeachersThisMonth} new this month`;
+                    
                 } catch (error) {
                     console.warn('Could not load teachers:', error);
                     const approvedTeachers = teachers.filter(t => 
@@ -3047,6 +3327,7 @@
                     ).length;
                     teacherCount.textContent = pendingTeachers;
                     pendingTeachersCount.textContent = pendingTeachers;
+                    teachersTrend.textContent = `${teachers.length} total`;
                 }
                 
                 // Load students count
@@ -3055,10 +3336,30 @@
                     const studentsCount = studentsSnapshot.exists() ? Object.keys(studentsSnapshot.val()).length : 0;
                     totalStudentsCount.textContent = studentsCount;
                     studentCount.textContent = studentsCount;
+                    
+                    // Calculate active students today
+                    let activeToday = 0;
+                    if (studentsSnapshot.exists()) {
+                        const today = new Date();
+                        today.setHours(0, 0, 0, 0);
+                        
+                        studentsSnapshot.forEach((childSnapshot) => {
+                            const student = childSnapshot.val();
+                            if (student.lastLogin) {
+                                const lastLoginDate = new Date(student.lastLogin);
+                                if (lastLoginDate >= today) {
+                                    activeToday++;
+                                }
+                            }
+                        });
+                    }
+                    studentsTrend.textContent = `${activeToday} active today`;
+                    
                 } catch (error) {
                     console.warn('Could not load students:', error);
                     totalStudentsCount.textContent = students.length;
                     studentCount.textContent = students.length;
+                    studentsTrend.textContent = `${students.length} total`;
                 }
                 
                 // Load developer data count
@@ -3081,13 +3382,11 @@
                     adminCount.textContent = admins.length || 1;
                 }
                 
-                // Load activity log
-                loadActivityLog();
-                
             } catch (error) {
                 console.error('Error loading dashboard data:', error);
                 totalNoticesCount.textContent = notices.length;
                 noticeCount.textContent = notices.length;
+                noticesTrend.textContent = `${notices.length} sent total`;
                 
                 const approvedTeachers = teachers.filter(t => 
                     t.status === 'approved' || t.approved === true
@@ -3099,35 +3398,15 @@
                 ).length;
                 teacherCount.textContent = pendingTeachers;
                 pendingTeachersCount.textContent = pendingTeachers;
+                teachersTrend.textContent = `${teachers.length} total`;
                 
                 totalStudentsCount.textContent = students.length;
                 studentCount.textContent = students.length;
+                studentsTrend.textContent = `${students.length} total`;
                 
                 totalDeveloperDataCount.textContent = developerData.length;
                 adminCount.textContent = admins.length || 1;
             }
-        }
-
-        function loadActivityLog() {
-            const activities = [
-                { time: '10:30 AM', activity: 'Sent Notice', details: 'Annual Sports Day Announcement', status: 'Completed' },
-                { time: 'Yesterday, 3:15 PM', activity: 'Added Teacher', details: 'Mr. John Smith - Mathematics', status: 'Completed' },
-                { time: 'Mar 12, 9:45 AM', activity: 'Deleted Notice', details: 'Old Library Schedule', status: 'Completed' },
-                { time: 'Mar 10, 2:20 PM', activity: 'Password Changed', details: 'Account security update', status: 'Completed' },
-                { time: 'Mar 8, 11:05 AM', activity: 'Sent Notice', details: 'Parent-Teacher Meeting Schedule', status: 'Completed' }
-            ];
-            
-            activityLogTable.innerHTML = '';
-            activities.forEach(activity => {
-                const row = document.createElement('tr');
-                row.innerHTML = `
-                    <td>${activity.time}</td>
-                    <td>${activity.activity}</td>
-                    <td>${activity.details}</td>
-                    <td><span style="color: var(--success); font-weight: 600;">${activity.status}</span></td>
-                `;
-                activityLogTable.appendChild(row);
-            });
         }
 
         // ============================
@@ -3180,6 +3459,10 @@
                     
                     notices.unshift(noticeData);
                     showSuccess('Notice sent successfully to Teachers & Students apps!');
+                    
+                    // Add activity log
+                    addActivityLog('Sent Notice', `${title} (${priority} priority)`, 'completed');
+                    
                 } catch (dbError) {
                     console.warn('Could not save notice to database:', dbError);
                     // Save locally if database fails
@@ -3201,6 +3484,9 @@
                     
                     notices.unshift(noticeData);
                     showSuccess('Notice saved locally! Database access failed.');
+                    
+                    // Add activity log
+                    addActivityLog('Sent Notice', `${title} (saved locally)`, 'completed');
                 }
                 
                 loadDashboardData();
@@ -3210,10 +3496,9 @@
                     loadNoticesTable();
                 }
                 
-                addActivityLog('Sent Notice', title);
-                
             } catch (error) {
                 showError('Failed to send notice: ' + error.message);
+                addActivityLog('Failed to Send Notice', title, 'failed');
             } finally {
                 btn.innerHTML = originalText;
                 btn.disabled = false;
@@ -3230,7 +3515,7 @@
             }
             
             showSuccess('Notice saved as draft successfully!');
-            addActivityLog('Saved Draft', title);
+            addActivityLog('Saved Draft Notice', title, 'completed');
         }
 
         async function loadNoticesTable() {
@@ -3767,13 +4052,24 @@
                 
                 const teacher = teachers.find(t => t.id === teacherId);
                 const teacherName = teacher ? (teacher.fullName || teacher.name) : 'Teacher';
-                addActivityLog(`${action === 'approve' ? 'Approved' : 'Rejected'} Teacher`, `${teacherName} - ${actionText}`);
+                
+                // Add activity log
+                addActivityLog(
+                    `${action === 'approve' ? 'Approved' : 'Rejected'} Teacher`, 
+                    `${teacherName} - ${actionText}`, 
+                    'completed'
+                );
                 
                 loadTeachersTable();
                 loadDashboardData();
                 
             } catch (error) {
                 showError(`Failed to ${action} teacher: ` + error.message);
+                addActivityLog(
+                    `Failed to ${action} Teacher`, 
+                    `Teacher ID: ${teacherId}`, 
+                    'failed'
+                );
             }
         }
 
@@ -3825,10 +4121,13 @@
                 }
                 
                 clearTeacherForm();
-                addActivityLog('Added Teacher', `${name} - ${subject}`);
+                
+                // Add activity log
+                addActivityLog('Added Teacher', `${name} - ${subject}`, 'completed');
                 
             } catch (error) {
                 showError('Failed to add teacher: ' + error.message);
+                addActivityLog('Failed to Add Teacher', name, 'failed');
             } finally {
                 btn.innerHTML = originalText;
                 btn.disabled = false;
@@ -4209,13 +4508,24 @@
                 
                 const student = students.find(s => s.id === studentId);
                 const studentName = student ? student.fullName : 'Student';
-                addActivityLog(`${action === 'approve' ? 'Approved' : 'Rejected'} Student`, `${studentName} - ${actionText}`);
+                
+                // Add activity log
+                addActivityLog(
+                    `${action === 'approve' ? 'Approved' : 'Rejected'} Student`, 
+                    `${studentName} - ${actionText}`, 
+                    'completed'
+                );
                 
                 loadStudentsTable();
                 loadDashboardData();
                 
             } catch (error) {
                 showError(`Failed to ${action} student: ` + error.message);
+                addActivityLog(
+                    `Failed to ${action} Student`, 
+                    `Student ID: ${studentId}`, 
+                    'failed'
+                );
             }
         }
 
@@ -4445,10 +4755,13 @@
                 }
                 
                 clearAdminForm();
-                addActivityLog('Added Admin', `${name} - ${role}`);
+                
+                // Add activity log
+                addActivityLog('Added Admin', `${name} - ${role}`, 'completed');
                 
             } catch (error) {
                 showError('Failed to create admin: ' + error.message);
+                addActivityLog('Failed to Add Admin', name, 'failed');
             } finally {
                 btn.innerHTML = originalText;
                 btn.disabled = false;
@@ -4490,7 +4803,7 @@
             document.getElementById('adminNameInput').value = '';
             document.getElementById('adminEmailInput').value = '';
             document.getElementById('adminRoleSelect').value = 'admin';
-            document.getElementById('adminStatusSelect').value = 'active';
+            document.getElementById('adminStatusSelect'). value = 'active';
             document.getElementById('adminPasswordInput').value = '';
         }
 
@@ -4684,7 +4997,9 @@
                 loadDashboardData();
                 clearDeveloperDataForm();
                 loadDeveloperData();
-                addActivityLog('Added Developer Data', title);
+                
+                // Add activity log
+                addActivityLog('Added Developer Data', title, 'completed');
                 
             } catch (error) {
                 console.error('Failed to save data:', error);
@@ -4773,10 +5088,13 @@
                 
                 showSuccess('Data updated successfully!');
                 loadDeveloperData();
-                addActivityLog('Updated Developer Data', newTitle);
+                
+                // Add activity log
+                addActivityLog('Updated Developer Data', newTitle, 'completed');
                 
             } catch (error) {
                 showError('Failed to update data: ' + error.message);
+                addActivityLog('Failed to Update Developer Data', newTitle, 'failed');
             }
         }
 
@@ -4818,7 +5136,9 @@
                         const noticeTitle = notices[index].title;
                         notices.splice(index, 1);
                         showSuccess(`Notice "${noticeTitle}" deleted successfully!`);
-                        addActivityLog('Deleted Notice', noticeTitle);
+                        
+                        // Add activity log
+                        addActivityLog('Deleted Notice', noticeTitle, 'completed');
                     }
                     
                 } else if (deleteType === 'teacher') {
@@ -4833,7 +5153,9 @@
                         const teacherName = teachers[index].name;
                         teachers.splice(index, 1);
                         showSuccess(`Teacher "${teacherName}" deleted successfully!`);
-                        addActivityLog('Deleted Teacher', teacherName);
+                        
+                        // Add activity log
+                        addActivityLog('Deleted Teacher', teacherName, 'completed');
                     }
                     
                 } else if (deleteType === 'student') {
@@ -4848,7 +5170,9 @@
                         const studentName = students[index].fullName;
                         students.splice(index, 1);
                         showSuccess(`Student "${studentName}" deleted successfully!`);
-                        addActivityLog('Deleted Student', studentName);
+                        
+                        // Add activity log
+                        addActivityLog('Deleted Student', studentName, 'completed');
                     }
                     
                 } else if (deleteType === 'admin') {
@@ -4868,7 +5192,9 @@
                         const adminName = admins[index].name;
                         admins.splice(index, 1);
                         showSuccess(`Admin "${adminName}" deleted successfully!`);
-                        addActivityLog('Deleted Admin', adminName);
+                        
+                        // Add activity log
+                        addActivityLog('Deleted Admin', adminName, 'completed');
                     }
                     
                 } else if (deleteType === 'developer_data') {
@@ -4889,7 +5215,9 @@
                         const dataTitle = developerData[index].title;
                         developerData.splice(index, 1);
                         showSuccess(`"${dataTitle}" deleted successfully!`);
-                        addActivityLog('Deleted Developer Data', dataTitle);
+                        
+                        // Add activity log
+                        addActivityLog('Deleted Developer Data', dataTitle, 'completed');
                     }
                 }
                 
@@ -4910,6 +5238,9 @@
                 
             } catch (error) {
                 showError('Failed to delete: ' + error.message);
+                
+                // Add failed activity log
+                addActivityLog(`Failed to Delete ${deleteType}`, `ID: ${itemToDelete}`, 'failed');
             } finally {
                 document.getElementById('deleteModal').style.display = 'none';
                 itemToDelete = null;
@@ -4953,10 +5284,15 @@
                             updatedAt: new Date().toISOString()
                         }).then(() => {
                             showSuccess('Profile picture updated successfully!');
-                            addActivityLog('Updated Profile Picture', 'Changed profile image');
+                            
+                            // Add activity log
+                            addActivityLog('Updated Profile Picture', 'Changed profile image', 'completed');
                         }).catch(error => {
                             console.warn('Could not update profile in database:', error);
                             showSuccess('Profile picture updated locally!');
+                            
+                            // Add activity log
+                            addActivityLog('Updated Profile Picture', 'Changed profile image (locally)', 'completed');
                         });
                     } catch (error) {
                         console.warn('Database update failed:', error);
@@ -5003,10 +5339,15 @@
                 adminName.textContent = name;
                 
                 showSuccess('Profile updated successfully!');
-                addActivityLog('Updated Profile', 'Changed display name');
+                
+                // Add activity log
+                addActivityLog('Updated Profile', 'Changed display name', 'completed');
                 
             } catch (error) {
                 showError('Failed to update profile: ' + error.message);
+                
+                // Add failed activity log
+                addActivityLog('Failed to Update Profile', 'Could not update display name', 'failed');
             } finally {
                 btn.innerHTML = originalText;
                 btn.disabled = false;
@@ -5068,7 +5409,9 @@
                 document.getElementById('settingsNewPassword').value = '';
                 document.getElementById('settingsConfirmPassword').value = '';
                 passwordRequirements.style.display = 'none';
-                addActivityLog('Changed Password', 'Account security update');
+                
+                // Add activity log
+                addActivityLog('Changed Password', 'Account security update', 'completed');
                 
             } catch (error) {
                 let errorMessage = 'Failed to change password. ';
@@ -5086,6 +5429,9 @@
                 }
                 
                 showError(errorMessage);
+                
+                // Add failed activity log
+                addActivityLog('Failed to Change Password', 'Password update failed', 'failed');
             } finally {
                 btn.innerHTML = originalText;
                 btn.disabled = false;
@@ -5199,22 +5545,6 @@
         function clearLoginForm() {
             document.getElementById('loginEmail').value = '';
             document.getElementById('loginPassword').value = '';
-        }
-
-        function addActivityLog(activity, details) {
-            const now = new Date();
-            const timeString = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
-            
-            activityLog.unshift({
-                time: timeString,
-                activity: activity,
-                details: details,
-                status: 'Completed'
-            });
-            
-            if (document.getElementById('dashboardSection').style.display === 'block') {
-                loadActivityLog();
-            }
         }
 
         function showSuccess(message) {
