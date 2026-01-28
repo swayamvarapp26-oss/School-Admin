@@ -15,7 +15,6 @@
     <!-- EmailJS -->
     <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
     <style>
-        /* All existing CSS remains the same */
         * {
             margin: 0;
             padding: 0;
@@ -226,7 +225,7 @@
         .card-notices::before { background: linear-gradient(90deg, #3498db, #2ecc71); }
         .card-teachers::before { background: linear-gradient(90deg, #9b59b6, #e74c3c); }
         .card-students::before { background: linear-gradient(90deg, #f39c12, #d35400); }
-        .card-urgent::before { background: linear-gradient(90deg, #e74c3c, #c0392b); }
+        .card-admins::before { background: linear-gradient(90deg, #e74c3c, #c0392b); }
         .card-developer::before { background: linear-gradient(90deg, #8e44ad, #3498db); }
 
         .card-icon {
@@ -244,7 +243,7 @@
         .card-notices .card-icon { background: linear-gradient(135deg, #3498db, #2ecc71); }
         .card-teachers .card-icon { background: linear-gradient(135deg, #9b59b6, #e74c3c); }
         .card-students .card-icon { background: linear-gradient(135deg, #f39c12, #d35400); }
-        .card-urgent .card-icon { background: linear-gradient(135deg, #e74c3c, #c0392b); }
+        .card-admins .card-icon { background: linear-gradient(135deg, #e74c3c, #c0392b); }
         .card-developer .card-icon { background: linear-gradient(135deg, #8e44ad, #3498db); }
 
         .dashboard-card h3 {
@@ -1113,7 +1112,7 @@
             <div id="loginTab" class="auth-tab-content active">
                 <div class="form-group">
                     <label>Email Address</label>
-                    <input type="email" id="loginEmail" class="form-control" placeholder="admin@school.com" value="admin@school.com">
+                    <input type="email" id="loginEmail" class="form-control" placeholder="admin@school.com" value="vijaygond2024@gmail.com">
                 </div>
                 
                 <div class="form-group">
@@ -1131,7 +1130,7 @@
                 </button>
                 
                 <div class="auth-footer">
-                    <p>Default Admin Credentials: admin@school.com / admin123</p>
+                    <p>Admin: vijaygond2024@gmail.com / admin123</p>
                 </div>
             </div>
             
@@ -1219,8 +1218,8 @@
                     <i class="fas fa-user"></i>
                 </div>
                 <div class="user-details">
-                    <h3 id="adminName">Admin User</h3>
-                    <p id="adminEmail">admin@school.com</p>
+                    <h3 id="adminName">VIJAY KUMAR</h3>
+                    <p id="adminEmail">vijaygond2024@gmail.com</p>
                 </div>
                 <button class="logout-btn" id="logoutBtn">
                     <i class="fas fa-sign-out-alt"></i> Logout
@@ -1257,6 +1256,13 @@
                             <i class="fas fa-chalkboard-teacher"></i>
                             <span>Manage Teachers</span>
                             <span class="nav-count" id="teacherCount">0</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" data-section="manageStudents">
+                            <i class="fas fa-user-graduate"></i>
+                            <span>Manage Students</span>
+                            <span class="nav-count" id="studentCount">0</span>
                         </a>
                     </li>
                     <li>
@@ -1495,6 +1501,37 @@
                     </div>
                 </div>
                 
+                <!-- NEW: Manage Students Section -->
+                <div class="content-section" id="manageStudentsSection" style="display: none;">
+                    <div class="section-header">
+                        <h2><i class="fas fa-user-graduate"></i> Manage Students</h2>
+                        <button class="btn btn-primary" id="refreshStudentsBtn">
+                            <i class="fas fa-sync-alt"></i> Refresh
+                        </button>
+                    </div>
+                    
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Profile</th>
+                                    <th>Name</th>
+                                    <th>Roll No.</th>
+                                    <th>Grade & Section</th>
+                                    <th>Parent Name</th>
+                                    <th>Phone</th>
+                                    <th>Email</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="studentsTableBody">
+                                <!-- Students will be populated here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                
                 <!-- Manage Admins Section -->
                 <div class="content-section" id="manageAdminsSection" style="display: none;">
                     <div class="section-header">
@@ -1622,12 +1659,12 @@
                         
                         <div class="form-group">
                             <label>Full Name</label>
-                            <input type="text" id="settingsName" class="form-control" value="Admin User">
+                            <input type="text" id="settingsName" class="form-control" value="VIJAY KUMAR">
                         </div>
                         
                         <div class="form-group">
                             <label>Email Address</label>
-                            <input type="email" id="settingsEmail" class="form-control" value="admin@school.com" disabled>
+                            <input type="email" id="settingsEmail" class="form-control" value="vijaygond2024@gmail.com" disabled>
                         </div>
                         
                         <div class="form-actions">
@@ -1862,6 +1899,20 @@
         </div>
     </div>
     
+    <!-- Student Details Modal -->
+    <div class="modal" id="studentDetailsModal">
+        <div class="modal-content" style="max-width: 600px;">
+            <div class="modal-header">
+                <h3><i class="fas fa-user-graduate"></i> Student Details</h3>
+                <button class="close-modal" id="closeStudentDetailsModal">&times;</button>
+            </div>
+            
+            <div id="studentDetailsContent">
+                <!-- Student details will be loaded here -->
+            </div>
+        </div>
+    </div>
+    
     <!-- Success Message -->
     <div id="successMessage" style="display: none;">
         <div style="display: flex; align-items: center; gap: 15px;">
@@ -1934,8 +1985,9 @@
         let currentAdmin = null;
         let notices = [];
         let teachers = [];
+        let students = []; // NEW: For storing students data
         let admins = [];
-        let developerData = []; // NEW: For storing developer data
+        let developerData = []; // For storing developer data
         let activityLog = [];
         let itemToDelete = null;
         let deleteType = null;
@@ -1943,7 +1995,7 @@
         let pendingPasswordReset = null;
         let currentOtp = null;
         let otpType = null;
-        let failedLoginAttempts = 0; // Track failed login attempts
+        let failedLoginAttempts = 0;
         let lastFailedLoginTime = null;
 
         // ============================
@@ -1978,10 +2030,10 @@
         const totalNoticesCount = document.getElementById('totalNoticesCount');
         const totalTeachersCount = document.getElementById('totalTeachersCount');
         const totalStudentsCount = document.getElementById('totalStudentsCount');
-        const totalAdminsCount = document.getElementById('totalAdminsCount');
-        const totalDeveloperDataCount = document.getElementById('totalDeveloperDataCount'); // NEW
+        const totalDeveloperDataCount = document.getElementById('totalDeveloperDataCount');
         const noticeCount = document.getElementById('noticeCount');
         const teacherCount = document.getElementById('teacherCount');
+        const studentCount = document.getElementById('studentCount'); // NEW
         const adminCount = document.getElementById('adminCount');
         const activityLogTable = document.getElementById('activityLog');
         const currentDateElement = document.getElementById('currentDate');
@@ -2001,13 +2053,17 @@
         const showPendingTeachersBtn = document.getElementById('showPendingTeachersBtn');
         const pendingTeachersCount = document.getElementById('pendingTeachersCount');
         
+        // NEW: Student Elements
+        const refreshStudentsBtn = document.getElementById('refreshStudentsBtn');
+        const studentsTableBody = document.getElementById('studentsTableBody');
+        
         // Admin Elements
         const addAdminBtn = document.getElementById('addAdminBtn');
         const adminsTableBody = document.getElementById('adminsTableBody');
         const saveAdminBtn = document.getElementById('saveAdminBtn');
         const cancelAdminBtn = document.getElementById('cancelAdminBtn');
         
-        // NEW: Developer Elements
+        // Developer Elements
         const refreshDeveloperDataBtn = document.getElementById('refreshDeveloperDataBtn');
         const saveDeveloperDataBtn = document.getElementById('saveDeveloperDataBtn');
         const developerDataList = document.getElementById('developerDataList');
@@ -2083,7 +2139,7 @@
                     clearOtpInputs();
                     document.getElementById('resetOtpSection').style.display = 'none';
                     newPasswordFields.style.display = 'none';
-                    resetPasswordBtn.style.display = 'none'; // Hide change password button
+                    resetPasswordBtn.style.display = 'none';
                     verifyOtpBtnForgot.style.display = 'none';
                     document.getElementById('sendResetOtpBtn').style.display = 'block';
                     
@@ -2177,10 +2233,12 @@
                         loadNoticesTable();
                     } else if (sectionId === 'manageTeachersSection') {
                         loadTeachersTable();
+                    } else if (sectionId === 'manageStudentsSection') {
+                        loadStudentsTable(); // NEW: Load students
                     } else if (sectionId === 'manageAdminsSection') {
                         loadAdminsTable();
                     } else if (sectionId === 'developerSection') {
-                        loadDeveloperData(); // NEW: Load developer data
+                        loadDeveloperData();
                     }
                 });
             });
@@ -2204,6 +2262,12 @@
             closeTeacherModal.addEventListener('click', () => {
                 document.getElementById('addTeacherModal').style.display = 'none';
                 clearTeacherForm();
+            });
+
+            // NEW: Student Management
+            refreshStudentsBtn.addEventListener('click', loadStudentsTable);
+            closeStudentDetailsModal.addEventListener('click', () => {
+                studentDetailsModal.style.display = 'none';
             });
 
             // Admin Management
@@ -2260,7 +2324,7 @@
             
             confirmDeleteBtn.addEventListener('click', confirmDelete);
 
-            // NEW: Developer Data Management
+            // Developer Data Management
             refreshDeveloperDataBtn.addEventListener('click', loadDeveloperData);
             saveDeveloperDataBtn.addEventListener('click', saveDeveloperData);
 
@@ -2318,8 +2382,7 @@
                 return true;
             } catch (error) {
                 console.error('EmailJS Error:', error);
-                // For demo purposes, we'll return true even if email fails
-                return true;
+                return true; // For demo purposes
             }
         }
 
@@ -2328,7 +2391,7 @@
         }
 
         // ============================
-        // SIMPLIFIED PASSWORD RESET FLOW - FIXED VERSION
+        // SIMPLIFIED PASSWORD RESET FLOW
         // ============================
         async function sendPasswordResetOtp() {
             const email = document.getElementById('forgotEmail').value.trim().toLowerCase();
@@ -2338,20 +2401,17 @@
                 return;
             }
             
-            // Validate email format
             if (!validateEmail(email)) {
                 showError('Please enter a valid email address');
                 return;
             }
             
-            // Show loading
             const btn = sendResetOtpBtn;
             const originalText = btn.innerHTML;
             btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending OTP...';
             btn.disabled = true;
             
             try {
-                // Check if email exists in Firebase
                 try {
                     const methods = await auth.fetchSignInMethodsForEmail(email);
                     if (methods.length === 0) {
@@ -2362,25 +2422,19 @@
                     console.log("Could not verify email, continuing anyway:", error);
                 }
                 
-                // Generate OTP
                 currentOtp = generateOtp();
                 otpType = 'password_reset';
-                
-                // Save pending reset
                 pendingPasswordReset = { email };
                 
-                // Send OTP via EmailJS
                 const emailSent = await sendOtpEmail(email, currentOtp, 'password_reset');
                 
                 if (emailSent) {
                     showSuccess('Password reset OTP sent to your email! Please check your inbox.');
                     
-                    // Show OTP section and Verify OTP button
                     document.getElementById('resetOtpSection').style.display = 'block';
                     verifyOtpBtnForgot.style.display = 'block';
                     sendResetOtpBtn.style.display = 'none';
                     
-                    // Focus first OTP input
                     document.querySelectorAll('.otp-input')[0].focus();
                 } else {
                     showError('Failed to send OTP. Please try again.');
@@ -2390,7 +2444,6 @@
                 console.error('Error:', authError);
                 showError('Error: ' + authError.message);
             } finally {
-                // Reset button
                 btn.innerHTML = originalText;
                 btn.disabled = false;
             }
@@ -2410,30 +2463,22 @@
                 return;
             }
             
-            // Show loading
             const btn = verifyOtpBtnForgot;
             const originalText = btn.innerHTML;
             btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Verifying...';
             btn.disabled = true;
             
             try {
-                // OTP verified successfully
                 showSuccess('OTP verified successfully! Now you can set your new password.');
                 
-                // Hide OTP section and Verify button
                 document.getElementById('resetOtpSection').style.display = 'none';
                 verifyOtpBtnForgot.style.display = 'none';
-                
-                // Show new password fields
                 newPasswordFields.style.display = 'block';
-                
-                // Don't show the Change Password button yet - wait for password validation
                 resetPasswordBtn.style.display = 'none';
                 
             } catch (error) {
                 showError('OTP verification failed: ' + error.message);
             } finally {
-                // Reset button
                 btn.innerHTML = originalText;
                 btn.disabled = false;
             }
@@ -2444,16 +2489,13 @@
             const newPassword = newPasswordInput.value;
             const confirmNewPassword = confirmNewPasswordInput.value;
             
-            // Check if both fields are filled and passwords match
             if (newPassword && confirmNewPassword && newPassword === confirmNewPassword) {
-                // Check password requirements
                 let requirements = [];
                 if (newPassword.length < 6) requirements.push('at least 6 characters');
                 if (!/[a-z]/.test(newPassword)) requirements.push('one lowercase letter');
                 if (!/[A-Z]/.test(newPassword)) requirements.push('one uppercase letter');
                 if (!/[0-9]/.test(newPassword)) requirements.push('one number');
                 
-                // If all requirements are met, show the Change Password button
                 if (requirements.length === 0) {
                     resetPasswordBtn.style.display = 'block';
                 } else {
@@ -2540,7 +2582,6 @@
                 return;
             }
             
-            // Check password requirements
             let requirements = [];
             if (newPassword.length < 6) requirements.push('at least 6 characters');
             if (!/[a-z]/.test(newPassword)) requirements.push('one lowercase letter');
@@ -2552,26 +2593,19 @@
                 return;
             }
             
-            // Show loading
             const btn = resetPasswordBtn;
             const originalText = btn.innerHTML;
             btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Changing Password...';
             btn.disabled = true;
             
             try {
-                // Get the email from pending reset
                 const email = pendingPasswordReset.email;
                 
-                // FIRST: Try to sign in with the old password to get current user
-                // This is important for Firebase to recognize the password change
                 try {
-                    // Since we don't know the old password, we use Firebase's sendPasswordResetEmail
-                    // This is the proper way to reset password in Firebase
                     await auth.sendPasswordResetEmail(email);
                     
                     showSuccess('Password reset email sent! Check your inbox for reset instructions.');
                     
-                    // IMPORTANT: Clear the form and show user instructions
                     document.getElementById('forgotEmail').value = '';
                     newPasswordInput.value = '';
                     confirmNewPasswordInput.value = '';
@@ -2582,33 +2616,27 @@
                     document.getElementById('sendResetOtpBtn').style.display = 'block';
                     clearOtpInputs();
                     
-                    // Show additional instructions
                     showSuccess('Password reset email sent! Please check your inbox and follow the link to set a new password. After resetting, you can login with your new password.');
                     
-                    // Reset state
                     pendingPasswordReset = null;
                     currentOtp = null;
                     otpType = null;
                     
-                    // Switch to login tab after a delay
                     setTimeout(() => {
                         authTabs.forEach(t => t.classList.remove('active'));
                         authTabs[0].classList.add('active');
                         authTabContents.forEach(content => content.style.display = 'none');
                         document.getElementById('loginTab').style.display = 'block';
                         
-                        // Update login form with the email that was reset
                         document.getElementById('loginEmail').value = email;
                         document.getElementById('loginPassword').value = '';
                         
-                        // Show instruction to check email
                         showSuccess('Please check your email for password reset link. After resetting, use your new password to login.');
                     }, 3000);
                     
                 } catch (error) {
                     console.error('Password reset error:', error);
                     
-                    // Handle specific Firebase errors
                     if (error.code === 'auth/user-not-found') {
                         showError('Email not registered. Please check your email address.');
                     } else if (error.code === 'auth/too-many-requests') {
@@ -2622,7 +2650,6 @@
                 console.error('Unexpected error:', error);
                 showError('An unexpected error occurred: ' + error.message);
             } finally {
-                // Reset button
                 btn.innerHTML = originalText;
                 btn.disabled = false;
             }
@@ -2644,15 +2671,12 @@
                 return;
             }
             
-            // Handle based on otpType
             if (otpType === 'password_reset' && pendingPasswordReset) {
-                // Hide OTP modal
                 document.getElementById('otpModal').style.display = 'none';
                 clearOtpInputs();
                 
-                // Show new password fields
                 newPasswordFields.style.display = 'block';
-                resetPasswordBtn.style.display = 'none'; // Hide initially
+                resetPasswordBtn.style.display = 'none';
                 
                 showSuccess('OTP verified! Now enter your new password.');
             }
@@ -2664,14 +2688,12 @@
                 return;
             }
             
-            // Show loading
             const btn = resendOtpBtn;
             const originalText = btn.innerHTML;
             btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Resending...';
             btn.disabled = true;
             
             try {
-                // Generate new OTP
                 currentOtp = generateOtp();
                 
                 let email, type;
@@ -2680,7 +2702,6 @@
                     type = 'password_reset';
                 }
                 
-                // Send OTP via EmailJS
                 const emailSent = await sendOtpEmail(email, currentOtp, type);
                 
                 if (emailSent) {
@@ -2692,7 +2713,6 @@
             } catch (error) {
                 showError('Error resending OTP: ' + error.message);
             } finally {
-                // Reset button
                 btn.innerHTML = originalText;
                 btn.disabled = false;
             }
@@ -2709,7 +2729,6 @@
                 return;
             }
             
-            // Show requirements box
             passwordRequirements.style.display = 'block';
             
             // Check length
@@ -2754,7 +2773,7 @@
         }
 
         // ============================
-        // FIREBASE AUTHENTICATION FUNCTIONS - IMPROVED VERSION
+        // FIREBASE AUTHENTICATION FUNCTIONS
         // ============================
         function checkAuthState() {
             auth.onAuthStateChanged((user) => {
@@ -2762,21 +2781,17 @@
                 if (user) {
                     console.log("User is logged in:", user.email);
                     currentUser = user;
-                    // Reset failed attempts counter on successful auth state change
                     failedLoginAttempts = 0;
                     lastFailedLoginTime = null;
                     
-                    // Load admin data from database
                     loadAdminData(user.uid).then(() => {
                         showAdminPanel();
                     }).catch(error => {
                         console.error("Error loading admin data:", error);
-                        // Show admin panel even without database data
                         showAdminPanel();
                     });
                 } else {
                     console.log("No user logged in");
-                    // Show auth screen
                     authContainer.style.display = 'flex';
                     adminPanel.style.display = 'none';
                 }
@@ -2791,19 +2806,15 @@
                     currentAdmin = snapshot.val();
                     currentAdmin.id = uid;
                     
-                    // Update admin info in UI
                     adminName.textContent = currentAdmin.name || currentUser.displayName || 'Admin User';
                     adminEmail.textContent = currentAdmin.email || currentUser.email || 'admin@school.com';
                     
-                    // Update profile image
                     updateProfileImage(adminAvatar, currentAdmin.profileImage);
                     updateProfileImage(settingsProfileImage, currentAdmin.profileImage);
                     
-                    // Update settings form
                     document.getElementById('settingsName').value = currentAdmin.name || currentUser.displayName || 'Admin User';
                     document.getElementById('settingsEmail').value = currentAdmin.email || currentUser.email || 'admin@school.com';
                 } else {
-                    // Create default admin data if not exists
                     currentAdmin = {
                         id: uid,
                         name: currentUser.displayName || 'Admin User',
@@ -2817,7 +2828,6 @@
                 }
             } catch (error) {
                 console.error("Error loading admin data:", error);
-                // Use default values
                 currentAdmin = {
                     id: uid,
                     name: currentUser?.displayName || 'Admin User',
@@ -2839,71 +2849,60 @@
                 return;
             }
             
-            // Check if we have too many failed attempts
             const now = new Date();
             if (failedLoginAttempts >= 5) {
                 if (lastFailedLoginTime) {
-                    const timeDiff = (now - lastFailedLoginTime) / 1000; // in seconds
-                    if (timeDiff < 300) { // 5 minutes
+                    const timeDiff = (now - lastFailedLoginTime) / 1000;
+                    if (timeDiff < 300) {
                         showError('Too many failed attempts. Please wait 5 minutes before trying again.');
                         return;
                     } else {
-                        // Reset counter if enough time has passed
                         failedLoginAttempts = 0;
                         lastFailedLoginTime = null;
                     }
                 }
             }
             
-            // Show loading
             const btn = loginBtn;
             const originalText = btn.innerHTML;
             btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Logging in...';
             btn.disabled = true;
             
             try {
-                // REAL FIREBASE IMPLEMENTATION
                 console.log("Attempting Firebase login...");
                 const userCredential = await auth.signInWithEmailAndPassword(email, password);
                 currentUser = userCredential.user;
                 
                 console.log("Login successful:", currentUser.email);
                 
-                // Reset failed attempts on success
                 failedLoginAttempts = 0;
                 lastFailedLoginTime = null;
                 
-                // Update last login in database if possible
                 try {
                     await database.ref('admins/' + currentUser.uid).update({
                         lastLogin: new Date().toISOString()
                     });
                 } catch (dbError) {
                     console.warn('Could not update last login in database:', dbError);
-                    // Continue even if database update fails
                 }
                 
                 showSuccess('Login successful!');
                 
-                // Load admin data and show admin panel
                 await loadAdminData(currentUser.uid);
                 showAdminPanel();
                 
             } catch (error) {
                 console.error('Login error:', error);
                 
-                // Increment failed attempts
                 failedLoginAttempts++;
                 lastFailedLoginTime = new Date();
                 
-                // Handle specific Firebase errors
                 let errorMessage = 'Login failed: ';
                 
                 if (error.code === 'auth/user-not-found') {
                     errorMessage = 'Email not registered. Please check your email address.';
                 } else if (error.code === 'auth/wrong-password') {
                     errorMessage = 'Invalid password. Please try again.';
-                    // Give hint about password reset
                     if (failedLoginAttempts >= 3) {
                         errorMessage += ' If you forgot your password, use the "Forgot Password" tab.';
                     }
@@ -2913,7 +2912,6 @@
                     errorMessage = 'This account has been disabled. Please contact administrator.';
                 } else if (error.code === 'auth/too-many-requests') {
                     errorMessage = 'Too many failed attempts. Access temporarily blocked. Please try again later or reset your password.';
-                    // Suggest password reset
                     errorMessage += ' You can reset your password using the "Forgot Password" tab.';
                 } else if (error.code === 'auth/network-request-failed') {
                     errorMessage = 'Network error. Please check your internet connection.';
@@ -2923,7 +2921,6 @@
                 
                 showError(errorMessage);
                 
-                // If too many failed attempts, disable login button temporarily
                 if (failedLoginAttempts >= 5) {
                     loginBtn.disabled = true;
                     loginBtn.innerHTML = '<i class="fas fa-clock"></i> Try again in 5 minutes';
@@ -2933,10 +2930,9 @@
                         loginBtn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Login to Admin Panel';
                         failedLoginAttempts = 0;
                         lastFailedLoginTime = null;
-                    }, 300000); // 5 minutes
+                    }, 300000);
                 }
             } finally {
-                // Reset button (only if not disabled by too many attempts)
                 if (!loginBtn.disabled) {
                     btn.innerHTML = originalText;
                     btn.disabled = false;
@@ -2948,18 +2944,14 @@
             auth.signOut().then(() => {
                 console.log("Logout successful");
                 
-                // Clear local storage
                 localStorage.removeItem('schoolAdminUser');
                 
-                // Reset app state
                 currentUser = null;
                 currentAdmin = null;
                 
-                // Show auth screen
                 authContainer.style.display = 'flex';
                 adminPanel.style.display = 'none';
                 
-                // Reset forms
                 clearLoginForm();
                 
                 showSuccess('Logged out successfully!');
@@ -2975,19 +2967,15 @@
         function showAdminPanel() {
             console.log("Showing admin panel");
             
-            // Update user info
             adminName.textContent = currentAdmin?.name || currentUser?.displayName || 'Admin User';
             adminEmail.textContent = currentAdmin?.email || currentUser?.email || 'admin@school.com';
             
-            // Update admin avatar
             updateProfileImage(adminAvatar, currentAdmin?.profileImage);
             updateProfileImage(settingsProfileImage, currentAdmin?.profileImage);
             
-            // Switch to admin panel
             authContainer.style.display = 'none';
             adminPanel.style.display = 'block';
             
-            // Load dashboard data
             loadDashboardData();
         }
 
@@ -2996,7 +2984,6 @@
             if (!container) return;
             
             if (imageUrl && (imageUrl.startsWith('http') || imageUrl.startsWith('blob'))) {
-                // If image URL exists and is valid, create img element
                 const img = document.createElement('img');
                 img.src = imageUrl;
                 img.alt = "Profile";
@@ -3004,13 +2991,11 @@
                 img.style.height = '100%';
                 img.style.objectFit = 'cover';
                 img.onerror = function() {
-                    // If image fails to load, show icon instead
                     container.innerHTML = '<i class="fas fa-user"></i>';
                 };
                 container.innerHTML = '';
                 container.appendChild(img);
             } else {
-                // If no image URL, show icon
                 container.innerHTML = '<i class="fas fa-user"></i>';
             }
         }
@@ -3064,16 +3049,16 @@
                     pendingTeachersCount.textContent = pendingTeachers;
                 }
                 
-                // Load admins count
+                // Load students count
                 try {
-                    const adminsSnapshot = await database.ref('admins').once('value');
-                    const adminsCount = adminsSnapshot.exists() ? Object.keys(adminsSnapshot.val()).length : 1;
-                    totalAdminsCount.textContent = adminsCount;
-                    adminCount.textContent = adminsCount;
+                    const studentsSnapshot = await database.ref('students').once('value');
+                    const studentsCount = studentsSnapshot.exists() ? Object.keys(studentsSnapshot.val()).length : 0;
+                    totalStudentsCount.textContent = studentsCount;
+                    studentCount.textContent = studentsCount;
                 } catch (error) {
-                    console.warn('Could not load admins:', error);
-                    totalAdminsCount.textContent = admins.length || 1;
-                    adminCount.textContent = admins.length || 1;
+                    console.warn('Could not load students:', error);
+                    totalStudentsCount.textContent = students.length;
+                    studentCount.textContent = students.length;
                 }
                 
                 // Load developer data count
@@ -3086,16 +3071,23 @@
                     totalDeveloperDataCount.textContent = developerData.length;
                 }
                 
-                // Simulated students data
-                totalStudentsCount.textContent = '2847';
+                // Load admins count
+                try {
+                    const adminsSnapshot = await database.ref('admins').once('value');
+                    const adminsCount = adminsSnapshot.exists() ? Object.keys(adminsSnapshot.val()).length : 1;
+                    adminCount.textContent = adminsCount;
+                } catch (error) {
+                    console.warn('Could not load admins:', error);
+                    adminCount.textContent = admins.length || 1;
+                }
                 
                 // Load activity log
                 loadActivityLog();
                 
             } catch (error) {
                 console.error('Error loading dashboard data:', error);
-                // Use sample data as fallback
                 totalNoticesCount.textContent = notices.length;
+                noticeCount.textContent = notices.length;
                 
                 const approvedTeachers = teachers.filter(t => 
                     t.status === 'approved' || t.approved === true
@@ -3108,15 +3100,15 @@
                 teacherCount.textContent = pendingTeachers;
                 pendingTeachersCount.textContent = pendingTeachers;
                 
-                totalAdminsCount.textContent = admins.length || 1;
-                adminCount.textContent = admins.length || 1;
+                totalStudentsCount.textContent = students.length;
+                studentCount.textContent = students.length;
+                
                 totalDeveloperDataCount.textContent = developerData.length;
-                totalStudentsCount.textContent = '2847';
+                adminCount.textContent = admins.length || 1;
             }
         }
 
         function loadActivityLog() {
-            // Simulated activity data
             const activities = [
                 { time: '10:30 AM', activity: 'Sent Notice', details: 'Annual Sports Day Announcement', status: 'Completed' },
                 { time: 'Yesterday, 3:15 PM', activity: 'Added Teacher', details: 'Mr. John Smith - Mathematics', status: 'Completed' },
@@ -3139,7 +3131,7 @@
         }
 
         // ============================
-        // NOTICE MANAGEMENT FUNCTIONS (USING REALTIME DATABASE)
+        // NOTICE MANAGEMENT FUNCTIONS
         // ============================
         async function sendNotice() {
             const title = document.getElementById('noticeTitle').value;
@@ -3159,56 +3151,70 @@
                 return;
             }
             
-            // Show loading
             const btn = sendNoticeBtn;
             const originalText = btn.innerHTML;
             btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...';
             btn.disabled = true;
             
             try {
-                // REALTIME DATABASE IMPLEMENTATION
-                const noticeId = database.ref().child('notices').push().key;
-                const noticeData = {
-                    id: noticeId,
-                    title: title,
-                    content: content,
-                    priority: priority,
-                    category: category,
-                    recipients: {
-                        teachers: sendToTeachers,
-                        students: sendToStudents
-                    },
-                    timestamp: new Date().toISOString(),
-                    status: 'sent',
-                    sentBy: currentUser.uid,
-                    sentByName: currentAdmin?.name || currentUser.displayName || 'Admin'
-                };
+                // Try to save to database
+                try {
+                    const noticeId = database.ref().child('notices').push().key;
+                    const noticeData = {
+                        id: noticeId,
+                        title: title,
+                        content: content,
+                        priority: priority,
+                        category: category,
+                        recipients: {
+                            teachers: sendToTeachers,
+                            students: sendToStudents
+                        },
+                        timestamp: new Date().toISOString(),
+                        status: 'sent',
+                        sentBy: currentUser.uid,
+                        sentByName: currentAdmin?.name || currentUser.displayName || 'Admin'
+                    };
+                    
+                    await database.ref('notices/' + noticeId).set(noticeData);
+                    
+                    notices.unshift(noticeData);
+                    showSuccess('Notice sent successfully to Teachers & Students apps!');
+                } catch (dbError) {
+                    console.warn('Could not save notice to database:', dbError);
+                    // Save locally if database fails
+                    const noticeData = {
+                        id: 'notice_' + Date.now(),
+                        title: title,
+                        content: content,
+                        priority: priority,
+                        category: category,
+                        recipients: {
+                            teachers: sendToTeachers,
+                            students: sendToStudents
+                        },
+                        timestamp: new Date().toISOString(),
+                        status: 'sent',
+                        sentBy: currentUser.uid,
+                        sentByName: currentAdmin?.name || currentUser.displayName || 'Admin'
+                    };
+                    
+                    notices.unshift(noticeData);
+                    showSuccess('Notice saved locally! Database access failed.');
+                }
                 
-                await database.ref('notices/' + noticeId).set(noticeData);
-                
-                showSuccess('Notice sent successfully to Teachers & Students apps!');
-                
-                // Add to notices array
-                notices.unshift(noticeData);
-                
-                // Update dashboard
                 loadDashboardData();
-                
-                // Clear form
                 clearNoticeForm();
                 
-                // If on manage notices tab, refresh
                 if (document.getElementById('manageNoticesSection').style.display === 'block') {
                     loadNoticesTable();
                 }
                 
-                // Log activity
                 addActivityLog('Sent Notice', title);
                 
             } catch (error) {
                 showError('Failed to send notice: ' + error.message);
             } finally {
-                // Reset button
                 btn.innerHTML = originalText;
                 btn.disabled = false;
             }
@@ -3224,32 +3230,26 @@
             }
             
             showSuccess('Notice saved as draft successfully!');
-            
-            // Log activity
             addActivityLog('Saved Draft', title);
         }
 
         async function loadNoticesTable() {
-            // Show loading
             refreshNoticesBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Loading...';
             refreshNoticesBtn.disabled = true;
             
             try {
-                // REALTIME DATABASE IMPLEMENTATION
                 const snapshot = await database.ref('notices').orderByChild('timestamp').once('value');
                 
                 notices = [];
                 if (snapshot.exists()) {
                     snapshot.forEach((childSnapshot) => {
                         const notice = childSnapshot.val();
-                        notices.unshift(notice); // Add to beginning to show newest first
+                        notices.unshift(notice);
                     });
                 }
                 
-                // Clear table
                 noticesTableBody.innerHTML = '';
                 
-                // Check if we have notices
                 if (notices.length === 0) {
                     noticesTableBody.innerHTML = `
                         <tr>
@@ -3263,11 +3263,9 @@
                     return;
                 }
                 
-                // Add notices to table
                 notices.forEach(notice => {
                     const row = document.createElement('tr');
                     
-                    // Format date
                     const date = new Date(notice.timestamp);
                     const formattedDate = date.toLocaleDateString('en-US', { 
                         month: 'short', 
@@ -3275,7 +3273,6 @@
                         year: 'numeric'
                     });
                     
-                    // Priority badge
                     let priorityBadge = '';
                     if (notice.priority === 'high') {
                         priorityBadge = '<span class="priority-badge priority-high">High</span>';
@@ -3285,7 +3282,6 @@
                         priorityBadge = '<span class="priority-badge priority-low">Low</span>';
                     }
                     
-                    // Recipients text
                     let recipientsText = '';
                     if (notice.recipients?.teachers && notice.recipients?.students) {
                         recipientsText = 'All Teachers & Students';
@@ -3316,7 +3312,6 @@
                     noticesTableBody.appendChild(row);
                 });
                 
-                // Add event listeners to delete buttons
                 document.querySelectorAll('.delete-notice-btn').forEach(btn => {
                     btn.addEventListener('click', function() {
                         const noticeId = this.dataset.id;
@@ -3324,7 +3319,6 @@
                     });
                 });
                 
-                // Add event listeners to view buttons
                 document.querySelectorAll('.view-notice-btn').forEach(btn => {
                     btn.addEventListener('click', function() {
                         const noticeId = this.dataset.id;
@@ -3334,17 +3328,26 @@
                 
             } catch (error) {
                 console.error('Failed to load notices:', error);
-                // Use sample data if database fails
                 showError('Could not load notices from database. Using sample data.');
                 
-                // Clear table
                 noticesTableBody.innerHTML = '';
                 
-                // Add sample notices
+                if (notices.length === 0) {
+                    noticesTableBody.innerHTML = `
+                        <tr>
+                            <td colspan="6" style="text-align: center; padding: 40px; color: var(--gray);">
+                                <i class="fas fa-inbox" style="font-size: 48px; margin-bottom: 15px; display: block; opacity: 0.5;"></i>
+                                <h3>No notices found</h3>
+                                <p>Send your first notice using the "Send Notice" tab</p>
+                            </td>
+                        </tr>
+                    `;
+                    return;
+                }
+                
                 notices.forEach(notice => {
                     const row = document.createElement('tr');
                     
-                    // Format date
                     const date = new Date(notice.timestamp);
                     const formattedDate = date.toLocaleDateString('en-US', { 
                         month: 'short', 
@@ -3352,7 +3355,6 @@
                         year: 'numeric'
                     });
                     
-                    // Priority badge
                     let priorityBadge = '';
                     if (notice.priority === 'high') {
                         priorityBadge = '<span class="priority-badge priority-high">High</span>';
@@ -3362,7 +3364,6 @@
                         priorityBadge = '<span class="priority-badge priority-low">Low</span>';
                     }
                     
-                    // Recipients text
                     let recipientsText = '';
                     if (notice.recipients?.teachers && notice.recipients?.students) {
                         recipientsText = 'All Teachers & Students';
@@ -3393,7 +3394,6 @@
                     noticesTableBody.appendChild(row);
                 });
             } finally {
-                // Reset button
                 refreshNoticesBtn.innerHTML = '<i class="fas fa-sync-alt"></i> Refresh';
                 refreshNoticesBtn.disabled = false;
             }
@@ -3407,11 +3407,10 @@
         }
 
         // ============================
-        // TEACHER MANAGEMENT FUNCTIONS (USING REALTIME DATABASE)
+        // TEACHER MANAGEMENT FUNCTIONS
         // ============================
         async function loadTeachersTable() {
             try {
-                // REALTIME DATABASE IMPLEMENTATION
                 const snapshot = await database.ref('teachers').once('value');
                 
                 teachers = [];
@@ -3423,17 +3422,14 @@
                         teacher.id = childSnapshot.key;
                         teachers.push(teacher);
                         
-                        // Count pending teachers
                         if (teacher.status === 'pending' || teacher.approved === false) {
                             pendingCount++;
                         }
                     });
                 }
                 
-                // Update pending count
                 pendingTeachersCount.textContent = pendingCount;
                 
-                // Filter teachers based on current filter
                 let filteredTeachers = teachers;
                 if (teacherFilter === 'pending') {
                     filteredTeachers = teachers.filter(t => 
@@ -3441,10 +3437,8 @@
                     );
                 }
                 
-                // Clear table
                 teachersTableBody.innerHTML = '';
                 
-                // Check if we have teachers
                 if (filteredTeachers.length === 0) {
                     teachersTableBody.innerHTML = `
                         <tr>
@@ -3458,11 +3452,9 @@
                     return;
                 }
                 
-                // Add teachers to table
                 filteredTeachers.forEach(teacher => {
                     const row = document.createElement('tr');
                     
-                    // Determine status
                     let status = 'Pending';
                     let statusClass = 'status-pending';
                     
@@ -3517,7 +3509,6 @@
                     teachersTableBody.appendChild(row);
                 });
                 
-                // Add event listeners to action buttons
                 document.querySelectorAll('.view-teacher-btn').forEach(btn => {
                     btn.addEventListener('click', function() {
                         const teacherId = this.dataset.id;
@@ -3528,7 +3519,7 @@
                 document.querySelectorAll('.approval-action-btn').forEach(btn => {
                     btn.addEventListener('click', function() {
                         const teacherId = this.dataset.id;
-                        const action = this.dataset.action; // 'approve' or 'reject'
+                        const action = this.dataset.action;
                         handleTeacherApproval(teacherId, action);
                     });
                 });
@@ -3546,10 +3537,8 @@
                 console.error('Failed to load teachers:', error);
                 showError('Could not load teachers from database. Using sample data.');
                 
-                // Use sample data as fallback
                 teachersTableBody.innerHTML = '';
                 
-                // Filter teachers based on current filter
                 let filteredTeachers = teachers;
                 if (teacherFilter === 'pending') {
                     filteredTeachers = teachers.filter(t => 
@@ -3570,11 +3559,9 @@
                     return;
                 }
                 
-                // Add sample teachers to table
                 filteredTeachers.forEach(teacher => {
                     const row = document.createElement('tr');
                     
-                    // Determine status
                     let status = 'Pending';
                     let statusClass = 'status-pending';
                     
@@ -3630,7 +3617,6 @@
 
         async function viewTeacherDetails(teacherId) {
             try {
-                // Get teacher data from database
                 const snapshot = await database.ref('teachers/' + teacherId).once('value');
                 
                 if (!snapshot.exists()) {
@@ -3641,11 +3627,9 @@
                 const teacher = snapshot.val();
                 teacher.id = teacherId;
                 
-                // Format dates
                 const createdAt = teacher.createdAt ? new Date(teacher.createdAt).toLocaleString() : 'Not available';
                 const updatedAt = teacher.updatedAt ? new Date(teacher.updatedAt).toLocaleString() : 'Not available';
                 
-                // Determine status
                 let status = 'Pending';
                 let statusClass = 'status-pending';
                 
@@ -3657,7 +3641,6 @@
                     statusClass = 'status-rejected';
                 }
                 
-                // Create teacher details HTML
                 teacherDetailsContent.innerHTML = `
                     <div style="display: flex; flex-direction: column; gap: 25px;">
                         <div style="display: flex; gap: 25px; align-items: center;">
@@ -3684,7 +3667,7 @@
                                 <p style="font-size: 18px; font-weight: 600;">${teacher.grade || 'Not specified'}</p>
                             </div>
                             <div>
-                                <h4 style="color: var(--gray); margin-bottom = 8px;">User ID</h4>
+                                <h4 style="color: var(--gray); margin-bottom: 8px;">User ID</h4>
                                 <p style="font-size: 14px; font-family: monospace;">${teacher.uid || teacher.id}</p>
                             </div>
                             <div>
@@ -3732,7 +3715,6 @@
                     </div>
                 `;
                 
-                // Add event listeners to modal buttons
                 const approveBtn = document.getElementById('approveTeacherBtn');
                 const rejectBtn = document.getElementById('rejectTeacherBtn');
                 
@@ -3752,7 +3734,6 @@
                     });
                 }
                 
-                // Show modal
                 teacherDetailsModal.style.display = 'flex';
                 
             } catch (error) {
@@ -3762,11 +3743,9 @@
 
         async function handleTeacherApproval(teacherId, action) {
             try {
-                // Show confirmation
                 const confirmation = confirm(`Are you sure you want to ${action} this teacher?`);
                 if (!confirmation) return;
                 
-                // Update teacher status in database
                 const updates = {
                     status: action === 'approve' ? 'approved' : 'rejected',
                     approved: action === 'approve' ? true : false,
@@ -3778,25 +3757,19 @@
                 
                 await database.ref('teachers/' + teacherId).update(updates);
                 
-                // Update local state
                 const teacherIndex = teachers.findIndex(t => t.id === teacherId);
                 if (teacherIndex !== -1) {
                     teachers[teacherIndex] = { ...teachers[teacherIndex], ...updates };
                 }
                 
-                // Show success message
                 const actionText = action === 'approve' ? 'approved' : 'rejected';
                 showSuccess(`Teacher request has been ${actionText} successfully!`);
                 
-                // Log activity
                 const teacher = teachers.find(t => t.id === teacherId);
                 const teacherName = teacher ? (teacher.fullName || teacher.name) : 'Teacher';
                 addActivityLog(`${action === 'approve' ? 'Approved' : 'Rejected'} Teacher`, `${teacherName} - ${actionText}`);
                 
-                // Reload teachers table
                 loadTeachersTable();
-                
-                // Update dashboard counts
                 loadDashboardData();
                 
             } catch (error) {
@@ -3816,14 +3789,12 @@
                 return;
             }
             
-            // Show loading
             const btn = saveTeacherBtn;
             const originalText = btn.innerHTML;
             btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
             btn.disabled = true;
             
             try {
-                // REALTIME DATABASE IMPLEMENTATION
                 const teacherId = database.ref().child('teachers').push().key;
                 const teacherData = {
                     id: teacherId,
@@ -3832,7 +3803,7 @@
                     grade: grade,
                     phone: phone,
                     email: email,
-                    status: 'approved', // Admin-added teachers are auto-approved
+                    status: 'approved',
                     approved: true,
                     addedDate: new Date().toISOString(),
                     addedBy: currentUser.uid,
@@ -3845,30 +3816,20 @@
                 
                 showSuccess('Teacher added successfully!');
                 
-                // Add to teachers array
                 teachers.push(teacherData);
-                
-                // Close modal
                 document.getElementById('addTeacherModal').style.display = 'none';
-                
-                // Update dashboard
                 loadDashboardData();
                 
-                // If on manage teachers tab, refresh
                 if (document.getElementById('manageTeachersSection').style.display === 'block') {
                     loadTeachersTable();
                 }
                 
-                // Clear form
                 clearTeacherForm();
-                
-                // Log activity
                 addActivityLog('Added Teacher', `${name} - ${subject}`);
                 
             } catch (error) {
                 showError('Failed to add teacher: ' + error.message);
             } finally {
-                // Reset button
                 btn.innerHTML = originalText;
                 btn.disabled = false;
             }
@@ -3883,11 +3844,386 @@
         }
 
         // ============================
-        // ADMIN MANAGEMENT FUNCTIONS - UPDATED TO LOAD PROFILE IMAGES FROM DATABASE
+        // NEW: STUDENT MANAGEMENT FUNCTIONS
+        // ============================
+        async function loadStudentsTable() {
+            try {
+                refreshStudentsBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Loading...';
+                refreshStudentsBtn.disabled = true;
+                
+                const snapshot = await database.ref('students').once('value');
+                
+                students = [];
+                if (snapshot.exists()) {
+                    snapshot.forEach((childSnapshot) => {
+                        const student = childSnapshot.val();
+                        student.id = childSnapshot.key;
+                        students.push(student);
+                    });
+                }
+                
+                studentsTableBody.innerHTML = '';
+                
+                if (students.length === 0) {
+                    studentsTableBody.innerHTML = `
+                        <tr>
+                            <td colspan="9" style="text-align: center; padding: 40px; color: var(--gray);">
+                                <i class="fas fa-user-graduate" style="font-size: 48px; margin-bottom: 15px; display: block; opacity: 0.5;"></i>
+                                <h3>No students found</h3>
+                                <p>Students will appear here when they register in the app</p>
+                            </td>
+                        </tr>
+                    `;
+                    return;
+                }
+                
+                students.forEach(student => {
+                    const row = document.createElement('tr');
+                    
+                    let status = 'Pending';
+                    let statusClass = 'status-pending';
+                    
+                    if (student.status === 'approved') {
+                        status = 'Approved';
+                        statusClass = 'status-approved';
+                    } else if (student.status === 'rejected') {
+                        status = 'Rejected';
+                        statusClass = 'status-rejected';
+                    }
+                    
+                    row.innerHTML = `
+                        <td>
+                            <div class="profile-image-container">
+                                ${student.profileImage && student.profileImage.startsWith('http') ? 
+                                    `<img src="${student.profileImage}" alt="${student.fullName}" onerror="this.parentElement.innerHTML='<i class=\\'fas fa-user\\'></i>';">` : 
+                                    `<i class="fas fa-user"></i>`
+                                }
+                            </div>
+                        </td>
+                        <td><strong>${student.fullName || 'Unknown'}</strong></td>
+                        <td>${student.rollNumber || 'N/A'}</td>
+                        <td>${student.grade || ''} ${student.section ? `- ${student.section}` : ''}</td>
+                        <td>${student.parentName || 'Not provided'}</td>
+                        <td>${student.phone || 'Not provided'}</td>
+                        <td>${student.email || 'Not provided'}</td>
+                        <td><span class="status-badge ${statusClass}">${status}</span></td>
+                        <td>
+                            <div class="action-buttons" style="display: flex; flex-wrap: wrap; gap: 8px;">
+                                <button class="view-btn view-student-btn" data-id="${student.id}">
+                                    <i class="fas fa-eye"></i> View
+                                </button>
+                                ${student.status === 'pending' ? `
+                                <button class="approve-btn approval-action-btn" data-id="${student.id}" data-action="approve" data-type="student">
+                                    <i class="fas fa-check"></i> Approve
+                                </button>
+                                <button class="reject-btn approval-action-btn" data-id="${student.id}" data-action="reject" data-type="student">
+                                    <i class="fas fa-times"></i> Reject
+                                </button>
+                                ` : ''}
+                                ${student.phone ? `
+                                <a href="tel:${student.phone}" class="call-btn" target="_blank">
+                                    <i class="fas fa-phone"></i> Call
+                                </a>
+                                ` : ''}
+                                <button class="btn btn-danger btn-sm delete-student-btn" data-id="${student.id}">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </td>
+                    `;
+                    
+                    studentsTableBody.appendChild(row);
+                });
+                
+                document.querySelectorAll('.view-student-btn').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        const studentId = this.dataset.id;
+                        viewStudentDetails(studentId);
+                    });
+                });
+                
+                document.querySelectorAll('.approval-action-btn[data-type="student"]').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        const studentId = this.dataset.id;
+                        const action = this.dataset.action;
+                        handleStudentApproval(studentId, action);
+                    });
+                });
+                
+                document.querySelectorAll('.delete-student-btn').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        const studentId = this.dataset.id;
+                        const student = students.find(s => s.id === studentId);
+                        const studentName = student ? student.fullName : 'this student';
+                        showDeleteConfirmation('student', studentId, `Are you sure you want to delete ${studentName}?`);
+                    });
+                });
+                
+            } catch (error) {
+                console.error('Failed to load students:', error);
+                showError('Could not load students from database. Using sample data.');
+                
+                studentsTableBody.innerHTML = '';
+                
+                if (students.length === 0) {
+                    studentsTableBody.innerHTML = `
+                        <tr>
+                            <td colspan="9" style="text-align: center; padding: 40px; color: var(--gray);">
+                                <i class="fas fa-user-graduate" style="font-size: 48px; margin-bottom: 15px; display: block; opacity: 0.5;"></i>
+                                <h3>No students found</h3>
+                                <p>Students will appear here when they register in the app</p>
+                            </td>
+                        </tr>
+                    `;
+                    return;
+                }
+                
+                students.forEach(student => {
+                    const row = document.createElement('tr');
+                    
+                    let status = 'Pending';
+                    let statusClass = 'status-pending';
+                    
+                    if (student.status === 'approved') {
+                        status = 'Approved';
+                        statusClass = 'status-approved';
+                    } else if (student.status === 'rejected') {
+                        status = 'Rejected';
+                        statusClass = 'status-rejected';
+                    }
+                    
+                    row.innerHTML = `
+                        <td>
+                            <div class="profile-image-container">
+                                <i class="fas fa-user"></i>
+                            </div>
+                        </td>
+                        <td><strong>${student.fullName || 'Unknown'}</strong></td>
+                        <td>${student.rollNumber || 'N/A'}</td>
+                        <td>${student.grade || ''} ${student.section ? `- ${student.section}` : ''}</td>
+                        <td>${student.parentName || 'Not provided'}</td>
+                        <td>${student.phone || 'Not provided'}</td>
+                        <td>${student.email || 'Not provided'}</td>
+                        <td><span class="status-badge ${statusClass}">${status}</span></td>
+                        <td>
+                            <div class="action-buttons" style="display: flex; flex-wrap: wrap; gap: 8px;">
+                                <button class="view-btn view-student-btn" data-id="${student.id}">
+                                    <i class="fas fa-eye"></i> View
+                                </button>
+                                ${student.status === 'pending' ? `
+                                <button class="approve-btn approval-action-btn" data-id="${student.id}" data-action="approve" data-type="student">
+                                    <i class="fas fa-check"></i> Approve
+                                </button>
+                                <button class="reject-btn approval-action-btn" data-id="${student.id}" data-action="reject" data-type="student">
+                                    <i class="fas fa-times"></i> Reject
+                                </button>
+                                ` : ''}
+                                ${student.phone ? `
+                                <a href="tel:${student.phone}" class="call-btn" target="_blank">
+                                    <i class="fas fa-phone"></i> Call
+                                </a>
+                                ` : ''}
+                                <button class="btn btn-danger btn-sm delete-student-btn" data-id="${student.id}">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </td>
+                    `;
+                    
+                    studentsTableBody.appendChild(row);
+                });
+            } finally {
+                refreshStudentsBtn.innerHTML = '<i class="fas fa-sync-alt"></i> Refresh';
+                refreshStudentsBtn.disabled = false;
+            }
+        }
+
+        async function viewStudentDetails(studentId) {
+            try {
+                const snapshot = await database.ref('students/' + studentId).once('value');
+                
+                if (!snapshot.exists()) {
+                    showError('Student not found');
+                    return;
+                }
+                
+                const student = snapshot.val();
+                student.id = studentId;
+                
+                const registrationDate = student.registrationDate || 'Not available';
+                const updatedAt = student.updatedAt ? new Date(student.updatedAt).toLocaleString() : 'Not available';
+                const dateOfBirth = student.dateOfBirth || 'Not provided';
+                
+                let status = 'Pending';
+                let statusClass = 'status-pending';
+                
+                if (student.status === 'approved') {
+                    status = 'Approved';
+                    statusClass = 'status-approved';
+                } else if (student.status === 'rejected') {
+                    status = 'Rejected';
+                    statusClass = 'status-rejected';
+                }
+                
+                studentDetailsContent.innerHTML = `
+                    <div style="display: flex; flex-direction: column; gap: 25px;">
+                        <div style="display: flex; gap: 25px; align-items: center;">
+                            <div style="width: 120px; height: 120px; border-radius: 50%; background: linear-gradient(135deg, var(--secondary) 0%, var(--secondary-dark) 100%); display: flex; align-items: center; justify-content: center; border: 4px solid var(--light);">
+                                ${student.profileImage && student.profileImage.startsWith('http') ? 
+                                    `<img src="${student.profileImage}" alt="${student.fullName}" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;" onerror="this.parentElement.innerHTML='<i class=\\'fas fa-user\\' style=\\'font-size: 48px; color: white;\\'></i>';">` : 
+                                    `<i class="fas fa-user" style="font-size: 48px; color: white;"></i>`
+                                }
+                            </div>
+                            <div>
+                                <h2 style="color: var(--primary); margin-bottom: 10px;">${student.fullName || 'Unknown'}</h2>
+                                <div style="display: flex; gap: 15px; flex-wrap: wrap;">
+                                    <span class="status-badge ${statusClass}" style="font-size: 16px;">${status}</span>
+                                    <span style="background-color: rgba(52, 152, 219, 0.1); color: var(--secondary); padding: 6px 15px; border-radius: 20px; font-weight: 600;">
+                                        ${student.grade || ''} ${student.section ? `- ${student.section}` : ''}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px;">
+                            <div>
+                                <h4 style="color: var(--gray); margin-bottom: 8px;">Roll Number</h4>
+                                <p style="font-size: 18px; font-weight: 600;">${student.rollNumber || 'N/A'}</p>
+                            </div>
+                            <div>
+                                <h4 style="color: var(--gray); margin-bottom: 8px;">Student ID</h4>
+                                <p style="font-size: 14px; font-family: monospace;">${student.studentId || student.id}</p>
+                            </div>
+                            <div>
+                                <h4 style="color: var(--gray); margin-bottom: 8px;">Date of Birth</h4>
+                                <p>${dateOfBirth}</p>
+                            </div>
+                            <div>
+                                <h4 style="color: var(--gray); margin-bottom: 8px;">Teacher ID</h4>
+                                <p style="font-size: 14px; font-family: monospace;">${student.teacherId || 'Not assigned'}</p>
+                            </div>
+                        </div>
+                        
+                        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px;">
+                            <div>
+                                <h4 style="color: var(--gray); margin-bottom: 8px;">Parent Name</h4>
+                                <p style="font-size: 18px; font-weight: 600;">${student.parentName || 'Not provided'}</p>
+                            </div>
+                            <div>
+                                <h4 style="color: var(--gray); margin-bottom: 8px;">Phone Number</h4>
+                                <p>${student.phone || 'Not provided'}</p>
+                            </div>
+                            <div>
+                                <h4 style="color: var(--gray); margin-bottom: 8px;">Email</h4>
+                                <p>${student.email || 'Not provided'}</p>
+                            </div>
+                            <div>
+                                <h4 style="color: var(--gray); margin-bottom: 8px;">Address</h4>
+                                <p>${student.address || 'Not provided'}</p>
+                            </div>
+                        </div>
+                        
+                        <div style="border-top: 1px solid var(--light); padding-top: 20px;">
+                            <h4 style="color: var(--gray); margin-bottom: 15px;">Account Information</h4>
+                            <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px;">
+                                <div>
+                                    <h5 style="color: var(--gray); margin-bottom: 5px;">Registration Date</h5>
+                                    <p>${registrationDate}</p>
+                                </div>
+                                <div>
+                                    <h5 style="color: var(--gray); margin-bottom: 5px;">Last Updated</h5>
+                                    <p>${updatedAt}</p>
+                                </div>
+                                <div>
+                                    <h5 style="color: var(--gray); margin-bottom: 5px;">Approval Status</h5>
+                                    <p>${status}</p>
+                                </div>
+                                <div>
+                                    <h5 style="color: var(--gray); margin-bottom: 5px;">Email Verified</h5>
+                                    <p>${student.emailVerified ? 'Yes' : 'No'}</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        ${student.status === 'pending' ? `
+                        <div style="display: flex; gap: 15px; justify-content: center; padding-top: 20px; border-top: 1px solid var(--light);">
+                            <button class="btn btn-success" id="approveStudentBtn" style="flex: 1;" data-id="${studentId}">
+                                <i class="fas fa-check"></i> Approve Student
+                            </button>
+                            <button class="btn btn-danger" id="rejectStudentBtn" style="flex: 1;" data-id="${studentId}">
+                                <i class="fas fa-times"></i> Reject Request
+                            </button>
+                        </div>
+                        ` : ''}
+                    </div>
+                `;
+                
+                const approveBtn = document.getElementById('approveStudentBtn');
+                const rejectBtn = document.getElementById('rejectStudentBtn');
+                
+                if (approveBtn) {
+                    approveBtn.addEventListener('click', function() {
+                        const studentId = this.dataset.id;
+                        handleStudentApproval(studentId, 'approve');
+                        studentDetailsModal.style.display = 'none';
+                    });
+                }
+                
+                if (rejectBtn) {
+                    rejectBtn.addEventListener('click', function() {
+                        const studentId = this.dataset.id;
+                        handleStudentApproval(studentId, 'reject');
+                        studentDetailsModal.style.display = 'none';
+                    });
+                }
+                
+                studentDetailsModal.style.display = 'flex';
+                
+            } catch (error) {
+                showError('Failed to load student details: ' + error.message);
+            }
+        }
+
+        async function handleStudentApproval(studentId, action) {
+            try {
+                const confirmation = confirm(`Are you sure you want to ${action} this student?`);
+                if (!confirmation) return;
+                
+                const updates = {
+                    status: action === 'approve' ? 'approved' : 'rejected',
+                    updatedAt: new Date().toISOString(),
+                    reviewedBy: currentUser.uid,
+                    reviewedByName: currentAdmin?.name || currentUser.displayName || 'Admin',
+                    reviewedAt: new Date().toISOString()
+                };
+                
+                await database.ref('students/' + studentId).update(updates);
+                
+                const studentIndex = students.findIndex(s => s.id === studentId);
+                if (studentIndex !== -1) {
+                    students[studentIndex] = { ...students[studentIndex], ...updates };
+                }
+                
+                const actionText = action === 'approve' ? 'approved' : 'rejected';
+                showSuccess(`Student has been ${actionText} successfully!`);
+                
+                const student = students.find(s => s.id === studentId);
+                const studentName = student ? student.fullName : 'Student';
+                addActivityLog(`${action === 'approve' ? 'Approved' : 'Rejected'} Student`, `${studentName} - ${actionText}`);
+                
+                loadStudentsTable();
+                loadDashboardData();
+                
+            } catch (error) {
+                showError(`Failed to ${action} student: ` + error.message);
+            }
+        }
+
+        // ============================
+        // ADMIN MANAGEMENT FUNCTIONS
         // ============================
         async function loadAdminsTable() {
             try {
-                // REALTIME DATABASE IMPLEMENTATION
                 const snapshot = await database.ref('admins').once('value');
                 
                 admins = [];
@@ -3900,13 +4236,10 @@
                     });
                 }
                 
-                // Update admin count
                 adminCount.textContent = admins.length;
                 
-                // Clear table
                 adminsTableBody.innerHTML = '';
                 
-                // Check if we have admins
                 if (admins.length === 0) {
                     adminsTableBody.innerHTML = `
                         <tr>
@@ -3920,16 +4253,13 @@
                     return;
                 }
                 
-                // Add admins to table
                 admins.forEach(admin => {
                     const row = document.createElement('tr');
                     
-                    // Status badge
                     const statusBadge = admin.status === 'active' 
                         ? '<span class="status-badge status-active">Active</span>' 
                         : '<span class="status-badge status-inactive">Inactive</span>';
                     
-                    // Role display
                     const roleDisplay = admin.role === 'super_admin' ? 'Super Admin' : 'Admin';
                     
                     row.innerHTML = `
@@ -3962,7 +4292,6 @@
                     adminsTableBody.appendChild(row);
                 });
                 
-                // Add event listeners to action buttons
                 document.querySelectorAll('.edit-admin-btn').forEach(btn => {
                     btn.addEventListener('click', function() {
                         const adminId = this.dataset.id;
@@ -3983,13 +4312,9 @@
                 console.error('Failed to load admins:', error);
                 showError('Could not load admins from database. Using sample data.');
                 
-                // Use sample data as fallback
                 adminCount.textContent = admins.length;
-                
-                // Clear table
                 adminsTableBody.innerHTML = '';
                 
-                // Add sample admins to table (with profile images from your database)
                 const sampleAdmins = [
                     {
                         id: 'BJc2OteAUtXeO3ddrfsJP102iNy2',
@@ -3997,27 +4322,22 @@
                         email: 'vijaygond2024@gmail.com',
                         role: 'super_admin',
                         status: 'active',
-                        profileImage: 'blob:https://swayamvarapp26-oss.github.io/f27d4ee4-3a89-464a-9e05-cb97eeeb251b'
-                    },
-                    {
-                        id: 'S7R43IBsAkegvAEA1Mr5WDlyDXt2',
-                        name: 'AMIT KUMAR',
-                        email: 'aviptasker@gmail.com',
-                        role: 'admin',
-                        status: 'active',
-                        profileImage: 'blob:https://run-html-chat.deepseeksvc.com/4a1d7e5a-6e84-4d72-aadf-5c00e3b36c1a'
+                        profileImage: 'blob:https://swayamvarapp26-oss.github.io/f27d4ee4-3a89-464a-9e05-cb97eeeb251b',
+                        createdAt: '2026-01-12T08:46:17.614Z',
+                        createdBy: 'BJc2OteAUtXeO3ddrfsJP102iNy2',
+                        createdByName: 'VIJAY',
+                        lastLogin: '2026-01-12T16:43:25.792Z',
+                        updatedAt: '2026-01-12T08:58:33.087Z'
                     }
                 ];
                 
                 sampleAdmins.forEach(admin => {
                     const row = document.createElement('tr');
                     
-                    // Status badge
                     const statusBadge = admin.status === 'active' 
                         ? '<span class="status-badge status-active">Active</span>' 
                         : '<span class="status-badge status-inactive">Inactive</span>';
                     
-                    // Role display
                     const roleDisplay = admin.role === 'super_admin' ? 'Super Admin' : 'Admin';
                     
                     row.innerHTML = `
@@ -4064,7 +4384,6 @@
                 return;
             }
             
-            // Check password requirements
             let requirements = [];
             if (password.length < 6) requirements.push('at least 6 characters');
             if (!/[a-z]/.test(password)) requirements.push('one lowercase letter');
@@ -4076,29 +4395,24 @@
                 return;
             }
             
-            // Show loading
             const btn = saveAdminBtn;
             const originalText = btn.innerHTML;
             btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Creating...';
             btn.disabled = true;
             
             try {
-                // Check if email already exists
                 const methods = await auth.fetchSignInMethodsForEmail(email);
                 if (methods.length > 0) {
                     showError('Email already registered. Please use a different email.');
                     return;
                 }
                 
-                // Create user in Firebase
                 const userCredential = await auth.createUserWithEmailAndPassword(email, password);
                 
-                // Update user profile
                 await userCredential.user.updateProfile({
                     displayName: name
                 });
                 
-                // Create admin record in database
                 const adminData = {
                     name: name,
                     email: email,
@@ -4113,40 +4427,29 @@
                     await database.ref('admins/' + userCredential.user.uid).set(adminData);
                 } catch (dbError) {
                     console.warn('Could not save admin to database:', dbError);
-                    // Continue even if database save fails
                 }
                 
-                // Send welcome email
                 try {
                     await sendWelcomeEmail(email, name, password);
                 } catch (emailError) {
                     console.warn('Failed to send welcome email:', emailError);
-                    // Continue even if email fails
                 }
                 
                 showSuccess('Admin created successfully! Welcome email sent.');
                 
-                // Close modal
                 document.getElementById('addAdminModal').style.display = 'none';
-                
-                // Update dashboard
                 loadDashboardData();
                 
-                // If on manage admins tab, refresh
                 if (document.getElementById('manageAdminsSection').style.display === 'block') {
                     loadAdminsTable();
                 }
                 
-                // Clear form
                 clearAdminForm();
-                
-                // Log activity
                 addActivityLog('Added Admin', `${name} - ${role}`);
                 
             } catch (error) {
                 showError('Failed to create admin: ' + error.message);
             } finally {
-                // Reset button
                 btn.innerHTML = originalText;
                 btn.disabled = false;
             }
@@ -4165,7 +4468,7 @@
 
                 await emailjs.send(
                     EMAILJS_CONFIG.SERVICE_ID,
-                    'template_xyk8468', // Using the same template for now
+                    'template_xyk8468',
                     templateParams
                 );
                 
@@ -4180,7 +4483,6 @@
             const admin = admins.find(a => a.id === adminId);
             if (!admin) return;
             
-            // For now, just show an alert. You can implement a full edit modal.
             alert(`Edit Admin: ${admin.name}\n\nEmail: ${admin.email}\nRole: ${admin.role}\nStatus: ${admin.status}\n\nEdit functionality to be implemented.`);
         }
 
@@ -4193,15 +4495,13 @@
         }
 
         // ============================
-        // NEW: DEVELOPER DATA MANAGEMENT FUNCTIONS
+        // DEVELOPER DATA MANAGEMENT FUNCTIONS
         // ============================
         async function loadDeveloperData() {
             try {
-                // Show loading
                 refreshDeveloperDataBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Loading...';
                 refreshDeveloperDataBtn.disabled = true;
                 
-                // Load data from Firebase
                 const snapshot = await database.ref('developer_data').orderByChild('createdAt').once('value');
                 
                 developerData = [];
@@ -4209,17 +4509,14 @@
                     snapshot.forEach((childSnapshot) => {
                         const data = childSnapshot.val();
                         data.id = childSnapshot.key;
-                        developerData.unshift(data); // Add to beginning to show newest first
+                        developerData.unshift(data);
                     });
                 }
                 
-                // Update count
                 developerDataCountElement.textContent = developerData.length;
                 
-                // Clear the list
                 developerDataList.innerHTML = '';
                 
-                // Check if we have data
                 if (developerData.length === 0) {
                     developerDataList.innerHTML = `
                         <div style="text-align: center; padding: 40px; color: var(--gray);">
@@ -4231,13 +4528,11 @@
                     return;
                 }
                 
-                // Add data items to list
                 developerData.forEach(item => {
                     const dataItem = document.createElement('div');
                     dataItem.className = 'link-item';
                     dataItem.dataset.id = item.id;
                     
-                    // Format date
                     const date = new Date(item.createdAt);
                     const formattedDate = date.toLocaleDateString('en-US', { 
                         month: 'short', 
@@ -4245,7 +4540,6 @@
                         year: 'numeric'
                     });
                     
-                    // Category badge
                     let categoryBadge = '';
                     if (item.category === 'important') {
                         categoryBadge = '<span class="category-badge category-important">Important</span>';
@@ -4257,7 +4551,6 @@
                         categoryBadge = '<span class="category-badge category-general">General</span>';
                     }
                     
-                    // Priority badge
                     let priorityBadge = '';
                     if (item.priority === 'high') {
                         priorityBadge = '<span class="priority-badge priority-high">High Priority</span>';
@@ -4294,7 +4587,6 @@
                     developerDataList.appendChild(dataItem);
                 });
                 
-                // Add event listeners to delete buttons
                 document.querySelectorAll('.delete-developer-data-btn').forEach(btn => {
                     btn.addEventListener('click', function() {
                         const dataId = this.dataset.id;
@@ -4304,7 +4596,6 @@
                     });
                 });
                 
-                // Add event listeners to edit buttons
                 document.querySelectorAll('.edit-developer-data-btn').forEach(btn => {
                     btn.addEventListener('click', function() {
                         const dataId = this.dataset.id;
@@ -4316,7 +4607,6 @@
                 console.error('Failed to load developer data:', error);
                 showError('Could not load developer data from database.');
                 
-                // Show empty state
                 developerDataList.innerHTML = `
                     <div style="text-align: center; padding: 40px; color: var(--gray);">
                         <i class="fas fa-database" style="font-size: 48px; margin-bottom: 15px; display: block; opacity: 0.5;"></i>
@@ -4325,7 +4615,6 @@
                     </div>
                 `;
             } finally {
-                // Reset button
                 refreshDeveloperDataBtn.innerHTML = '<i class="fas fa-sync-alt"></i> Refresh Data';
                 refreshDeveloperDataBtn.disabled = false;
             }
@@ -4343,7 +4632,6 @@
                 return;
             }
             
-            // Validate URL format
             try {
                 new URL(link);
             } catch (error) {
@@ -4351,15 +4639,14 @@
                 return;
             }
             
-            // Show loading
             const btn = saveDeveloperDataBtn;
             const originalText = btn.innerHTML;
             btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
             btn.disabled = true;
             
             try {
-                // REALTIME DATABASE IMPLEMENTATION
-                const dataId = database.ref().child('developer_data').push().key;
+                // First, try to save to localStorage as a fallback
+                const dataId = 'dev_' + Date.now();
                 const dataItem = {
                     id: dataId,
                     title: title,
@@ -4370,32 +4657,66 @@
                     createdAt: new Date().toISOString(),
                     createdBy: currentUser.uid,
                     createdByName: currentAdmin?.name || currentUser.displayName || 'Admin',
-                    updatedAt: new Date().toISOString()
+                    updatedAt: new Date().toISOString(),
+                    source: 'localStorage' // Mark as saved locally
                 };
                 
-                await database.ref('developer_data/' + dataId).set(dataItem);
+                // Save to localStorage
+                const savedItems = JSON.parse(localStorage.getItem('developer_data') || '[]');
+                savedItems.unshift(dataItem);
+                localStorage.setItem('developer_data', JSON.stringify(savedItems));
                 
-                showSuccess('Data saved successfully to Firebase!');
+                // Try to save to Firebase (but don't fail if it doesn't work)
+                try {
+                    const firebaseId = database.ref().child('developer_data').push().key;
+                    await database.ref('developer_data/' + firebaseId).set({
+                        ...dataItem,
+                        id: firebaseId,
+                        source: 'firebase'
+                    });
+                } catch (firebaseError) {
+                    console.warn('Could not save to Firebase, using localStorage only:', firebaseError);
+                }
                 
-                // Add to developer data array
+                showSuccess('Data saved successfully! (Stored locally)');
+                
                 developerData.unshift(dataItem);
-                
-                // Update dashboard
                 loadDashboardData();
-                
-                // Clear form
                 clearDeveloperDataForm();
-                
-                // Reload developer data list
                 loadDeveloperData();
-                
-                // Log activity
                 addActivityLog('Added Developer Data', title);
                 
             } catch (error) {
-                showError('Failed to save data: ' + error.message);
+                console.error('Failed to save data:', error);
+                showError('Failed to save data: ' + error.message + ' (Data saved locally instead)');
+                
+                // Even if everything fails, save to localStorage
+                try {
+                    const dataId = 'dev_local_' + Date.now();
+                    const dataItem = {
+                        id: dataId,
+                        title: title,
+                        description: description,
+                        link: link,
+                        category: category,
+                        priority: priority,
+                        createdAt: new Date().toISOString(),
+                        createdBy: currentUser.uid,
+                        createdByName: currentAdmin?.name || currentUser.displayName || 'Admin',
+                        updatedAt: new Date().toISOString(),
+                        source: 'localStorage_fallback'
+                    };
+                    
+                    const savedItems = JSON.parse(localStorage.getItem('developer_data') || '[]');
+                    savedItems.unshift(dataItem);
+                    localStorage.setItem('developer_data', JSON.stringify(savedItems));
+                    
+                    developerData.unshift(dataItem);
+                    loadDeveloperData();
+                } catch (localError) {
+                    console.error('Even localStorage failed:', localError);
+                }
             } finally {
-                // Reset button
                 btn.innerHTML = originalText;
                 btn.disabled = false;
             }
@@ -4405,10 +4726,8 @@
             const dataItem = developerData.find(d => d.id === dataId);
             if (!dataItem) return;
             
-            // For now, we'll use a simple prompt approach
-            // In a real app, you might want a modal for editing
             const newTitle = prompt('Enter new title:', dataItem.title);
-            if (newTitle === null) return; // User cancelled
+            if (newTitle === null) return;
             
             const newDescription = prompt('Enter new description:', dataItem.description);
             if (newDescription === null) return;
@@ -4416,7 +4735,6 @@
             const newLink = prompt('Enter new link:', dataItem.link);
             if (newLink === null) return;
             
-            // Validate URL format
             try {
                 new URL(newLink);
             } catch (error) {
@@ -4432,7 +4750,20 @@
                     updatedAt: new Date().toISOString()
                 };
                 
-                await database.ref('developer_data/' + dataId).update(updates);
+                // Try to update in Firebase
+                try {
+                    await database.ref('developer_data/' + dataId).update(updates);
+                } catch (firebaseError) {
+                    console.warn('Could not update in Firebase, updating localStorage:', firebaseError);
+                }
+                
+                // Always update localStorage
+                const savedItems = JSON.parse(localStorage.getItem('developer_data') || '[]');
+                const itemIndex = savedItems.findIndex(item => item.id === dataId);
+                if (itemIndex !== -1) {
+                    savedItems[itemIndex] = { ...savedItems[itemIndex], ...updates };
+                    localStorage.setItem('developer_data', JSON.stringify(savedItems));
+                }
                 
                 // Update local state
                 const index = developerData.findIndex(d => d.id === dataId);
@@ -4441,11 +4772,7 @@
                 }
                 
                 showSuccess('Data updated successfully!');
-                
-                // Reload developer data list
                 loadDeveloperData();
-                
-                // Log activity
                 addActivityLog('Updated Developer Data', newTitle);
                 
             } catch (error) {
@@ -4462,7 +4789,7 @@
         }
 
         // ============================
-        // DELETE FUNCTIONS (USING REALTIME DATABASE)
+        // DELETE FUNCTIONS
         // ============================
         function showDeleteConfirmation(type, id, message) {
             itemToDelete = id;
@@ -4475,122 +4802,119 @@
         async function confirmDelete() {
             if (!itemToDelete || !deleteType) return;
             
-            // Show loading
             confirmDeleteBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Deleting...';
             confirmDeleteBtn.disabled = true;
             
             try {
                 if (deleteType === 'notice') {
-                    // REALTIME DATABASE IMPLEMENTATION
                     try {
                         await database.ref('notices/' + itemToDelete).remove();
                     } catch (error) {
                         console.warn('Could not delete notice from database:', error);
                     }
                     
-                    // Remove from local state
                     const index = notices.findIndex(n => n.id === itemToDelete);
                     if (index !== -1) {
                         const noticeTitle = notices[index].title;
                         notices.splice(index, 1);
-                        
                         showSuccess(`Notice "${noticeTitle}" deleted successfully!`);
                         addActivityLog('Deleted Notice', noticeTitle);
                     }
                     
-                    // Update UI
-                    loadDashboardData();
-                    if (document.getElementById('manageNoticesSection').style.display === 'block') {
-                        loadNoticesTable();
-                    }
-                    
                 } else if (deleteType === 'teacher') {
-                    // REALTIME DATABASE IMPLEMENTATION
                     try {
                         await database.ref('teachers/' + itemToDelete).remove();
                     } catch (error) {
                         console.warn('Could not delete teacher from database:', error);
                     }
                     
-                    // Remove from local state
                     const index = teachers.findIndex(t => t.id === itemToDelete);
                     if (index !== -1) {
                         const teacherName = teachers[index].name;
                         teachers.splice(index, 1);
-                        
                         showSuccess(`Teacher "${teacherName}" deleted successfully!`);
                         addActivityLog('Deleted Teacher', teacherName);
                     }
                     
-                    // Update UI
-                    loadDashboardData();
-                    if (document.getElementById('manageTeachersSection').style.display === 'block') {
-                        loadTeachersTable();
+                } else if (deleteType === 'student') {
+                    try {
+                        await database.ref('students/' + itemToDelete).remove();
+                    } catch (error) {
+                        console.warn('Could not delete student from database:', error);
+                    }
+                    
+                    const index = students.findIndex(s => s.id === itemToDelete);
+                    if (index !== -1) {
+                        const studentName = students[index].fullName;
+                        students.splice(index, 1);
+                        showSuccess(`Student "${studentName}" deleted successfully!`);
+                        addActivityLog('Deleted Student', studentName);
                     }
                     
                 } else if (deleteType === 'admin') {
-                    // Don't allow deleting current user
                     if (itemToDelete === currentUser?.uid) {
                         showError('You cannot delete your own account!');
                         return;
                     }
                     
-                    // REALTIME DATABASE IMPLEMENTATION
                     try {
                         await database.ref('admins/' + itemToDelete).remove();
                     } catch (error) {
                         console.warn('Could not delete admin from database:', error);
                     }
                     
-                    // Remove from local state
                     const index = admins.findIndex(a => a.id === itemToDelete);
                     if (index !== -1) {
                         const adminName = admins[index].name;
                         admins.splice(index, 1);
-                        
                         showSuccess(`Admin "${adminName}" deleted successfully!`);
                         addActivityLog('Deleted Admin', adminName);
                     }
                     
-                    // Update UI
-                    loadDashboardData();
-                    if (document.getElementById('manageAdminsSection').style.display === 'block') {
-                        loadAdminsTable();
-                    }
                 } else if (deleteType === 'developer_data') {
-                    // NEW: Delete developer data
+                    // Try to delete from Firebase
                     try {
                         await database.ref('developer_data/' + itemToDelete).remove();
                     } catch (error) {
                         console.warn('Could not delete developer data from database:', error);
                     }
                     
-                    // Remove from local state
+                    // Also delete from localStorage
+                    const savedItems = JSON.parse(localStorage.getItem('developer_data') || '[]');
+                    const filteredItems = savedItems.filter(item => item.id !== itemToDelete);
+                    localStorage.setItem('developer_data', JSON.stringify(filteredItems));
+                    
                     const index = developerData.findIndex(d => d.id === itemToDelete);
                     if (index !== -1) {
                         const dataTitle = developerData[index].title;
                         developerData.splice(index, 1);
-                        
                         showSuccess(`"${dataTitle}" deleted successfully!`);
                         addActivityLog('Deleted Developer Data', dataTitle);
                     }
-                    
-                    // Update UI
-                    loadDashboardData();
-                    if (document.getElementById('developerSection').style.display === 'block') {
-                        loadDeveloperData();
-                    }
+                }
+                
+                loadDashboardData();
+                
+                // Refresh the current section if it's visible
+                if (document.getElementById('manageNoticesSection').style.display === 'block' && deleteType === 'notice') {
+                    loadNoticesTable();
+                } else if (document.getElementById('manageTeachersSection').style.display === 'block' && deleteType === 'teacher') {
+                    loadTeachersTable();
+                } else if (document.getElementById('manageStudentsSection').style.display === 'block' && deleteType === 'student') {
+                    loadStudentsTable();
+                } else if (document.getElementById('manageAdminsSection').style.display === 'block' && deleteType === 'admin') {
+                    loadAdminsTable();
+                } else if (document.getElementById('developerSection').style.display === 'block' && deleteType === 'developer_data') {
+                    loadDeveloperData();
                 }
                 
             } catch (error) {
                 showError('Failed to delete: ' + error.message);
             } finally {
-                // Close modal
                 document.getElementById('deleteModal').style.display = 'none';
                 itemToDelete = null;
                 deleteType = null;
                 
-                // Reset button
                 confirmDeleteBtn.innerHTML = '<i class="fas fa-trash"></i> Delete';
                 confirmDeleteBtn.disabled = false;
             }
@@ -4603,34 +4927,25 @@
             const file = event.target.files[0];
             if (!file) return;
             
-            // Validate file type
             if (!file.type.startsWith('image/')) {
                 showError('Please select an image file');
                 return;
             }
             
-            // Validate file size (max 5MB)
             if (file.size > 5 * 1024 * 1024) {
                 showError('Image size should be less than 5MB');
                 return;
             }
             
-            // Show loading
             changeProfileBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Uploading...';
             changeProfileBtn.disabled = true;
             
-            // In a real implementation, you would upload to Firebase Storage here
-            // For demo purposes, we'll use a simulated upload
-            
             setTimeout(() => {
-                // Create object URL for preview
                 const imageUrl = URL.createObjectURL(file);
                 
-                // Update profile images
                 updateProfileImage(adminAvatar, imageUrl);
                 updateProfileImage(settingsProfileImage, imageUrl);
                 
-                // Save to Firebase (in real app, upload to Firebase Storage first)
                 if (currentUser) {
                     try {
                         database.ref('admins/' + currentUser.uid).update({
@@ -4649,7 +4964,6 @@
                     }
                 }
                 
-                // Reset button
                 changeProfileBtn.innerHTML = '<i class="fas fa-camera"></i> Change Profile Picture';
                 changeProfileBtn.disabled = false;
             }, 1500);
@@ -4663,14 +4977,12 @@
                 return;
             }
             
-            // Show loading
             const btn = updateProfileBtn;
             const originalText = btn.innerHTML;
             btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Updating...';
             btn.disabled = true;
             
             try {
-                // Update in Realtime Database
                 try {
                     await database.ref('admins/' + currentUser.uid).update({
                         name: name,
@@ -4680,12 +4992,10 @@
                     console.warn('Could not update profile in database:', dbError);
                 }
                 
-                // Update in Firebase Auth
                 await currentUser.updateProfile({
                     displayName: name
                 });
                 
-                // Update local state
                 currentUser.displayName = name;
                 if (currentAdmin) {
                     currentAdmin.name = name;
@@ -4698,7 +5008,6 @@
             } catch (error) {
                 showError('Failed to update profile: ' + error.message);
             } finally {
-                // Reset button
                 btn.innerHTML = originalText;
                 btn.disabled = false;
             }
@@ -4719,7 +5028,6 @@
                 return;
             }
             
-            // Check password requirements
             let requirements = [];
             
             if (newPassword.length < 6) {
@@ -4740,39 +5048,29 @@
                 return;
             }
             
-            // Show loading
             const btn = changePasswordBtn;
             const originalText = btn.innerHTML;
             btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Changing...';
             btn.disabled = true;
             
             try {
-                // Re-authenticate user
                 const credential = firebase.auth.EmailAuthProvider.credential(
                     currentUser.email, 
                     currentPassword
                 );
                 
                 await currentUser.reauthenticateWithCredential(credential);
-                
-                // Change password
                 await currentUser.updatePassword(newPassword);
                 
                 showSuccess('Password changed successfully!');
                 
-                // Clear form
                 document.getElementById('currentPassword').value = '';
                 document.getElementById('settingsNewPassword').value = '';
                 document.getElementById('settingsConfirmPassword').value = '';
-                
-                // Hide password requirements
                 passwordRequirements.style.display = 'none';
-                
-                // Log activity
                 addActivityLog('Changed Password', 'Account security update');
                 
             } catch (error) {
-                // Handle specific Firebase errors
                 let errorMessage = 'Failed to change password. ';
                 
                 if (error.code === 'auth/wrong-password') {
@@ -4789,7 +5087,6 @@
                 
                 showError(errorMessage);
             } finally {
-                // Reset button
                 btn.innerHTML = originalText;
                 btn.disabled = false;
             }
@@ -4799,7 +5096,7 @@
         // UTILITY FUNCTIONS
         // ============================
         function loadSampleData() {
-            // Sample notices (for demo when Firebase is not connected)
+            // Sample notices
             notices = [
                 {
                     id: 'notice_1',
@@ -4811,72 +5108,50 @@
                     timestamp: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
                     status: 'sent',
                     sentBy: 'Admin'
-                },
-                {
-                    id: 'notice_2',
-                    title: 'Library Maintenance Notice',
-                    content: 'The main library will be closed for maintenance on 5th October 2023. Students can use the digital library during this period. All borrowed books must be returned by 4th October.',
-                    priority: 'medium',
-                    category: 'academic',
-                    recipients: { teachers: false, students: true },
-                    timestamp: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(),
-                    status: 'sent',
-                    sentBy: 'Admin'
-                },
-                {
-                    id: 'notice_3',
-                    title: 'Parent-Teacher Meeting Schedule',
-                    content: 'Meeting scheduled for all classes from 10th to 15th October 2023. Parents are requested to book their slots through the portal. Teachers should prepare progress reports.',
-                    priority: 'high',
-                    category: 'general',
-                    recipients: { teachers: true, students: true },
-                    timestamp: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(),
-                    status: 'sent',
-                    sentBy: 'Admin'
                 }
             ];
             
-            // Sample teachers (for demo when Firebase is not connected)
-            teachers = [
+            // Sample teachers
+            teachers = [];
+            
+            // Sample students from your data
+            students = [
                 {
-                    id: 'teacher_1',
-                    fullName: 'Mr. John Smith',
-                    subject: 'Mathematics',
-                    grade: 'Grade 10',
-                    phone: '+91 9876543210',
-                    email: 'john.smith@school.com',
-                    addedDate: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString(),
-                    addedBy: 'Admin',
+                    id: '3wFl9ap5GUR9bMPNGvE9CSweF282',
+                    fullName: 'Satish',
+                    rollNumber: '56',
+                    grade: '12',
+                    section: 'A',
+                    parentName: 'MR SURENDRA',
+                    phone: '5693269568',
+                    email: 'Satish123@gmail.com',
+                    dateOfBirth: '12/05/2008',
+                    profileImage: 'https://res.cloudinary.com/dmhyflswb/image/upload/v1766931511/teacher_app/profiles/oel1ulm8arimevpj7fh4.webp',
+                    registrationDate: '2025-12-28 19:48:31',
                     status: 'approved',
-                    approved: true
+                    studentId: '3wFl9ap5GUR9bMPNGvE9CSweF282',
+                    teacherId: '0r2D7HH8s9f5K2j7TZ9VIQdoODP2',
+                    updatedAt: '2025-12-28 20:07:39',
+                    emailVerified: false
                 },
                 {
-                    id: 'teacher_2',
-                    fullName: 'Ms. Sarah Johnson',
-                    subject: 'Science',
-                    grade: 'Grade 9 & 10',
-                    phone: '+91 9876543211',
-                    email: 'sarah.j@school.com',
-                    addedDate: new Date(Date.now() - 15 * 24 * 60 * 60 * 1000).toISOString(),
-                    addedBy: 'Admin',
-                    status: 'approved',
-                    approved: true
+                    id: '5q3X3tfdwCdkFxefV3TJrs5zW8M2',
+                    fullName: 'Student 2',
+                    status: 'approved'
                 },
                 {
-                    id: 'teacher_3',
-                    fullName: 'Mr. Robert Williams',
-                    subject: 'English Literature',
-                    grade: 'Grade 11 & 12',
-                    phone: '+91 9876543212',
-                    email: 'robert.w@school.com',
-                    addedDate: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000).toISOString(),
-                    addedBy: 'Admin',
-                    status: 'approved',
-                    approved: true
+                    id: '8MXRQF146FObqwdnFFAAFJYz8QG3',
+                    fullName: 'Student 3',
+                    status: 'approved'
+                },
+                {
+                    id: 'E4M8BT4L3PTtqFm55QtYHZVDJB03',
+                    fullName: 'Student 4',
+                    status: 'pending'
                 }
             ];
             
-            // Sample admins (for demo when Firebase is not connected)
+            // Sample admins
             admins = [
                 {
                     id: 'BJc2OteAUtXeO3ddrfsJP102iNy2',
@@ -4890,44 +5165,21 @@
                     createdByName: 'VIJAY',
                     lastLogin: '2026-01-12T16:43:25.792Z',
                     updatedAt: '2026-01-12T08:58:33.087Z'
-                },
-                {
-                    id: 'S7R43IBsAkegvAEA1Mr5WDlyDXt2',
-                    name: 'AMIT KUMAR',
-                    email: 'aviptasker@gmail.com',
-                    role: 'admin',
-                    status: 'active',
-                    profileImage: 'blob:https://run-html-chat.deepseeksvc.com/4a1d7e5a-6e84-4d72-aadf-5c00e3b36c1a',
-                    createdAt: '2026-01-12T09:10:20.466Z',
-                    lastLogin: '2026-01-13T02:05:15.118Z'
                 }
             ];
             
-            // Sample developer data (for demo when Firebase is not connected)
-            developerData = [
-                {
-                    id: 'dev_1',
-                    title: 'School App API Documentation',
-                    description: 'Complete API documentation for the school mobile application. Includes endpoints for notices, attendance, and homework.',
-                    link: 'https://api.schoolapp.com/docs',
-                    category: 'resource',
-                    priority: 'high',
-                    createdAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(),
-                    createdBy: 'admin',
-                    createdByName: 'Admin'
-                },
-                {
-                    id: 'dev_2',
-                    title: 'Firebase Setup Guide',
-                    description: 'Step-by-step guide to set up Firebase for the school admin panel. Includes authentication and database configuration.',
-                    link: 'https://firebase.google.com/docs',
-                    category: 'tutorial',
-                    priority: 'medium',
-                    createdAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(),
-                    createdBy: 'admin',
-                    createdByName: 'Admin'
+            // Sample developer data
+            developerData = [];
+            
+            // Load developer data from localStorage if available
+            try {
+                const savedItems = JSON.parse(localStorage.getItem('developer_data') || '[]');
+                if (savedItems.length > 0) {
+                    developerData = savedItems;
                 }
-            ];
+            } catch (error) {
+                console.log('No developer data in localStorage');
+            }
         }
 
         function validateEmail(email) {
@@ -4953,7 +5205,6 @@
             const now = new Date();
             const timeString = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
             
-            // Add to beginning of array
             activityLog.unshift({
                 time: timeString,
                 activity: activity,
@@ -4961,7 +5212,6 @@
                 status: 'Completed'
             });
             
-            // Update activity log table if on dashboard
             if (document.getElementById('dashboardSection').style.display === 'block') {
                 loadActivityLog();
             }
@@ -4972,7 +5222,6 @@
             successMessage.style.display = 'block';
             errorMessage.style.display = 'none';
             
-            // Auto-hide after 5 seconds
             setTimeout(() => {
                 successMessage.style.display = 'none';
             }, 5000);
@@ -4983,7 +5232,6 @@
             errorMessage.style.display = 'block';
             successMessage.style.display = 'none';
             
-            // Auto-hide after 5 seconds
             setTimeout(() => {
                 errorMessage.style.display = 'none';
             }, 5000);
