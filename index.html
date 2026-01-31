@@ -2627,7 +2627,7 @@
         }
 
         // ============================
-        // SIMPLIFIED PASSWORD RESET FLOW
+        // FIXED PASSWORD RESET FLOW
         // ============================
         async function sendPasswordResetOtp() {
             const email = document.getElementById('forgotEmail').value.trim().toLowerCase();
@@ -2648,16 +2648,40 @@
             btn.disabled = true;
             
             try {
+                // Check if email exists in Firebase Authentication OR in Database
+                let emailExists = false;
+                
+                // First, check Firebase Authentication
                 try {
                     const methods = await auth.fetchSignInMethodsForEmail(email);
-                    if (methods.length === 0) {
-                        showError('Email not registered. Please check your email address.');
-                        return;
+                    if (methods.length > 0) {
+                        emailExists = true;
+                    } else {
+                        // If not in Authentication, check Database for admins
+                        const snapshot = await database.ref('admins').orderByChild('email').equalTo(email).once('value');
+                        if (snapshot.exists()) {
+                            emailExists = true;
+                        }
                     }
                 } catch (error) {
-                    console.log("Could not verify email, continuing anyway:", error);
+                    console.log("Could not verify email in Authentication, checking Database:", error);
+                    // If Authentication check fails, try Database directly
+                    try {
+                        const snapshot = await database.ref('admins').orderByChild('email').equalTo(email).once('value');
+                        if (snapshot.exists()) {
+                            emailExists = true;
+                        }
+                    } catch (dbError) {
+                        console.warn("Could not check database:", dbError);
+                    }
                 }
                 
+                if (!emailExists) {
+                    showError('Email not registered. Please check your email address.');
+                    return;
+                }
+                
+                // Generate and send OTP
                 currentOtp = generateOtp();
                 otpType = 'password_reset';
                 pendingPasswordReset = { email };
@@ -2667,18 +2691,20 @@
                 if (emailSent) {
                     showSuccess('Password reset OTP sent to your email! Please check your inbox.');
                     
+                    // Show OTP input section
                     document.getElementById('resetOtpSection').style.display = 'block';
                     verifyOtpBtnForgot.style.display = 'block';
                     sendResetOtpBtn.style.display = 'none';
                     
+                    // Focus on first OTP input
                     document.querySelectorAll('.otp-input')[0].focus();
                 } else {
                     showError('Failed to send OTP. Please try again.');
                 }
                 
-            } catch (authError) {
-                console.error('Error:', authError);
-                showError('Error: ' + authError.message);
+            } catch (error) {
+                console.error('Error in sendPasswordResetOtp:', error);
+                showError('Error: ' + error.message);
             } finally {
                 btn.innerHTML = originalText;
                 btn.disabled = false;
@@ -2707,13 +2733,112 @@
             try {
                 showSuccess('OTP verified successfully! Now you can set your new password.');
                 
+                // Hide OTP section, show new password fields
                 document.getElementById('resetOtpSection').style.display = 'none';
                 verifyOtpBtnForgot.style.display = 'none';
                 newPasswordFields.style.display = 'block';
-                resetPasswordBtn.style.display = 'none';
+                resetPasswordBtn.style.display = 'none'; // Will be shown when passwords match
+                
+                // Focus on new password field
+                newPasswordInput.focus();
                 
             } catch (error) {
                 showError('OTP verification failed: ' + error.message);
+            } finally {
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            }
+        }
+
+        // Handle password reset after OTP verification
+        async function handlePasswordReset() {
+            const newPassword = document.getElementById('newPassword').value;
+            const confirmNewPassword = document.getElementById('confirmNewPassword').value;
+            
+            if (!newPassword || !confirmNewPassword) {
+                showError('Please enter new password and confirm it');
+                return;
+            }
+            
+            if (newPassword !== confirmNewPassword) {
+                showError('Passwords do not match');
+                return;
+            }
+            
+            // Check password requirements
+            let requirements = [];
+            if (newPassword.length < 6) requirements.push('at least 6 characters');
+            if (!/[a-z]/.test(newPassword)) requirements.push('one lowercase letter');
+            if (!/[A-Z]/.test(newPassword)) requirements.push('one uppercase letter');
+            if (!/[0-9]/.test(newPassword)) requirements.push('one number');
+            
+            if (requirements.length > 0) {
+                showError('Password must contain: ' + requirements.join(', '));
+                return;
+            }
+            
+            const btn = resetPasswordBtn;
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Changing Password...';
+            btn.disabled = true;
+            
+            try {
+                const email = pendingPasswordReset.email;
+                
+                // Try to send password reset email via Firebase
+                try {
+                    await auth.sendPasswordResetEmail(email);
+                    
+                    showSuccess('Password reset email sent! Check your inbox and follow the link to set a new password.');
+                    
+                    // Clear form
+                    document.getElementById('forgotEmail').value = '';
+                    newPasswordInput.value = '';
+                    confirmNewPasswordInput.value = '';
+                    document.getElementById('resetOtpSection').style.display = 'none';
+                    newPasswordFields.style.display = 'none';
+                    resetPasswordBtn.style.display = 'none';
+                    verifyOtpBtnForgot.style.display = 'none';
+                    document.getElementById('sendResetOtpBtn').style.display = 'block';
+                    clearOtpInputs();
+                    
+                    // Switch back to login tab after a delay
+                    setTimeout(() => {
+                        authTabs.forEach(t => t.classList.remove('active'));
+                        authTabs[0].classList.add('active');
+                        authTabContents.forEach(content => content.style.display = 'none');
+                        document.getElementById('loginTab').style.display = 'block';
+                        
+                        // Pre-fill email in login form
+                        document.getElementById('loginEmail').value = email;
+                        document.getElementById('loginPassword').value = '';
+                        
+                        showSuccess('Please check your email for password reset link. After resetting, use your new password to login.');
+                    }, 3000);
+                    
+                } catch (error) {
+                    console.error('Password reset error:', error);
+                    
+                    // Handle specific Firebase errors
+                    if (error.code === 'auth/user-not-found') {
+                        // User exists in Database but not in Authentication
+                        // This can happen for manually added admins
+                        showError('Account exists but needs manual password setup. Contact system administrator.');
+                    } else if (error.code === 'auth/too-many-requests') {
+                        showError('Too many attempts. Please try again later.');
+                    } else {
+                        showError('Password reset failed: ' + error.message);
+                    }
+                }
+                
+                // Clear reset state
+                pendingPasswordReset = null;
+                currentOtp = null;
+                otpType = null;
+                
+            } catch (error) {
+                console.error('Unexpected error in handlePasswordReset:', error);
+                showError('An unexpected error occurred: ' + error.message);
             } finally {
                 btn.innerHTML = originalText;
                 btn.disabled = false;
@@ -2801,93 +2926,6 @@
             } else {
                 numberReq.querySelector('i').className = 'fas fa-circle requirement-not-met';
                 numberReq.style.color = 'var(--danger)';
-            }
-        }
-
-        async function handlePasswordReset() {
-            const newPassword = document.getElementById('newPassword').value;
-            const confirmNewPassword = document.getElementById('confirmNewPassword').value;
-            
-            if (!newPassword || !confirmNewPassword) {
-                showError('Please enter new password and confirm it');
-                return;
-            }
-            
-            if (newPassword !== confirmNewPassword) {
-                showError('Passwords do not match');
-                return;
-            }
-            
-            let requirements = [];
-            if (newPassword.length < 6) requirements.push('at least 6 characters');
-            if (!/[a-z]/.test(newPassword)) requirements.push('one lowercase letter');
-            if (!/[A-Z]/.test(newPassword)) requirements.push('one uppercase letter');
-            if (!/[0-9]/.test(newPassword)) requirements.push('one number');
-            
-            if (requirements.length > 0) {
-                showError('Password must contain: ' + requirements.join(', '));
-                return;
-            }
-            
-            const btn = resetPasswordBtn;
-            const originalText = btn.innerHTML;
-            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Changing Password...';
-            btn.disabled = true;
-            
-            try {
-                const email = pendingPasswordReset.email;
-                
-                try {
-                    await auth.sendPasswordResetEmail(email);
-                    
-                    showSuccess('Password reset email sent! Check your inbox for reset instructions.');
-                    
-                    document.getElementById('forgotEmail').value = '';
-                    newPasswordInput.value = '';
-                    confirmNewPasswordInput.value = '';
-                    document.getElementById('resetOtpSection').style.display = 'none';
-                    newPasswordFields.style.display = 'none';
-                    resetPasswordBtn.style.display = 'none';
-                    verifyOtpBtnForgot.style.display = 'none';
-                    document.getElementById('sendResetOtpBtn').style.display = 'block';
-                    clearOtpInputs();
-                    
-                    showSuccess('Password reset email sent! Please check your inbox and follow the link to set a new password. After resetting, you can login with your new password.');
-                    
-                    pendingPasswordReset = null;
-                    currentOtp = null;
-                    otpType = null;
-                    
-                    setTimeout(() => {
-                        authTabs.forEach(t => t.classList.remove('active'));
-                        authTabs[0].classList.add('active');
-                        authTabContents.forEach(content => content.style.display = 'none');
-                        document.getElementById('loginTab').style.display = 'block';
-                        
-                        document.getElementById('loginEmail').value = email;
-                        document.getElementById('loginPassword').value = '';
-                        
-                        showSuccess('Please check your email for password reset link. After resetting, use your new password to login.');
-                    }, 3000);
-                    
-                } catch (error) {
-                    console.error('Password reset error:', error);
-                    
-                    if (error.code === 'auth/user-not-found') {
-                        showError('Email not registered. Please check your email address.');
-                    } else if (error.code === 'auth/too-many-requests') {
-                        showError('Too many attempts. Please try again later or reset password from Firebase console.');
-                    } else {
-                        showError('Password reset failed: ' + error.message);
-                    }
-                }
-                
-            } catch (error) {
-                console.error('Unexpected error:', error);
-                showError('An unexpected error occurred: ' + error.message);
-            } finally {
-                btn.innerHTML = originalText;
-                btn.disabled = false;
             }
         }
 
